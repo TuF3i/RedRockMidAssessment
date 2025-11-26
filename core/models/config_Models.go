@@ -1,9 +1,15 @@
 package models
 
 type Config struct {
-	Db       Db       `yaml:"db"`
-	HertzAPI HertzAPI `yaml:"hertzApi"`
+	Db        Db        `yaml:"db"`
+	HertzAPI  HertzAPI  `yaml:"hertzApi"`
+	SnowFlake SnowFlake `json:"snowflake"`
 }
+
+type SnowFlake struct {
+	MachineID int64 `yaml:"machineID"`
+}
+
 type Mysql struct {
 	Addr      string `yaml:"addr"`
 	DefaultDB string `yaml:"defaultDB"`

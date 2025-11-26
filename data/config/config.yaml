@@ -16,3 +16,5 @@ db:
     passwd: ""
     defaultDB: 0
 
+snowflake:
+  machineID: 1

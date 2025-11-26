@@ -2,6 +2,7 @@ package core
 
 import (
 	"RedRockMidAssessment/core/models"
+	"RedRockMidAssessment/core/utils/snowflake"
 
 	"github.com/go-redis/redis/v8"
 	"go.uber.org/zap"
@@ -14,4 +15,5 @@ var (
 
 	MysqlConn *gorm.DB
 	RedisConn *redis.Client
+	SnowFlake *snowflake.Snowflake
 )

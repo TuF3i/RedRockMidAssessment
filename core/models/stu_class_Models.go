@@ -1,8 +1,15 @@
 package models
 
-import "gorm.io/gorm"
+import (
+	"time"
+
+	"gorm.io/gorm"
+)
+
+//查数据库 + data字段返回
 
 type Relation struct {
+	// 关联表
 	gorm.Model
 	CouID string
 	StuID uint
@@ -13,7 +20,12 @@ func (Relation) TableName() string {
 }
 
 type Course struct {
-	gorm.Model
+	// 课程表
+	ID        uint           `gorm:"primarykey"`
+	CreatedAt time.Time      `json:"create_at"`
+	UpdatedAt time.Time      `json:"-"`
+	DeletedAt gorm.DeletedAt `json:"-" gorm:"index"`
+
 	ClassName        string `json:"class_name" gorm:"column:class_name; not null; type:varchar(90)"`
 	ClassID          string `json:"class_id" gorm:"index; unique; not null; type:varchar(60); column:class_id"`
 	ClassLocation    string `json:"class_location" gorm:"column:class_location; not null; type:varchar(90)"`
@@ -30,7 +42,12 @@ func (Course) TableName() string {
 }
 
 type Student struct {
-	gorm.Model
+	// 学生表
+	ID        uint           `gorm:"primarykey"`
+	CreatedAt time.Time      `json:"create_at"`
+	UpdatedAt time.Time      `json:"-"`
+	DeletedAt gorm.DeletedAt `json:"-" gorm:"index"`
+
 	Name         string `json:"name" gorm:"column:name; not null; type:varchar(90)"`
 	StudentID    uint   `json:"stu_id" gorm:"column:student_id; index; unique; not null; type:bigint"`
 	StudentClass string `json:"stu_class" gorm:"column:student_class; not null; type:varchar(40)"`
@@ -44,4 +61,14 @@ type Student struct {
 
 func (Student) TableName() string {
 	return "student"
+}
+
+// 更新学生信息column表
+type UpdateData struct {
+	UpdateColumns []UpdateColumnsEntity `json:"update_columns"`
+}
+
+type UpdateColumnsEntity struct {
+	Field string      `json:"field"`
+	Value interface{} `json:"value"`
 }
