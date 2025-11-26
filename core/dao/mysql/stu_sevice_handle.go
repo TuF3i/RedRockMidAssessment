@@ -5,7 +5,6 @@ import (
 	"RedRockMidAssessment/core/models"
 	"RedRockMidAssessment/core/utils/response"
 	"context"
-	"errors"
 
 	"go.uber.org/zap"
 )
@@ -35,15 +34,6 @@ func CheckIfStudentExist(ctx context.Context, studentID uint) (bool, response.Re
 
 func InsertStudentIntoDB(ctx context.Context, userForm models.Student) response.Response {
 	// 插入学生
-	ifExist, rsp := CheckIfStudentExist(ctx, userForm.StudentID) // 获取学生
-	if !errors.Is(rsp, response.OperationSuccess) {              // 出现错误直接上抛
-		return rsp
-	}
-
-	if ifExist { // 检测学生是否存在
-		return response.StudentIDAlreadyExist
-	}
-
 	tx := core.MysqlConn.Begin() // 开启数据库事务
 	if err := tx.Create(&userForm).Error; err != nil {
 		tx.Rollback() // 错误回滚
@@ -61,15 +51,6 @@ func InsertStudentIntoDB(ctx context.Context, userForm models.Student) response.
 func GetStudentInfo(ctx context.Context, userID uint) (models.Student, response.Response) {
 	var studentData models.Student
 
-	ifExist, rsp := CheckIfStudentExist(ctx, userID)
-	if !errors.Is(rsp, response.OperationSuccess) { // 出现错误直接上抛
-		return studentData, rsp
-	}
-
-	if ifExist {
-		return studentData, response.StudentIDAlreadyExist
-	}
-
 	tx := core.MysqlConn.Begin()
 	if err := tx.Where("stu_id = ?", userID).First(&studentData).Error; err != nil {
 		tx.Rollback()
@@ -78,7 +59,7 @@ func GetStudentInfo(ctx context.Context, userID uint) (models.Student, response.
 			zap.String("snowflake", ctx.Value("trace_id").(string)),
 			zap.String("detail", err.Error()),
 		)
-		return studentData, response.ServerInternalError(err)
+		return models.Student{}, response.ServerInternalError(err)
 	}
 
 	tx.Commit()
@@ -86,15 +67,6 @@ func GetStudentInfo(ctx context.Context, userID uint) (models.Student, response.
 }
 
 func UpdateStudentInfo(ctx context.Context, userID uint, field []string, dataList map[string]interface{}) response.Response {
-	ifExist, rsp := CheckIfStudentExist(ctx, userID)
-	if !errors.Is(rsp, response.OperationSuccess) { // 出现错误直接上抛
-		return rsp
-	}
-
-	if !ifExist {
-		return response.UserNotExiOrWrongStuID
-	}
-
 	tx := core.MysqlConn.Begin()
 	if err := tx.Model(&models.Student{}).Where("stu_id = ?", userID).Select(field).Updates(dataList).Error; err != nil {
 		tx.Rollback()
@@ -107,4 +79,31 @@ func UpdateStudentInfo(ctx context.Context, userID uint, field []string, dataLis
 	}
 	tx.Commit()
 	return response.OperationSuccess
+}
+
+func GetStudentList(ctx context.Context, resNum int, offset int, page int) (models.Students, response.Response) {
+	var data models.Students
+	tx := core.MysqlConn.Begin()
+	if err := tx.Model(&models.Student{}).Count(&data.Total).Error; err != nil {
+		tx.Rollback()
+		core.Logger.Error(
+			"Get Student List Error",
+			zap.String("snowflake", ctx.Value("trace_id").(string)),
+			zap.String("detail", err.Error()),
+		)
+		return models.Students{}, response.ServerInternalError(err)
+	}
+	if err := tx.Limit(resNum).Offset(offset).Find(&data.StudentsList).Error; err != nil {
+		tx.Rollback()
+		core.Logger.Error(
+			"Get Student List Error",
+			zap.String("snowflake", ctx.Value("trace_id").(string)),
+			zap.String("detail", err.Error()),
+		)
+		return models.Students{}, response.ServerInternalError(err)
+	}
+	data.Page = page
+	data.PageSize = resNum
+
+	return data, response.OperationSuccess
 }

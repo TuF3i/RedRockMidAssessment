@@ -72,3 +72,17 @@ type UpdateColumnsEntity struct {
 	Field string      `json:"field"`
 	Value interface{} `json:"value"`
 }
+
+type Students struct {
+	Total        int64                `json:"total"`
+	Page         int                  `json:"page"`
+	PageSize     int                  `json:"page_size"`
+	StudentsList []StudentsListEntity `json:"students_list"`
+}
+
+type StudentsListEntity struct {
+	StuId    uint   `json:"stu_id"`
+	StuName  string `json:"stu_name"`
+	StuClass string `json:"stu_class"`
+	Grade    string `json:"grade"`
+}

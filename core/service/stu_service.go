@@ -6,6 +6,7 @@ import (
 	"RedRockMidAssessment/core/utils/response"
 	"RedRockMidAssessment/core/utils/verify"
 	"context"
+	"errors"
 )
 
 func AddStudent(ctx context.Context, userForm models.Student) response.Response {
@@ -44,6 +45,16 @@ func AddStudent(ctx context.Context, userForm models.Student) response.Response 
 		return response.InvalidAge
 	}
 
+	/* 检查学生是否存在 */
+	ifExist, rsp := dao.CheckIfStudentExist(ctx, userForm.StudentID) // 获取学生
+	if !errors.Is(rsp, response.OperationSuccess) {                  // 出现错误直接上抛
+		return rsp
+	}
+
+	if ifExist { // 检测学生是否存在
+		return response.StudentIDAlreadyExist
+	}
+
 	/* MySQL写库 */
 	return dao.InsertStudentIntoDB(ctx, userForm) // 直接上抛来自dao层的结果
 }
@@ -53,6 +64,15 @@ func GetStuInfo(ctx context.Context, userID uint) (models.Student, response.Resp
 	// 检查用户ID是否可用
 	if !verify.VerifyUserID(userID) {
 		return models.Student{}, response.InvalidStudentID
+	}
+	/* 判断学生是否存在 */
+	ifExist, rsp := dao.CheckIfStudentExist(ctx, userID)
+	if !errors.Is(rsp, response.OperationSuccess) { // 出现错误直接上抛
+		return models.Student{}, rsp
+	}
+
+	if !ifExist {
+		return models.Student{}, response.UserNotExiOrWrongStuID
 	}
 
 	/* 查MySQL */
@@ -66,49 +86,49 @@ func UpdateStuInfo(ctx context.Context, userID uint, data models.UpdateData) res
 		column := item.Field
 		value := item.Value
 		switch column {
-		case "password":
+		case "password": // 校验密码规范
 			v := value.(string)
 			if !verify.VerifyPassword(v) {
 				return response.InvalidPassword
 			}
 			field = append(field, column)
 			dataList[column] = value
-		case "stu_id":
+		case "stu_id": // 校验学生ID规范
 			v := value.(uint)
 			if !verify.VerifyUserID(v) {
 				return response.InvalidStudentID
 			}
 			field = append(field, column)
 			dataList[column] = value
-		case "name":
+		case "name": // 校验名字规范
 			v := value.(string)
 			if !verify.VerifyUserName(v) {
 				return response.InvalidUserName
 			}
 			field = append(field, column)
 			dataList[column] = value
-		case "stu_class":
+		case "stu_class": // 校验班级字符串规范
 			v := value.(string)
 			if !verify.VerifyStudentClass(v) {
 				return response.InvalidClass
 			}
 			field = append(field, column)
 			dataList[column] = value
-		case "sex":
+		case "sex": // 校验性别设置规范
 			v := value.(uint)
 			if !verify.VerifySexSetting(v) {
 				return response.InvalidSexSetting
 			}
 			field = append(field, column)
 			dataList[column] = value
-		case "grade":
+		case "grade": // 校验年级设置规范
 			v := value.(uint)
 			if !verify.VerifyGrade(v) {
 				return response.InvalidGrade
 			}
 			field = append(field, column)
 			dataList[column] = value
-		case "age":
+		case "age": // 校验年龄设置规范
 			v := value.(uint)
 			if !verify.VerifyAge(v) {
 				return response.InvalidAge
@@ -118,9 +138,21 @@ func UpdateStuInfo(ctx context.Context, userID uint, data models.UpdateData) res
 		}
 	} // for
 
+	/* 空数据直接返回 */
 	if len(field) == 0 {
 		return response.EmptyData
 	}
 
+	/* 检查学生是否存在 */
+	ifExist, rsp := dao.CheckIfStudentExist(ctx, userID)
+	if !errors.Is(rsp, response.OperationSuccess) { // 出现错误直接上抛
+		return rsp
+	}
+
+	if !ifExist {
+		return response.UserNotExiOrWrongStuID
+	}
+
+	/* 写MySQL */
 	return dao.UpdateStudentInfo(ctx, userID, field, dataList)
 }
