@@ -84,6 +84,7 @@ func UpdateStudentInfo(ctx context.Context, userID uint, field []string, dataLis
 func GetStudentList(ctx context.Context, resNum int, offset int, page int) (models.Students, response.Response) {
 	var data models.Students
 	tx := core.MysqlConn.Begin()
+	defer tx.Commit()
 	if err := tx.Model(&models.Student{}).Count(&data.Total).Error; err != nil {
 		tx.Rollback()
 		core.Logger.Error(
@@ -106,4 +107,19 @@ func GetStudentList(ctx context.Context, resNum int, offset int, page int) (mode
 	data.PageSize = resNum
 
 	return data, response.OperationSuccess
+}
+
+func DeleteStudent(ctx context.Context, userID uint) response.Response {
+	tx := core.MysqlConn.Begin()
+	if err := tx.Where("stu_id = ?", userID).Delete(&models.Student{}).Error; err != nil {
+		tx.Rollback()
+		core.Logger.Error(
+			"Delete Student Error",
+			zap.String("snowflake", ctx.Value("trace_id").(string)),
+			zap.String("detail", err.Error()),
+		)
+		return response.ServerInternalError(err)
+	}
+	tx.Commit()
+	return response.OperationSuccess
 }

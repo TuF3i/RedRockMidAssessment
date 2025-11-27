@@ -65,6 +65,7 @@ func (Student) TableName() string {
 
 // 更新学生信息column表
 type UpdateData struct {
+	StudentID     uint                  `json:"stu_id"`
 	UpdateColumns []UpdateColumnsEntity `json:"update_columns"`
 }
 
@@ -85,4 +86,8 @@ type StudentsListEntity struct {
 	StuName  string `json:"stu_name"`
 	StuClass string `json:"stu_class"`
 	Grade    string `json:"grade"`
+}
+
+type DelStudentForm struct {
+	StuID uint `json:"stu_id"`
 }
