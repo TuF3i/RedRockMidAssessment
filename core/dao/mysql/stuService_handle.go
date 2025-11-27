@@ -48,7 +48,7 @@ func InsertStudentIntoDB(ctx context.Context, userForm models.Student) response.
 	return response.OperationSuccess
 }
 
-func GetStudentInfo(ctx context.Context, userID uint) (models.Student, response.Response) {
+func GetStudentInfo(ctx context.Context, userID uint) (interface{}, response.Response) {
 	var studentData models.Student
 
 	tx := core.MysqlConn.Begin()
@@ -59,7 +59,7 @@ func GetStudentInfo(ctx context.Context, userID uint) (models.Student, response.
 			zap.String("snowflake", ctx.Value("trace_id").(string)),
 			zap.String("detail", err.Error()),
 		)
-		return models.Student{}, response.ServerInternalError(err)
+		return nil, response.ServerInternalError(err)
 	}
 
 	tx.Commit()
@@ -81,32 +81,31 @@ func UpdateStudentInfo(ctx context.Context, userID uint, field []string, dataLis
 	return response.OperationSuccess
 }
 
-func GetStudentList(ctx context.Context, resNum int, offset int, page int) (models.Students, response.Response) {
-	var data models.Students
+func GetStudentList(ctx context.Context, resNum int, offset int, page int) (interface{}, int64, response.Response) {
+	var data []models.StudentsListEntity
+	var total int64
 	tx := core.MysqlConn.Begin()
 	defer tx.Commit()
-	if err := tx.Model(&models.Student{}).Count(&data.Total).Error; err != nil {
+	if err := tx.Model(&models.Student{}).Count(&total).Error; err != nil {
 		tx.Rollback()
 		core.Logger.Error(
 			"Get Student List Error",
 			zap.String("snowflake", ctx.Value("trace_id").(string)),
 			zap.String("detail", err.Error()),
 		)
-		return models.Students{}, response.ServerInternalError(err)
+		return nil, total, response.ServerInternalError(err)
 	}
-	if err := tx.Limit(resNum).Offset(offset).Find(&data.StudentsList).Error; err != nil {
+	if err := tx.Limit(resNum).Offset(offset).Find(&data).Error; err != nil {
 		tx.Rollback()
 		core.Logger.Error(
 			"Get Student List Error",
 			zap.String("snowflake", ctx.Value("trace_id").(string)),
 			zap.String("detail", err.Error()),
 		)
-		return models.Students{}, response.ServerInternalError(err)
+		return nil, total, response.ServerInternalError(err)
 	}
-	data.Page = page
-	data.PageSize = resNum
 
-	return data, response.OperationSuccess
+	return data, total, response.OperationSuccess
 }
 
 func DeleteStudent(ctx context.Context, userID uint) response.Response {

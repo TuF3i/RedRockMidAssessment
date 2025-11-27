@@ -48,6 +48,7 @@ type Student struct {
 	UpdatedAt time.Time      `json:"-"`
 	DeletedAt gorm.DeletedAt `json:"-" gorm:"index"`
 
+	Role         bool   `json:"role" gorm:"column:role; not null; type:tinyint"` // 0为admin, 1为学生
 	Name         string `json:"name" gorm:"column:name; not null; type:varchar(90)"`
 	StudentID    uint   `json:"stu_id" gorm:"column:student_id; index; unique; not null; type:bigint"`
 	StudentClass string `json:"stu_class" gorm:"column:student_class; not null; type:varchar(40)"`
@@ -90,4 +91,14 @@ type StudentsListEntity struct {
 
 type DelStudentForm struct {
 	StuID uint `json:"stu_id"`
+}
+
+type LoginForm struct {
+	StuID    uint   `json:"stu_id"`
+	Password string `json:"password"`
+}
+
+type LoginRsp struct {
+	AccessToken  string `json:"access_token"`
+	RefreshToken string `json:"refresh_token"`
 }

@@ -10,10 +10,10 @@ import (
 )
 
 var (
-	Logger *zap.Logger
-	Config *models.Config
+	Logger *zap.Logger    // 日志组件
+	Config *models.Config // 配置结构体
 
-	MysqlConn *gorm.DB
-	RedisConn *redis.Client
-	SnowFlake *snowflake.Snowflake
+	MysqlConn *gorm.DB             // MySQL连接
+	RedisConn *redis.Client        // Redis连接
+	SnowFlake *snowflake.Snowflake // 雪花ID生成器
 )
