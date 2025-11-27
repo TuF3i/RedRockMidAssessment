@@ -1,0 +1,20 @@
+hertzApi:
+  listenAddr: "localhost"
+  listenPort: 8080
+
+db:
+  mysql:
+    addr: "localhost"
+    port: 3306
+    user: "root"
+    passwd: ""
+    defaultDB: "stuClass"
+
+  redis:
+    addr: "localhost"
+    port: 6379
+    passwd: ""
+    defaultDB: 0
+
+snowflake:
+  machineID: 1
