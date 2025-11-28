@@ -2,7 +2,8 @@ package service
 
 import (
 	"RedRockMidAssessment/core"
-	dao "RedRockMidAssessment/core/dao/mysql"
+	"RedRockMidAssessment/core/dao/mysql"
+	"RedRockMidAssessment/core/dao/redis"
 	"RedRockMidAssessment/core/models"
 	"RedRockMidAssessment/core/utils/jwt"
 	"RedRockMidAssessment/core/utils/md5"
@@ -30,8 +31,8 @@ func Login(ctx context.Context, userForm models.LoginForm) (interface{}, respons
 	}
 
 	/* 检查学生是否存在 */
-	ifExist, rsp := dao.CheckIfStudentExist(ctx, userForm.StuID) // 获取学生
-	if !errors.Is(rsp, response.OperationSuccess) {              // 出现错误直接上抛
+	ifExist, rsp := mysql.CheckIfStudentExist(ctx, userForm.StuID) // 获取学生
+	if !errors.Is(rsp, response.OperationSuccess) {                // 出现错误直接上抛
 		return nil, rsp
 	}
 
@@ -40,8 +41,8 @@ func Login(ctx context.Context, userForm models.LoginForm) (interface{}, respons
 	}
 
 	/* MySQL读库 */
-	data, rsp := dao.GetStudentInfo(ctx, userID)
-	if data == nil {
+	data, rsp := mysql.GetStudentInfo(ctx, userID)
+	if !errors.Is(rsp, response.OperationSuccess) {
 		return nil, rsp
 	}
 
@@ -59,11 +60,11 @@ func Login(ctx context.Context, userForm models.LoginForm) (interface{}, respons
 		} else {
 			return "student"
 		}
-	}()
+	}() //日常发疯才这样写
 
 	/* 生成令牌 */
 	ID := strconv.FormatUint(uint64(userID), 10)
-	accessToken, refreshToken, err := jwt.GenTokens(ID, role)
+	accessToken, refreshToken, uuidAccessToken, uuidRefreshToken, err := jwt.GenTokens(ID, role)
 	if err != nil {
 		core.Logger.Error(
 			"Generate Token Error",
@@ -73,11 +74,29 @@ func Login(ctx context.Context, userForm models.LoginForm) (interface{}, respons
 		return nil, response.ServerInternalError(err)
 	}
 
+	/* 写入Redis缓存 */
+	if rsp := redis.AddTokenToRedis(ctx, ID, 0, uuidAccessToken, jwt.AccessTTL); !errors.Is(rsp, response.OperationSuccess) { // 写入AccessToken
+		return nil, rsp
+	}
+	if rsp := redis.AddTokenToRedis(ctx, ID, 1, uuidRefreshToken, jwt.RefreshTTL); !errors.Is(rsp, response.OperationSuccess) { // 写入RefreshToken
+		return nil, rsp
+	}
+
 	return models.LoginRsp{ // 构造data
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
-	}, rsp
+	}, response.OperationSuccess
 
+}
+
+func Logout(ctx context.Context, userID string) response.Response {
+	if rsp := redis.DelTokenFromRedis(ctx, userID, 0); !errors.Is(rsp, response.OperationSuccess) { // 清除AccessToken
+		return rsp
+	}
+	if rsp := redis.DelTokenFromRedis(ctx, userID, 1); !errors.Is(rsp, response.OperationSuccess) { // 清除RefreshToken
+		return rsp
+	}
+	return response.OperationSuccess
 }
 
 func AddStudent(ctx context.Context, userForm models.Student) response.Response {
@@ -117,8 +136,8 @@ func AddStudent(ctx context.Context, userForm models.Student) response.Response 
 	}
 
 	/* 检查学生是否存在 */
-	ifExist, rsp := dao.CheckIfStudentExist(ctx, userForm.StudentID) // 获取学生
-	if !errors.Is(rsp, response.OperationSuccess) {                  // 出现错误直接上抛
+	ifExist, rsp := mysql.CheckIfStudentExist(ctx, userForm.StudentID) // 获取学生
+	if !errors.Is(rsp, response.OperationSuccess) {                    // 出现错误直接上抛
 		return rsp
 	}
 
@@ -127,13 +146,13 @@ func AddStudent(ctx context.Context, userForm models.Student) response.Response 
 	}
 
 	/* MySQL写库 */
-	rsp = dao.InsertStudentIntoDB(ctx, userForm)
+	rsp = mysql.InsertStudentIntoDB(ctx, userForm)
 	return rsp // 直接上抛来自dao层的结果
 }
 
 func RefreshTokens(ctx context.Context, userID string, role string) (interface{}, response.Response) {
 	/* 生成新Token */
-	accessToken, refreshToken, err := jwt.GenTokens(userID, role)
+	accessToken, refreshToken, uuidAccessToken, uuidRefreshToken, err := jwt.GenTokens(userID, role)
 	if err != nil {
 		core.Logger.Error(
 			"Generate Token Error",
@@ -143,7 +162,23 @@ func RefreshTokens(ctx context.Context, userID string, role string) (interface{}
 		return nil, response.ServerInternalError(err)
 	}
 
-	return models.LoginRsp{
+	///* 从Redis中删除AccessToken和RefreshToken */
+	//if rsp := redis.DelTokenFromRedis(ctx, userID, 0); !errors.Is(rsp, response.OperationSuccess) { // 删除AccessToken
+	//	return nil, rsp
+	//}
+	//if rsp := redis.DelTokenFromRedis(ctx, userID, 1); !errors.Is(rsp, response.OperationSuccess) { // 删除RefreshToken
+	//	return nil, rsp
+	//}
+
+	/* 向Redis中写入新AccessToken和RefreshToken */
+	if rsp := redis.AddTokenToRedis(ctx, userID, 0, uuidAccessToken, jwt.AccessTTL); !errors.Is(rsp, response.OperationSuccess) { // 写入AccessToken
+		return nil, rsp
+	}
+	if rsp := redis.AddTokenToRedis(ctx, userID, 1, uuidRefreshToken, jwt.RefreshTTL); !errors.Is(rsp, response.OperationSuccess) { // 写入RefreshToken
+		return nil, rsp
+	}
+
+	return models.LoginRsp{ // 组装data
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
 	}, response.OperationSuccess
@@ -156,7 +191,7 @@ func GetStuInfo(ctx context.Context, userID uint) (interface{}, response.Respons
 		return nil, response.InvalidStudentID
 	}
 	/* 判断学生是否存在 */
-	ifExist, rsp := dao.CheckIfStudentExist(ctx, userID)
+	ifExist, rsp := mysql.CheckIfStudentExist(ctx, userID)
 	if !errors.Is(rsp, response.OperationSuccess) { // 出现错误直接上抛
 		return nil, rsp
 	}
@@ -166,7 +201,7 @@ func GetStuInfo(ctx context.Context, userID uint) (interface{}, response.Respons
 	}
 
 	/* 查MySQL */
-	data, rsp := dao.GetStudentInfo(ctx, userID)
+	data, rsp := mysql.GetStudentInfo(ctx, userID)
 	return data, rsp
 }
 
@@ -243,7 +278,7 @@ func UpdateStuInfo(ctx context.Context, userID uint, data []models.UpdateColumns
 	}
 
 	/* 检查学生是否存在 */
-	ifExist, rsp := dao.CheckIfStudentExist(ctx, userID)
+	ifExist, rsp := mysql.CheckIfStudentExist(ctx, userID)
 	if !errors.Is(rsp, response.OperationSuccess) { // 出现错误直接上抛
 		return rsp
 	}
@@ -253,7 +288,7 @@ func UpdateStuInfo(ctx context.Context, userID uint, data []models.UpdateColumns
 	}
 
 	/* 写MySQL */
-	rsp = dao.UpdateStudentInfo(ctx, userID, field, dataList)
+	rsp = mysql.UpdateStudentInfo(ctx, userID, field, dataList)
 	return rsp
 }
 
@@ -271,7 +306,11 @@ func GetStudentsList(ctx context.Context, page int, resNum int) (interface{}, re
 	offset := (page - 1) * resNum
 
 	/* 查MySQL */
-	data, total, rsp := dao.GetStudentList(ctx, resNum, offset, page)
+	data, total, rsp := mysql.GetStudentList(ctx, resNum, offset, page)
+
+	if !errors.Is(rsp, response.OperationSuccess) {
+		return nil, rsp
+	}
 
 	return models.Students{ // 组装data
 		Total:        total,
@@ -283,7 +322,7 @@ func GetStudentsList(ctx context.Context, page int, resNum int) (interface{}, re
 
 func DeleteStudent(ctx context.Context, userID uint) response.Response {
 	/* 检查学生是否存在 */
-	ifExist, rsp := dao.CheckIfStudentExist(ctx, userID)
+	ifExist, rsp := mysql.CheckIfStudentExist(ctx, userID)
 	if !errors.Is(rsp, response.OperationSuccess) { // 出现错误直接上抛
 		return rsp
 	}
@@ -293,6 +332,6 @@ func DeleteStudent(ctx context.Context, userID uint) response.Response {
 	}
 
 	/* 删数据库记录 */
-	rsp = dao.DeleteStudent(ctx, userID)
+	rsp = mysql.DeleteStudent(ctx, userID)
 	return rsp
 }

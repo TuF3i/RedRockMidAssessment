@@ -1,4 +1,4 @@
-package dao
+package redis
 
 import (
 	"RedRockMidAssessment/core"

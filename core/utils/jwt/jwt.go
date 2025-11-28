@@ -6,28 +6,32 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 )
 
 var (
 	accessSecret  = []byte("Welcome_To_Red_Rock")
 	refreshSecret = []byte("I_Want_To_Join_Red_Rock")
-	accessTTL     = 15 * time.Minute   // 访问令牌有效期
-	refreshTTL    = 7 * 24 * time.Hour // 刷新令牌有效期
+	AccessTTL     = 15 * time.Minute   // 访问令牌有效期
+	RefreshTTL    = 7 * 24 * time.Hour // 刷新令牌有效期
 
 	issuer = "StuClassMS.ApiNode"
 )
 
 type CustomClaims struct {
+	UUID   string `json:"uuid"`
 	UserID string `json:"uid"`
 	Role   string `json:"role"` // "admin" or "student"
 	Type   string `json:"type"` // "access" or "refresh"
 	jwt.RegisteredClaims
 }
 
-func GenTokens(userID string, role string) (accessToken string, refreshToken string, err error) {
+func GenTokens(userID string, role string) (accessToken string, refreshToken string, uuidAccessToken string, uuidRefreshToken string, err error) {
 	t := time.Now() //统一时间
 	// AccessToken
+	uuidAccessToken = uuid.New().String() // Token唯一识别码
 	accessClaims := CustomClaims{
+		UUID:   uuidAccessToken,
 		UserID: userID,
 		Role:   role,
 		Type:   "access",
@@ -35,7 +39,7 @@ func GenTokens(userID string, role string) (accessToken string, refreshToken str
 			Issuer:    issuer,
 			Subject:   userID,
 			Audience:  []string{"student", "admin"},
-			ExpiresAt: jwt.NewNumericDate(t.Add(accessTTL)),
+			ExpiresAt: jwt.NewNumericDate(t.Add(AccessTTL)),
 			NotBefore: jwt.NewNumericDate(t.Add(-5 * time.Second)), //此令牌在time.Now()之前一律无效
 			IssuedAt:  jwt.NewNumericDate(t),                       // 签发时间
 		},
@@ -43,11 +47,13 @@ func GenTokens(userID string, role string) (accessToken string, refreshToken str
 	//生成令牌
 	accessToken, err = jwt.NewWithClaims(jwt.SigningMethodHS256, accessClaims).SignedString(accessSecret) //签名密钥
 	if err != nil {
-		return "", "", fmt.Errorf("gen accessToken: %v", err.Error())
+		return "", "", "", "", fmt.Errorf("gen accessToken: %v", err.Error())
 	}
 
 	// RefreshToken
+	uuidRefreshToken = uuid.New().String() // Token唯一识别码
 	refreshClaims := CustomClaims{
+		UUID:   uuidRefreshToken,
 		UserID: userID,
 		Role:   role,
 		Type:   "refresh",
@@ -55,7 +61,7 @@ func GenTokens(userID string, role string) (accessToken string, refreshToken str
 			Issuer:    issuer,
 			Subject:   userID,
 			Audience:  []string{"student", "admin"},
-			ExpiresAt: jwt.NewNumericDate(t.Add(refreshTTL)),
+			ExpiresAt: jwt.NewNumericDate(t.Add(RefreshTTL)),
 			NotBefore: jwt.NewNumericDate(t.Add(-5 * time.Second)), //此令牌在time.Now()之前一律无效
 			IssuedAt:  jwt.NewNumericDate(t),                       // 签发时间
 		},
@@ -63,10 +69,10 @@ func GenTokens(userID string, role string) (accessToken string, refreshToken str
 	//生成令牌
 	accessToken, err = jwt.NewWithClaims(jwt.SigningMethodHS256, refreshClaims).SignedString(refreshSecret) //签名密钥
 	if err != nil {
-		return "", "", fmt.Errorf("gen refershToken: %v", err.Error())
+		return "", "", "", "", fmt.Errorf("gen refershToken: %v", err.Error())
 	}
 
-	return accessToken, refreshToken, nil
+	return accessToken, refreshToken, uuidAccessToken, uuidRefreshToken, nil
 }
 
 func VerifyAccessToken(raw string) (*CustomClaims, error) {

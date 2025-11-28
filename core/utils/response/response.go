@@ -16,8 +16,8 @@ var (
 	WrongPassword          = Response{Status: 10001, Info: "wrong password"}                     // 密码错误
 	PermissionDenied       = Response{Status: 10000, Info: "permission denied"}                  // 权限不足
 
-	EmptyToken   = Response{Status: 10016, Info: "empty token"} // 空Token
-	InvalidToken = Response{Status: 10016, Info: "empty token"} // 空Token
+	EmptyToken   = Response{Status: 10016, Info: "empty token"}   // 空Token
+	InvalidToken = Response{Status: 10016, Info: "invalid token"} // 无效Token
 
 	//注册错误
 	UserAlreadyExist      = Response{Status: 10003, Info: "user already exist"}       // 用户已存在

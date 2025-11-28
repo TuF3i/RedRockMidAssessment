@@ -30,6 +30,21 @@ func RefreshTokensHandleFunc() app.HandlerFunc {
 	}
 }
 
+func LogoutHandleFunc() app.HandlerFunc {
+	return func(ctx context.Context, c *app.RequestContext) {
+		//生成TraceID
+		traceID := core.SnowFlake.TraceID()
+		ctx = context.WithValue(ctx, "trace_id", traceID)
+		// 解析JWT
+		rawClaims, _ := c.Get("jwt_claims")
+		claims := rawClaims.(jwt.CustomClaims)
+		//调用调用stu_service
+		rsp := service.Logout(ctx, claims.UserID)
+		c.JSON(consts.StatusOK, response.GenFinalResponse(rsp, nil))
+		return
+	}
+}
+
 func LoginHandleFunc() app.HandlerFunc {
 	return func(ctx context.Context, c *app.RequestContext) {
 		var userForm models.LoginForm
@@ -65,8 +80,6 @@ func RegisterHandleFunc() app.HandlerFunc {
 		return
 	}
 }
-
-// TODO LoginHandleFunc
 
 func GetStudentInfoForStuHandleFunc() app.HandlerFunc {
 	// Permission: Student
