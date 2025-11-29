@@ -5,7 +5,6 @@ import (
 	"RedRockMidAssessment/core/utils/response"
 	"context"
 	"errors"
-	"fmt"
 	"time"
 
 	"go.uber.org/zap"
@@ -15,9 +14,9 @@ func AddTokenToRedis(ctx context.Context, userID string, tokenType uint, uuid st
 	// tokenType: 0为AccessToken, 1为RefreshToken
 	var key string
 	if tokenType == 0 {
-		key = fmt.Sprintf("auth:accessToken:%v", userID)
+		key = accessTokenKey(userID)
 	} else if tokenType == 1 {
-		key = fmt.Sprintf("auth:refreshToken:%v", userID)
+		key = refreshTokenKey(userID)
 	} else {
 		err := errors.New("undefined token type")
 		core.Logger.Error(
@@ -45,9 +44,9 @@ func DelTokenFromRedis(ctx context.Context, userID string, tokenType uint) respo
 	// tokenType: 0为AccessToken, 1为RefreshToken
 	var key string
 	if tokenType == 0 {
-		key = fmt.Sprintf("auth:accessToken:%v", userID)
+		key = accessTokenKey(userID)
 	} else if tokenType == 1 {
-		key = fmt.Sprintf("auth:refreshToken:%v", userID)
+		key = refreshTokenKey(userID)
 	} else {
 		err := errors.New("undefined token type")
 		core.Logger.Error(
@@ -74,9 +73,9 @@ func IfTokenExist(ctx context.Context, userID string, tokenType uint) (bool, res
 	// tokenType: 0为AccessToken, 1为RefreshToken
 	var key string
 	if tokenType == 0 {
-		key = fmt.Sprintf("auth:accessToken:%v", userID)
+		key = accessTokenKey(userID)
 	} else if tokenType == 1 {
-		key = fmt.Sprintf("auth:refreshToken:%v", userID)
+		key = refreshTokenKey(userID)
 	} else {
 		err := errors.New("undefined token type")
 		core.Logger.Error(
@@ -108,9 +107,9 @@ func GetUUIDOfToken(ctx context.Context, userID string, tokenType uint) (interfa
 	// tokenType: 0为AccessToken, 1为RefreshToken
 	var key string
 	if tokenType == 0 {
-		key = fmt.Sprintf("auth:accessToken:%v", userID)
+		key = accessTokenKey(userID)
 	} else if tokenType == 1 {
-		key = fmt.Sprintf("auth:refreshToken:%v", userID)
+		key = refreshTokenKey(userID)
 	} else {
 		err := errors.New("undefined token type")
 		core.Logger.Error(

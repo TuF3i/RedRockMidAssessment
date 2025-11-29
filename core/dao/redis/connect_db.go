@@ -32,7 +32,3 @@ func ConnectToRedis(debug bool) error {
 
 	return nil
 }
-
-func PreloadCache() {
-	// TODO 预加载缓存
-}
