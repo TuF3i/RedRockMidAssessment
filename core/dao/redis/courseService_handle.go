@@ -65,3 +65,20 @@ func GetCourseDetails(ctx context.Context, courseID string) (interface{}, respon
 	}
 	return data, response.OperationSuccess
 }
+
+func GetStuSelectedCourseID(ctx context.Context, userID string) (interface{}, response.Response) {
+	// 生成Key
+	key := studentSelectedCourseKey(userID)
+	// 取出所有可选课程的ID
+	ids, err := core.RedisConn.SMembers(ctx, key).Result()
+	if err != nil {
+		core.Logger.Error(
+			"Get Stu Selected CourseID",
+			zap.String("snowflake", ctx.Value("trace_id").(string)),
+			zap.String("detail", err.Error()),
+		)
+		return nil, response.ServerInternalError(err)
+	}
+
+	return ids, response.OperationSuccess
+}

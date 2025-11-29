@@ -310,7 +310,8 @@ func GetSelectedCourseForStudentHandleFunc() app.HandlerFunc {
 			return
 		}
 		// 调用course_service
-
+		data, rsp := service.GetStuSelectedCourses(ctx, claims.UserID)
+		c.JSON(consts.StatusOK, response.GenFinalResponse(rsp, data))
 	}
 }
 

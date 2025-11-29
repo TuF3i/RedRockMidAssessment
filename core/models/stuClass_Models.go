@@ -106,3 +106,7 @@ type LoginRsp struct {
 type SelectableClasses struct {
 	Info []Course `json:"selectable_classes"`
 }
+
+type SelectedClasses struct {
+	Info []Course `json:"selected_classes"`
+}

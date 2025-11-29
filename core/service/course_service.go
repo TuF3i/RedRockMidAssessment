@@ -29,3 +29,24 @@ func GetCourseInfo(ctx context.Context) (interface{}, response.Response) {
 		Info: courseInfo,
 	}, response.OperationSuccess
 }
+
+func GetStuSelectedCourses(ctx context.Context, userID string) (interface{}, response.Response) {
+	var courseInfo []models.Course
+	// 取出所有课程的ID
+	ids, rsp := redis.GetStuSelectedCourseID(ctx, userID)
+	if !errors.Is(rsp, response.OperationSuccess) {
+		return nil, rsp
+	}
+	// 遍历获取所有课程
+	idList := ids.([]string) // 加错误处理
+	for _, id := range idList {
+		info, rsp := redis.GetCourseDetails(ctx, id)
+		if !errors.Is(rsp, response.OperationSuccess) {
+			return nil, rsp
+		}
+		courseInfo = append(courseInfo, info.(models.Course))
+	}
+	return models.SelectedClasses{ // 组装data
+		Info: courseInfo,
+	}, response.OperationSuccess
+}
