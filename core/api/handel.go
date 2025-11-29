@@ -275,3 +275,53 @@ func DelStudentForAdminHandleFunc() app.HandlerFunc {
 		c.JSON(consts.StatusOK, response.GenFinalResponse(rsp, nil))
 	}
 }
+
+func GetCourseInfoForStudentHandleFunc() app.HandlerFunc {
+	// Permission: student
+	return func(ctx context.Context, c *app.RequestContext) {
+		// 生成TraceID
+		traceID := core.SnowFlake.TraceID()
+		ctx = context.WithValue(ctx, "trace_id", traceID)
+		// 解析JWT
+		rawClaims, _ := c.Get("jwt_claims")
+		claims := rawClaims.(jwt.CustomClaims)
+		// 判断权限
+		if claims.Role != "student" { // 不可以拿student来调用给admin的接口，避免权限混乱
+			c.JSON(consts.StatusOK, response.GenFinalResponse(response.PermissionDenied, nil))
+			return
+		}
+		// 调用course_service
+		data, rsp := service.GetCourseInfo(ctx)
+		c.JSON(consts.StatusOK, response.GenFinalResponse(rsp, data))
+	}
+}
+
+func GetSelectedCourseForStudentHandleFunc() app.HandlerFunc {
+	return func(ctx context.Context, c *app.RequestContext) {
+		// 生成TraceID
+		traceID := core.SnowFlake.TraceID()
+		ctx = context.WithValue(ctx, "trace_id", traceID)
+		// 解析JWT
+		rawClaims, _ := c.Get("jwt_claims")
+		claims := rawClaims.(jwt.CustomClaims)
+		// 判断权限
+		if claims.Role != "student" { // 不可以拿student来调用给admin的接口，避免权限混乱
+			c.JSON(consts.StatusOK, response.GenFinalResponse(response.PermissionDenied, nil))
+			return
+		}
+		// 调用course_service
+
+	}
+}
+
+func SubscribeCourseForStudentHandleFunc() app.HandlerFunc {
+	return func(ctx context.Context, c *app.RequestContext) {
+		// TODO
+	}
+}
+
+func DropCourseForStudentHandleFunc() app.HandlerFunc {
+	return func(ctx context.Context, c *app.RequestContext) {
+		// TODO
+	}
+}

@@ -117,7 +117,7 @@ func GetUUIDOfToken(ctx context.Context, userID string, tokenType uint) (interfa
 			zap.String("snowflake", ctx.Value("trace_id").(string)),
 			zap.String("detail", err.Error()),
 		)
-		return false, response.ServerInternalError(err)
+		return nil, response.ServerInternalError(err)
 	}
 	// 取值
 	val, err := core.RedisConn.Get(ctx, key).Result()

@@ -102,3 +102,7 @@ type LoginRsp struct {
 	AccessToken  string `json:"access_token"`
 	RefreshToken string `json:"refresh_token"`
 }
+
+type SelectableClasses struct {
+	Info []Course `json:"selectable_classes"`
+}
