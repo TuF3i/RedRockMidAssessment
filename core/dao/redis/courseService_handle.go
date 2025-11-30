@@ -7,6 +7,7 @@ import (
 	"context"
 
 	"github.com/cloudwego/hertz/pkg/common/json"
+	"github.com/go-redis/redis/v8"
 	"go.uber.org/zap"
 )
 
@@ -81,4 +82,139 @@ func GetStuSelectedCourseID(ctx context.Context, userID string) (interface{}, re
 	}
 
 	return ids, response.OperationSuccess
+}
+
+func SubscribeACourse(ctx context.Context, userID string, courseID string) response.Response {
+	// 生成key
+	keyForStu := courseUsersKey(courseID)
+	keyForStock := courseStockKey(courseID)
+
+	// Lua脚本 -- AI写的
+	lua := `
+local stockKey  = KEYS[1]
+local usersKey  = KEYS[2]
+local userID    = ARGV[1]
+
+-- 减库存
+local left = redis.call('DECR', stockKey)
+if left < 0 then
+    -- 库存不足，回滚刚才的 DECR，返回 0
+    redis.call('INCR', stockKey)
+    return 0
+end
+
+-- 把用户加入集合
+redis.call('SADD', usersKey, userID)
+return 1
+`
+	// 初始化脚本
+	script := redis.NewScript(lua)
+	// 执行脚本
+	ok, err := script.Run(
+		ctx,
+		core.RedisConn,
+		[]string{keyForStock, keyForStu},
+		userID,
+	).Result()
+	// 判断返回值
+	if err != nil { // 先判断错误
+		core.Logger.Error(
+			"Subscribe Course",
+			zap.String("snowflake", ctx.Value("trace_id").(string)),
+			zap.String("detail", err.Error()),
+		)
+		return response.ServerInternalError(err)
+	}
+	if ok.(int64) == 0 {
+		return response.CourseIsFull
+	}
+
+	return response.OperationSuccess
+}
+
+func DropACourse(ctx context.Context, userID string, courseID string) response.Response {
+	// 生成key
+	keyForStu := courseUsersKey(courseID)
+	keyForStock := courseStockKey(courseID)
+	keyForStuDropped := courseDroppedUsersKey(courseID)
+
+	// Lua脚本 -- AI写的
+	lua := `
+local stockKey   = KEYS[1]   -- 课程库存
+local usersKey   = KEYS[2]   -- 已报名用户集合
+local droppedKey = KEYS[3]   -- 已退课用户集合
+local userID     = ARGV[1]   -- 要退课的用户
+
+-- 1. 减库存（退课逻辑里也可 INCR，这里演示 DECR 场景）
+local left = redis.call('DECR', stockKey)
+if left < 0 then
+    -- 库存不允许为负，回滚
+    redis.call('INCR', stockKey)
+    return 0
+end
+
+-- 2. 从报名集合移除
+redis.call('SREM', usersKey, userID)
+
+-- 3. 加入退课集合
+redis.call('SADD', droppedKey, userID)
+
+return 1
+`
+	// 初始化脚本
+	script := redis.NewScript(lua)
+	// 执行脚本
+	ok, err := script.Run(ctx,
+		core.RedisConn,
+		[]string{keyForStock, keyForStu, keyForStuDropped},
+		userID,
+	).Result()
+	// 判断返回值
+	if err != nil { // 先判断错误
+		core.Logger.Error(
+			"Drop Course",
+			zap.String("snowflake", ctx.Value("trace_id").(string)),
+			zap.String("detail", err.Error()),
+		)
+		return response.ServerInternalError(err)
+	}
+	if ok.(int64) == 0 {
+		return response.RecordNotExist
+	}
+
+	return response.OperationSuccess
+}
+
+func CheckIfCourseExist(ctx context.Context, courseID string) (bool, response.Response) {
+	// 生成key
+	key := courseIDsKey()
+	// 读redis
+	ok, err := core.RedisConn.SIsMember(ctx, key, courseID).Result()
+	if err != nil {
+		core.Logger.Error(
+			"Check If Course Exist",
+			zap.String("snowflake", ctx.Value("trace_id").(string)),
+			zap.String("detail", err.Error()),
+		)
+		return false, response.ServerInternalError(err)
+	}
+	// 判断是否存在
+	return ok, response.OperationSuccess
+}
+
+func CheckIfCourseSelected(ctx context.Context, userID string, courseID string) (bool, response.Response) {
+	// 生成key
+	key := courseUsersKey(courseID)
+	// 读redis
+	ok, err := core.RedisConn.SIsMember(ctx, key, userID).Result()
+	if err != nil {
+		core.Logger.Error(
+			"Check If Course Selected",
+			zap.String("snowflake", ctx.Value("trace_id").(string)),
+			zap.String("detail", err.Error()),
+		)
+		return false, response.ServerInternalError(err)
+	}
+	// 判断是否存在
+	return ok, response.OperationSuccess
 }

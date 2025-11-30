@@ -297,6 +297,7 @@ func GetCourseInfoForStudentHandleFunc() app.HandlerFunc {
 }
 
 func GetSelectedCourseForStudentHandleFunc() app.HandlerFunc {
+	// Permission: student
 	return func(ctx context.Context, c *app.RequestContext) {
 		// 生成TraceID
 		traceID := core.SnowFlake.TraceID()
@@ -316,13 +317,53 @@ func GetSelectedCourseForStudentHandleFunc() app.HandlerFunc {
 }
 
 func SubscribeCourseForStudentHandleFunc() app.HandlerFunc {
+	// Permission: student
 	return func(ctx context.Context, c *app.RequestContext) {
-		// TODO
+		var courseForm models.CourseForm
+		// 生成TraceID
+		traceID := core.SnowFlake.TraceID()
+		ctx = context.WithValue(ctx, "trace_id", traceID)
+		// 解析JWT
+		rawClaims, _ := c.Get("jwt_claims")
+		claims := rawClaims.(jwt.CustomClaims)
+		// 判断权限
+		if claims.Role != "student" { // 不可以拿student来调用给admin的接口，避免权限混乱
+			c.JSON(consts.StatusOK, response.GenFinalResponse(response.PermissionDenied, nil))
+			return
+		}
+		//校验JSON
+		if err := c.BindAndValidate(&courseForm); err != nil {
+			c.JSON(consts.StatusOK, response.GenFinalResponse(response.RevDataError, nil))
+			return
+		}
+		// 调用course_service
+		rsp := service.SubscribeCourse(ctx, claims.UserID, courseForm.ClassID)
+		c.JSON(consts.StatusOK, response.GenFinalResponse(rsp, nil))
 	}
 }
 
 func DropCourseForStudentHandleFunc() app.HandlerFunc {
+	// Permission: student
 	return func(ctx context.Context, c *app.RequestContext) {
-		// TODO
+		var courseForm models.CourseForm
+		// 生成TraceID
+		traceID := core.SnowFlake.TraceID()
+		ctx = context.WithValue(ctx, "trace_id", traceID)
+		// 解析JWT
+		rawClaims, _ := c.Get("jwt_claims")
+		claims := rawClaims.(jwt.CustomClaims)
+		// 判断权限
+		if claims.Role != "student" { // 不可以拿student来调用给admin的接口，避免权限混乱
+			c.JSON(consts.StatusOK, response.GenFinalResponse(response.PermissionDenied, nil))
+			return
+		}
+		//校验JSON
+		if err := c.BindAndValidate(&courseForm); err != nil {
+			c.JSON(consts.StatusOK, response.GenFinalResponse(response.RevDataError, nil))
+			return
+		}
+		// 调用course_service
+		rsp := service.DropCourse(ctx, claims.UserID, courseForm.ClassID)
+		c.JSON(consts.StatusOK, response.GenFinalResponse(rsp, nil))
 	}
 }

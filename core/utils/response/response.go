@@ -26,8 +26,12 @@ var (
 	StudentIDAlreadyExist = Response{Status: 10006, Info: "student id already exist"} // 学生ID已存在
 
 	//选课错误
-	CourseNotExist = Response{Status: 10007, Info: "course not exist"}        // 课程不存在
-	CourseIsFull   = Response{Status: 10008, Info: "course capacity is full"} // 选课人数已满
+	CourseNotExist       = Response{Status: 10007, Info: "course not exist"}                   // 课程不存在
+	CourseIsFull         = Response{Status: 10008, Info: "course capacity is full"}            // 选课人数已满
+	CourseDoubleSelected = Response{Status: 10017, Info: "you have selected the course twice"} // 重复选课
+
+	//退课错误
+	RecordNotExist = Response{Status: 10016, Info: "Course Selection Record Not Exist"} // 选课记录不存在
 
 	//数据校验错误
 	InvalidUserName   = Response{Status: 10009, Info: "invalid user name"}   // 无效用户名
@@ -37,6 +41,7 @@ var (
 	InvalidClass      = Response{Status: 10012, Info: "invalid class"}       // 无效班级
 	InvalidGrade      = Response{Status: 10013, Info: "invalid grade"}       // 无效年级
 	InvalidAge        = Response{Status: 10014, Info: "invalid age"}         // 无效年龄
+	InvalidCourse     = Response{Status: 10016, Info: "invalid course ID"}   // 无效的课程ID
 
 	EmptyData = Response{Status: 10015, Info: "empty update columns"} // 无效的字段信息
 )

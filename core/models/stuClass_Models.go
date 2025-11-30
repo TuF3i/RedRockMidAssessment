@@ -110,3 +110,7 @@ type SelectableClasses struct {
 type SelectedClasses struct {
 	Info []Course `json:"selected_classes"`
 }
+
+type CourseForm struct {
+	ClassID string `json:"class_id"`
+}

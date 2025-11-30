@@ -133,3 +133,17 @@ func VerifyAge(age uint) bool {
 	}
 	return false
 }
+
+func VerifyCourseID(classID string) bool {
+	// ClassID中不可含中文
+	for _, r := range classID {
+		if unicode.Is(unicode.Han, r) {
+			return false
+		}
+	}
+	// classID在5~25位
+	if len(classID) >= 5 && len(classID) <= 25 {
+		return true
+	}
+	return false
+}
