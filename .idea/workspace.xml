@@ -8,9 +8,7 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/core/api/handel.go" beforeDir="false" afterPath="$PROJECT_DIR$/core/api/handel.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/core/dao/redis/courseService_handle.go" beforeDir="false" afterPath="$PROJECT_DIR$/core/dao/redis/courseService_handle.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/service/course_service.go" beforeDir="false" afterPath="$PROJECT_DIR$/core/service/course_service.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/utils/response/response.go" beforeDir="false" afterPath="$PROJECT_DIR$/core/utils/response/response.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/utils/verify/verifier.go" beforeDir="false" afterPath="$PROJECT_DIR$/core/utils/verify/verifier.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/service/stu_service.go" beforeDir="false" afterPath="$PROJECT_DIR$/core/service/stu_service.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

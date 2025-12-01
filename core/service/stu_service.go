@@ -331,6 +331,21 @@ func DeleteStudent(ctx context.Context, userID uint) response.Response {
 		return response.UserNotExiOrWrongStuID
 	}
 
+	/* 删除学生已选的课程 */
+	stuID := strconv.Itoa(int(userID))                   // 将userID的uint转换为string
+	ids, rsp := redis.GetStuSelectedCourseID(ctx, stuID) // 获取已选的课程
+	if !errors.Is(rsp, response.OperationSuccess) {
+		return rsp
+	}
+
+	idList := ids.([]string) // 类型转换（添加错误处理）
+	for _, id := range idList {
+		rsp := redis.DropACourse(ctx, stuID, id) // 删除课程
+		if rsp.Status == 500 {                   // 不是内部Panic就继续
+			return rsp
+		}
+	}
+
 	/* 删数据库记录 */
 	rsp = mysql.DeleteStudent(ctx, userID)
 	return rsp

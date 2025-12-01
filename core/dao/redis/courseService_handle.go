@@ -80,7 +80,7 @@ func GetStuSelectedCourseID(ctx context.Context, userID string) (interface{}, re
 		)
 		return nil, response.ServerInternalError(err)
 	}
-
+	
 	return ids, response.OperationSuccess
 }
 
