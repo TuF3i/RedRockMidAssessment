@@ -11,8 +11,8 @@ import (
 type Relation struct {
 	// 关联表
 	gorm.Model
-	CouID string
-	StuID uint
+	CouID string `gorm:"column:CouID"`
+	StuID uint   `gorm:"column:StuID"`
 }
 
 func (Relation) TableName() string {
@@ -50,7 +50,7 @@ type Student struct {
 
 	Role         bool   `json:"role" gorm:"column:role; not null; type:tinyint"` // 0为admin, 1为学生
 	Name         string `json:"name" gorm:"column:name; not null; type:varchar(90)"`
-	StudentID    uint   `json:"stu_id" gorm:"column:student_id; index; unique; not null; type:bigint"`
+	StudentID    string `json:"stu_id" gorm:"column:student_id; index; unique; not null; type:bigint"`
 	StudentClass string `json:"stu_class" gorm:"column:student_class; not null; type:varchar(40)"`
 	Password     string `json:"password" gorm:"column:password; not null; type:varchar(90)"`
 	Sex          uint   `json:"sex" gorm:"column:sex; not null"`
@@ -65,12 +65,12 @@ func (Student) TableName() string {
 }
 
 // 更新学生信息column表
-type UpdateData struct {
-	StudentID     uint                  `json:"stu_id"`
-	UpdateColumns []UpdateColumnsEntity `json:"update_columns"`
+type UpdateDataForStu struct {
+	StudentID     string                      `json:"stu_id"`
+	UpdateColumns []UpdateColumnsEntityForStu `json:"update_columns"`
 }
 
-type UpdateColumnsEntity struct {
+type UpdateColumnsEntityForStu struct {
 	Field string      `json:"field"`
 	Value interface{} `json:"value"`
 }
@@ -90,11 +90,11 @@ type StudentsListEntity struct {
 }
 
 type DelStudentForm struct {
-	StuID uint `json:"stu_id"`
+	StuID string `json:"stu_id"`
 }
 
 type LoginForm struct {
-	StuID    uint   `json:"stu_id"`
+	StuID    string `json:"stu_id"`
 	Password string `json:"password"`
 }
 
@@ -112,5 +112,29 @@ type SelectedClasses struct {
 }
 
 type CourseForm struct {
+	ClassID string `json:"class_id"`
+}
+
+type UpdateCourseData struct {
+	StuId         string `json:"stu_id"`
+	UpdateClassId string `json:"update_class_id"`
+}
+
+type UpdateDataForCourse struct {
+	ClassID       string                         `json:"class_id"`
+	UpdateColumns []UpdateColumnsEntityForCourse `json:"update_columns"`
+}
+
+type UpdateColumnsEntityForCourse struct {
+	Field string      `json:"field"`
+	Value interface{} `json:"value"`
+}
+
+type UpdateDataForCourseStock struct {
+	ClassID string `json:"class_id"`
+	Stock   uint   `json:"stock"`
+}
+
+type DeleteDataForCourse struct {
 	ClassID string `json:"class_id"`
 }

@@ -12,7 +12,6 @@ import (
 	"context"
 	"errors"
 	"reflect"
-	"strconv"
 
 	"go.uber.org/zap"
 )
@@ -63,8 +62,7 @@ func Login(ctx context.Context, userForm models.LoginForm) (interface{}, respons
 	}() //日常发疯才这样写
 
 	/* 生成令牌 */
-	ID := strconv.FormatUint(uint64(userID), 10)
-	accessToken, refreshToken, uuidAccessToken, uuidRefreshToken, err := jwt.GenTokens(ID, role)
+	accessToken, refreshToken, uuidAccessToken, uuidRefreshToken, err := jwt.GenTokens(userID, role)
 	if err != nil {
 		core.Logger.Error(
 			"Generate Token Error",
@@ -75,10 +73,10 @@ func Login(ctx context.Context, userForm models.LoginForm) (interface{}, respons
 	}
 
 	/* 写入Redis缓存 */
-	if rsp := redis.AddTokenToRedis(ctx, ID, 0, uuidAccessToken, jwt.AccessTTL); !errors.Is(rsp, response.OperationSuccess) { // 写入AccessToken
+	if rsp := redis.AddTokenToRedis(ctx, userID, 0, uuidAccessToken, jwt.AccessTTL); !errors.Is(rsp, response.OperationSuccess) { // 写入AccessToken
 		return nil, rsp
 	}
-	if rsp := redis.AddTokenToRedis(ctx, ID, 1, uuidRefreshToken, jwt.RefreshTTL); !errors.Is(rsp, response.OperationSuccess) { // 写入RefreshToken
+	if rsp := redis.AddTokenToRedis(ctx, userID, 1, uuidRefreshToken, jwt.RefreshTTL); !errors.Is(rsp, response.OperationSuccess) { // 写入RefreshToken
 		return nil, rsp
 	}
 
@@ -184,7 +182,7 @@ func RefreshTokens(ctx context.Context, userID string, role string) (interface{}
 	}, response.OperationSuccess
 }
 
-func GetStuInfo(ctx context.Context, userID uint) (interface{}, response.Response) {
+func GetStuInfo(ctx context.Context, userID string) (interface{}, response.Response) {
 	/* 校验数据 */
 	// 检查用户ID是否可用
 	if !verify.VerifyUserID(userID) {
@@ -205,7 +203,7 @@ func GetStuInfo(ctx context.Context, userID uint) (interface{}, response.Respons
 	return data, rsp
 }
 
-func UpdateStuInfo(ctx context.Context, userID uint, data []models.UpdateColumnsEntity) response.Response {
+func UpdateStuInfo(ctx context.Context, userID string, data []models.UpdateColumnsEntityForStu) response.Response {
 	field := make([]string, 0)
 	dataList := make(map[string]interface{})
 	for _, item := range data {
@@ -227,7 +225,7 @@ func UpdateStuInfo(ctx context.Context, userID uint, data []models.UpdateColumns
 				field = append(field, column)
 				dataList[column] = value
 			case "stu_id": // 校验学生ID规范
-				v := value.(uint)
+				v := value.(string)
 				if !verify.VerifyUserID(v) {
 					return response.InvalidStudentID
 				}
@@ -306,7 +304,7 @@ func GetStudentsList(ctx context.Context, page int, resNum int) (interface{}, re
 	offset := (page - 1) * resNum
 
 	/* 查MySQL */
-	data, total, rsp := mysql.GetStudentList(ctx, resNum, offset, page)
+	data, total, rsp := mysql.GetStudentList(ctx, resNum, offset)
 
 	if !errors.Is(rsp, response.OperationSuccess) {
 		return nil, rsp
@@ -320,7 +318,7 @@ func GetStudentsList(ctx context.Context, page int, resNum int) (interface{}, re
 	}, rsp
 }
 
-func DeleteStudent(ctx context.Context, userID uint) response.Response {
+func DeleteStudent(ctx context.Context, userID string) response.Response {
 	/* 检查学生是否存在 */
 	ifExist, rsp := mysql.CheckIfStudentExist(ctx, userID)
 	if !errors.Is(rsp, response.OperationSuccess) { // 出现错误直接上抛
@@ -332,16 +330,15 @@ func DeleteStudent(ctx context.Context, userID uint) response.Response {
 	}
 
 	/* 删除学生已选的课程 */
-	stuID := strconv.Itoa(int(userID))                   // 将userID的uint转换为string
-	ids, rsp := redis.GetStuSelectedCourseID(ctx, stuID) // 获取已选的课程
+	ids, rsp := redis.GetStuSelectedCourseID(ctx, userID) // 获取已选的课程
 	if !errors.Is(rsp, response.OperationSuccess) {
 		return rsp
 	}
 
 	idList := ids.([]string) // 类型转换（添加错误处理）
 	for _, id := range idList {
-		rsp := redis.DropACourse(ctx, stuID, id) // 删除课程
-		if rsp.Status == 500 {                   // 不是内部Panic就继续
+		rsp := redis.DropACourse(ctx, userID, id) // 删除课程
+		if rsp.Status == 500 {                    // 不是内部Panic就继续
 			return rsp
 		}
 	}

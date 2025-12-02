@@ -1,13 +1,13 @@
 package snowflake
 
 import (
-	"RedRockMidAssessment/core"
 	"encoding/binary"
 	"errors"
 	"fmt"
-	"github.com/google/uuid"
 	"sync"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 //  0                   1                   2                   3

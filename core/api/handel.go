@@ -95,19 +95,8 @@ func GetStudentInfoForStuHandleFunc() app.HandlerFunc {
 			c.JSON(consts.StatusOK, response.GenFinalResponse(response.PermissionDenied, nil))
 			return
 		}
-		// 将JWT中的UserID转为uint
-		num, err := strconv.ParseUint(claims.UserID, 10, 32)
-		if err != nil {
-			core.Logger.Error(
-				"Converting Error",
-				zap.String("snowflake", ctx.Value("trace_id").(string)),
-				zap.String("detail", err.Error()),
-			)
-			c.JSON(consts.StatusOK, response.GenFinalResponse(response.ServerInternalError(err), nil))
-			return
-		}
 		// 调用stu_service
-		data, rsp := service.GetStuInfo(ctx, uint(num))
+		data, rsp := service.GetStuInfo(ctx, claims.UserID)
 		if !errors.Is(rsp, response.OperationSuccess) {
 			c.JSON(consts.StatusOK, response.GenFinalResponse(rsp, nil))
 			return
@@ -120,7 +109,7 @@ func GetStudentInfoForStuHandleFunc() app.HandlerFunc {
 func UpdateStudentInfoForStuHandleFunc() app.HandlerFunc {
 	// Permission: student
 	return func(ctx context.Context, c *app.RequestContext) {
-		var updateData models.UpdateData
+		var updateData models.UpdateDataForStu
 		// 生成TraceID
 		traceID := core.SnowFlake.TraceID()
 		ctx = context.WithValue(ctx, "trace_id", traceID)
@@ -137,19 +126,8 @@ func UpdateStudentInfoForStuHandleFunc() app.HandlerFunc {
 			c.JSON(consts.StatusOK, response.GenFinalResponse(response.RevDataError, nil))
 			return
 		}
-		// 将JWT中的UserID转为uint
-		num, err := strconv.ParseUint(claims.UserID, 10, 32)
-		if err != nil {
-			core.Logger.Error(
-				"Converting Error",
-				zap.String("snowflake", ctx.Value("trace_id").(string)),
-				zap.String("detail", err.Error()),
-			)
-			c.JSON(consts.StatusOK, response.GenFinalResponse(response.ServerInternalError(err), nil))
-			return
-		}
 		//调用stu_service
-		rsp := service.UpdateStuInfo(ctx, uint(num), updateData.UpdateColumns)
+		rsp := service.UpdateStuInfo(ctx, claims.UserID, updateData.UpdateColumns)
 		c.JSON(consts.StatusOK, response.GenFinalResponse(rsp, nil))
 		return
 	}
@@ -200,7 +178,7 @@ func GetStudentListForAdminHandleFunc() app.HandlerFunc {
 func UpdateStudentInfoForAdminHandleFunc() app.HandlerFunc {
 	// Permission: admin
 	return func(ctx context.Context, c *app.RequestContext) {
-		var updateData models.UpdateData
+		var updateData models.UpdateDataForStu
 		// 生成TraceID
 		traceID := core.SnowFlake.TraceID()
 		ctx = context.WithValue(ctx, "trace_id", traceID)
@@ -383,7 +361,7 @@ func GetCourseInfoForAdminHandleFunc() app.HandlerFunc {
 			return
 		}
 		// 调用course_service
-		data, rsp := service.GetCourseInfo(ctx)
+		data, rsp := service.GetCourseInfoForAdmin(ctx)
 		c.JSON(consts.StatusOK, response.GenFinalResponse(rsp, data))
 	}
 }
@@ -404,7 +382,157 @@ func GetStuCourseSelectionInfoForAdminHandleFunc() app.HandlerFunc {
 		// 获取Param参数
 		stuID := c.Param("stuID")
 		// 调用course_service
-		data, rsp := service.GetStuSelectedCourses(ctx, stuID)
+		data, rsp := service.GetStuSelectedCoursesForAdmin(ctx, stuID)
 		c.JSON(consts.StatusOK, response.GenFinalResponse(rsp, data))
+	}
+}
+
+func AddStuCourseSelectionInfoForAdminHandleFunc() app.HandlerFunc {
+	return func(ctx context.Context, c *app.RequestContext) {
+		var updateData models.UpdateCourseData
+		// 生成TraceID
+		traceID := core.SnowFlake.TraceID()
+		ctx = context.WithValue(ctx, "trace_id", traceID)
+		// 解析JWT
+		rawClaims, _ := c.Get("jwt_claims")
+		claims := rawClaims.(jwt.CustomClaims)
+		// 判断权限
+		if claims.Role != "admin" { // 不可以拿admin来调用给student的接口，避免权限混乱
+			c.JSON(consts.StatusOK, response.GenFinalResponse(response.PermissionDenied, nil))
+			return
+		}
+		//校验JSON
+		if err := c.BindAndValidate(&updateData); err != nil {
+			c.JSON(consts.StatusOK, response.GenFinalResponse(response.RevDataError, nil))
+			return
+		}
+		// 调用 course_service
+		rsp := service.SubscribeCourseForAdmin(ctx, updateData.StuId, updateData.UpdateClassId)
+		c.JSON(consts.StatusOK, response.GenFinalResponse(rsp, nil))
+	}
+}
+
+func DelStuCourseSelectionInfoForAdminHandleFunc() app.HandlerFunc {
+	return func(ctx context.Context, c *app.RequestContext) {
+		var updateData models.UpdateCourseData
+		// 生成TraceID
+		traceID := core.SnowFlake.TraceID()
+		ctx = context.WithValue(ctx, "trace_id", traceID)
+		// 解析JWT
+		rawClaims, _ := c.Get("jwt_claims")
+		claims := rawClaims.(jwt.CustomClaims)
+		// 判断权限
+		if claims.Role != "admin" { // 不可以拿admin来调用给student的接口，避免权限混乱
+			c.JSON(consts.StatusOK, response.GenFinalResponse(response.PermissionDenied, nil))
+			return
+		}
+		//校验JSON
+		if err := c.BindAndValidate(&updateData); err != nil {
+			c.JSON(consts.StatusOK, response.GenFinalResponse(response.RevDataError, nil))
+			return
+		}
+		// 调用 course_service
+		rsp := service.DropCourseForAdmin(ctx, updateData.StuId, updateData.UpdateClassId)
+		c.JSON(consts.StatusOK, response.GenFinalResponse(rsp, nil))
+	}
+}
+
+func UpdateCourseInfoForAdminHandleFunc() app.HandlerFunc {
+	return func(ctx context.Context, c *app.RequestContext) {
+		var updateData models.UpdateDataForCourse
+		// 生成TraceID
+		traceID := core.SnowFlake.TraceID()
+		ctx = context.WithValue(ctx, "trace_id", traceID)
+		// 解析JWT
+		rawClaims, _ := c.Get("jwt_claims")
+		claims := rawClaims.(jwt.CustomClaims)
+		// 判断权限
+		if claims.Role != "admin" { // 不可以拿admin来调用给student的接口，避免权限混乱
+			c.JSON(consts.StatusOK, response.GenFinalResponse(response.PermissionDenied, nil))
+			return
+		}
+		//校验JSON
+		if err := c.BindAndValidate(&updateData); err != nil {
+			c.JSON(consts.StatusOK, response.GenFinalResponse(response.RevDataError, nil))
+			return
+		}
+		// 调用course_service
+		rsp := service.UpdateCourseInfoForAdmin(ctx, updateData.ClassID, updateData.UpdateColumns)
+		c.JSON(consts.StatusOK, response.GenFinalResponse(rsp, nil))
+	}
+}
+
+func UpdateCourseStockForAdminHandleFunc() app.HandlerFunc {
+	return func(ctx context.Context, c *app.RequestContext) {
+		var updateData models.UpdateDataForCourseStock
+		// 生成TraceID
+		traceID := core.SnowFlake.TraceID()
+		ctx = context.WithValue(ctx, "trace_id", traceID)
+		// 解析JWT
+		rawClaims, _ := c.Get("jwt_claims")
+		claims := rawClaims.(jwt.CustomClaims)
+		// 判断权限
+		if claims.Role != "admin" { // 不可以拿admin来调用给student的接口，避免权限混乱
+			c.JSON(consts.StatusOK, response.GenFinalResponse(response.PermissionDenied, nil))
+			return
+		}
+		//校验JSON
+		if err := c.BindAndValidate(&updateData); err != nil {
+			c.JSON(consts.StatusOK, response.GenFinalResponse(response.RevDataError, nil))
+			return
+		}
+		// 调用course_service
+		rsp := service.UpdateCourseStockForAdmin(ctx, updateData.ClassID, updateData.Stock)
+		c.JSON(consts.StatusOK, response.GenFinalResponse(rsp, nil))
+	}
+}
+
+func AddCourseForAdminHandleFunc() app.HandlerFunc {
+	return func(ctx context.Context, c *app.RequestContext) {
+		var dataForm models.Course
+		// 生成TraceID
+		traceID := core.SnowFlake.TraceID()
+		ctx = context.WithValue(ctx, "trace_id", traceID)
+		// 解析JWT
+		rawClaims, _ := c.Get("jwt_claims")
+		claims := rawClaims.(jwt.CustomClaims)
+		// 判断权限
+		if claims.Role != "admin" { // 不可以拿admin来调用给student的接口，避免权限混乱
+			c.JSON(consts.StatusOK, response.GenFinalResponse(response.PermissionDenied, nil))
+			return
+		}
+		//校验JSON
+		if err := c.BindAndValidate(&dataForm); err != nil {
+			c.JSON(consts.StatusOK, response.GenFinalResponse(response.RevDataError, nil))
+			return
+		}
+		// 调用course_service
+		rsp := service.AddCourseForAdmin(ctx, dataForm)
+		c.JSON(consts.StatusOK, response.GenFinalResponse(rsp, nil))
+	}
+}
+
+func DelCourseForAdminHandleFunc() app.HandlerFunc {
+	return func(ctx context.Context, c *app.RequestContext) {
+		var dataForm models.DeleteDataForCourse
+		// 生成TraceID
+		traceID := core.SnowFlake.TraceID()
+		ctx = context.WithValue(ctx, "trace_id", traceID)
+		// 解析JWT
+		rawClaims, _ := c.Get("jwt_claims")
+		claims := rawClaims.(jwt.CustomClaims)
+		// 判断权限
+		if claims.Role != "admin" { // 不可以拿admin来调用给student的接口，避免权限混乱
+			c.JSON(consts.StatusOK, response.GenFinalResponse(response.PermissionDenied, nil))
+			return
+		}
+		//校验JSON
+		if err := c.BindAndValidate(&dataForm); err != nil {
+			c.JSON(consts.StatusOK, response.GenFinalResponse(response.RevDataError, nil))
+			return
+		}
+		// 调用course_service
+		rsp := service.DelCourseForAdmin(ctx, dataForm.ClassID)
+		c.JSON(consts.StatusOK, response.GenFinalResponse(rsp, nil))
 	}
 }

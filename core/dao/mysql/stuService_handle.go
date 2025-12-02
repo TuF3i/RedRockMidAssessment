@@ -9,12 +9,12 @@ import (
 	"go.uber.org/zap"
 )
 
-func CheckIfStudentExist(ctx context.Context, studentID uint) (bool, response.Response) {
+func CheckIfStudentExist(ctx context.Context, studentID string) (bool, response.Response) {
 	// 查询学生是否存在
 	tx := core.MysqlConn.Begin() // 开启数据库事务
 	defer tx.Commit()            // 查询结束后提交
 
-	result := tx.Where("stu_id = ?", studentID).Find(&models.Student{}) // 用StuID查询学生信息
+	result := tx.Where("student_id = ?", studentID).Find(&models.Student{}) // 用StuID查询学生信息
 	if err := result.Error; err != nil {
 		core.Logger.Error(
 			"Insert Student Error",
@@ -48,11 +48,11 @@ func InsertStudentIntoDB(ctx context.Context, userForm models.Student) response.
 	return response.OperationSuccess
 }
 
-func GetStudentInfo(ctx context.Context, userID uint) (interface{}, response.Response) {
+func GetStudentInfo(ctx context.Context, userID string) (interface{}, response.Response) {
 	var studentData models.Student
 
 	tx := core.MysqlConn.Begin()
-	if err := tx.Where("stu_id = ?", userID).First(&studentData).Error; err != nil {
+	if err := tx.Where("student_id = ?", userID).First(&studentData).Error; err != nil {
 		tx.Rollback()
 		core.Logger.Error(
 			"Get Student Info Error",
@@ -66,9 +66,9 @@ func GetStudentInfo(ctx context.Context, userID uint) (interface{}, response.Res
 	return studentData, response.OperationSuccess
 }
 
-func UpdateStudentInfo(ctx context.Context, userID uint, field []string, dataList map[string]interface{}) response.Response {
+func UpdateStudentInfo(ctx context.Context, userID string, field []string, dataList map[string]interface{}) response.Response {
 	tx := core.MysqlConn.Begin()
-	if err := tx.Model(&models.Student{}).Where("stu_id = ?", userID).Select(field).Updates(dataList).Error; err != nil {
+	if err := tx.Model(&models.Student{}).Where("student_id = ?", userID).Select(field).Updates(dataList).Error; err != nil {
 		tx.Rollback()
 		core.Logger.Error(
 			"Update Student Info Error",
@@ -81,7 +81,7 @@ func UpdateStudentInfo(ctx context.Context, userID uint, field []string, dataLis
 	return response.OperationSuccess
 }
 
-func GetStudentList(ctx context.Context, resNum int, offset int, page int) (interface{}, int64, response.Response) {
+func GetStudentList(ctx context.Context, resNum int, offset int) (interface{}, int64, response.Response) {
 	var data []models.StudentsListEntity
 	var total int64
 	tx := core.MysqlConn.Begin()
@@ -108,9 +108,9 @@ func GetStudentList(ctx context.Context, resNum int, offset int, page int) (inte
 	return data, total, response.OperationSuccess
 }
 
-func DeleteStudent(ctx context.Context, userID uint) response.Response {
+func DeleteStudent(ctx context.Context, userID string) response.Response {
 	tx := core.MysqlConn.Begin()
-	if err := tx.Where("stu_id = ?", userID).Delete(&models.Student{}).Error; err != nil {
+	if err := tx.Where("student_id = ?", userID).Delete(&models.Student{}).Error; err != nil {
 		tx.Rollback()
 		core.Logger.Error(
 			"Delete Student Error",

@@ -2,7 +2,6 @@ package verify
 
 import (
 	"regexp"
-	"strconv"
 	"strings"
 	"unicode"
 	"unicode/utf8"
@@ -52,9 +51,9 @@ func VerifyUserName(userName string) bool {
 	return true
 }
 
-func VerifyUserID(stuID uint) bool {
+func VerifyUserID(stuID string) bool {
 	// 10位用户ID
-	if len(strconv.Itoa(int(stuID))) == 10 {
+	if len(stuID) == 10 {
 		return true
 	}
 	return false
@@ -147,3 +146,100 @@ func VerifyCourseID(classID string) bool {
 	}
 	return false
 }
+
+func VerifyCourseName(courseName string) bool {
+	allDigit := true
+	for _, r := range []rune(courseName) {
+		if !unicode.IsDigit(r) {
+			allDigit = false
+			break
+		}
+	}
+	if allDigit {
+		// 不能为纯数字
+		return false
+	}
+
+	var ( // courseName在2~15个字符
+		maxLength  = 15
+		miniLength = 2
+	)
+	// 检测字符串长度
+	if length := utf8.RuneCountInString(courseName); length <= miniLength || length >= maxLength {
+		return false
+	}
+
+	return true
+}
+
+func VerifyCourseLocation(courseLocation string) bool {
+	var ( // courseName在4~10个字符
+		maxLength  = 10
+		miniLength = 4
+	)
+	// 检测字符串长度
+	if length := utf8.RuneCountInString(courseLocation); length <= miniLength || length >= maxLength {
+		return false
+	}
+
+	return true
+}
+
+func VerifyCourseTime(courseTime string) bool {
+	var ( // courseTime在4~10个字符
+		maxLength  = 10
+		miniLength = 4
+	)
+	// 检测字符串长度
+	if length := utf8.RuneCountInString(courseTime); length <= miniLength || length >= maxLength {
+		return false
+	}
+
+	return true
+}
+
+func VerifyCourseTeacher(courseTeacher string) bool {
+	allDigit := true
+	for _, r := range []rune(courseTeacher) {
+		if !unicode.IsDigit(r) {
+			allDigit = false
+			break
+		}
+	}
+	if allDigit {
+		// 不能为纯数字
+		return false
+	}
+
+	var ( // courseTeacher在2~8个字符
+		maxLength  = 10
+		miniLength = 4
+	)
+	// 检测字符串长度
+	if length := utf8.RuneCountInString(courseTeacher); length <= miniLength || length >= maxLength {
+		return false
+	}
+
+	return true
+}
+
+func VerifyCourseStock(courseStock uint) bool {
+	// courseStock在10~500个字符
+	var maxStock uint = 500
+	var miniStock uint = 10
+
+	return courseStock <= maxStock && courseStock >= miniStock
+}
+
+//func VerifyOperationForUpdateCourse(operation string) bool {
+//	// 只有add, delete两种操作方法
+//	op := map[string]struct{}{
+//		"add":    {},
+//		"delete": {},
+//	}
+//	_, ok := op[operation]
+//	if !ok {
+//		return false
+//	}
+//	return true
+//}

@@ -15,5 +15,5 @@ var (
 
 	MysqlConn *gorm.DB             // MySQL连接
 	RedisConn *redis.Client        // Redis连接
-	SnowFlake *snowflake.Snowflake // 雪花ID生成器
+	SnowFlake *snowflake.Snowflake // snowflake生成器
 )
