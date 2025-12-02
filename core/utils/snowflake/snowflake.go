@@ -30,15 +30,14 @@ const (
 	maxTimestamp = -1 ^ (-1 << (41))         // 69 年
 )
 
-func NewSnowflake(machineID int64) error {
+func NewSnowflake(machineID int64) (*Snowflake, error) {
 	// 初始化Snowflake，machineID可用 IP 末段，K8S Pod 序号
 	if machineID < 0 || machineID > machineMax {
-		return errors.New("machine id out of range")
+		return &Snowflake{}, errors.New("machine id out of range")
 	}
+	//core.SnowFlake = &Snowflake{machineID: machineID}
 
-	core.SnowFlake = &Snowflake{machineID: machineID}
-
-	return nil
+	return &Snowflake{machineID: machineID}, nil
 }
 
 type Snowflake struct {
