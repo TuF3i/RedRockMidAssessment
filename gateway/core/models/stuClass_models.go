@@ -32,7 +32,7 @@ type Course struct {
 	ClassTime        string `json:"class_time" gorm:"column:class_time; not null; type:varchar(50)"`
 	ClassTeacher     string `json:"class_teacher" gorm:"column:class_teacher; not null; type:varchar(30)"`
 	ClassCapacity    uint   `json:"class_capacity" gorm:"column:class_capacity; not null; type:int"`
-	ClassSelectedNum uint   `json:"class_selection" gorm:"class_selected_num; not null; type:int"`
+	ClassSelectedNum uint   `json:"class_selection" gorm:"column:class_selected_num; not null; type:int"`
 
 	Students []Student `json:"students" gorm:"many2many:relation; foreignKey:ClassID; joinForeignKey:CouID; references:StudentID; joinReferences:StuID"`
 }
