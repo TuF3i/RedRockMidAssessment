@@ -6,7 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="a0c401a0-0c1c-404d-b173-3748ec4fee0b" name="更改" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/utils/snowflake/snowflake.go" beforeDir="false" afterPath="$PROJECT_DIR$/core/utils/snowflake/snowflake.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
