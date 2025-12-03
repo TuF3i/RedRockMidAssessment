@@ -1,0 +1,13 @@
+mq:
+  kafka:
+    addr: ""
+    port: ""
+    group_id: "consumer_group_1"
+
+db:
+  mysql:
+    addr: "localhost"
+    port: 3306
+    user: "root"
+    passwd: ""
+    defaultDB: "stuClass"
