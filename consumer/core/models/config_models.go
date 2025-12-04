@@ -1,8 +1,9 @@
 package models
 
 type Config struct {
-	Db Db `yaml:"db"`
-	Mq Mq `yaml:"mq"`
+	Db   Db        `yaml:"db"`
+	Mq   Mq        `yaml:"mq"`
+	SFID SnowFlake `yaml:"snowflake"`
 }
 type Mysql struct {
 	Addr      string `yaml:"addr"`
@@ -15,10 +16,15 @@ type Db struct {
 	Mysql Mysql `yaml:"mysql"`
 }
 type Kafka struct {
-	Addr    string `yaml:"addr"`
-	Port    string `yaml:"port"`
-	GroupID string `yaml:"group_id"`
+	Addr        string `yaml:"addr"`
+	Port        string `yaml:"port"`
+	GroupID     string `yaml:"group_id"`
+	BlanketPeek uint   `yaml:"blanket_peak"`
 }
 type Mq struct {
 	Kafka Kafka `yaml:"kafka"`
+}
+
+type SnowFlake struct {
+	MachineID uint `yaml:"machineID"`
 }

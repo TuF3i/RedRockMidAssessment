@@ -2,10 +2,10 @@ package worker
 
 import (
 	"RedRockMidAssessment-Consumer/core"
+	"RedRockMidAssessment-Consumer/core/flitter"
 	"RedRockMidAssessment-Consumer/core/models"
-	"RedRockMidAssessment-Consumer/core/service"
+	"context"
 	"encoding/json"
-	"errors"
 	"strconv"
 
 	"github.com/IBM/sarama"
@@ -26,6 +26,10 @@ func (c *Worker) Cleanup(_ sarama.ConsumerGroupSession) error { return nil }
 
 func (c *Worker) ConsumeClaim(sess sarama.ConsumerGroupSession, claim sarama.ConsumerGroupClaim) error {
 	for msg := range claim.Messages() {
+		// 过滤topic
+		if msg.Topic != "Consumer" {
+			return nil
+		}
 		// 拿令牌
 		c.blanket <- struct{}{}
 		// 异步处理
@@ -35,6 +39,7 @@ func (c *Worker) ConsumeClaim(sess sarama.ConsumerGroupSession, claim sarama.Con
 			defer func() { <-c.blanket }()
 			// 生成snowflakeID
 			traceID := core.SnowFlake.TraceID()
+			ctx := context.WithValue(context.Background(), "TraceID", traceID)
 			// 解析JSON
 			if err := json.Unmarshal(m.Value, &commander); err != nil {
 				core.Logger.Error(
@@ -44,63 +49,13 @@ func (c *Worker) ConsumeClaim(sess sarama.ConsumerGroupSession, claim sarama.Con
 					zap.String("raw_message", string(m.Value)),
 				)
 			}
-			// 判断操作对象类型
-			if commander.Role == "course" {
-				msg, ok := commander.Msg.(models.CourseMsg)
-				if !ok {
-					err := errors.New("can Not Do Type Assertion")
-					core.Logger.Error(
-						"Type Assertion Error",
-						zap.String("snowflake", traceID),
-						zap.String("detail", err.Error()),
-						zap.String("raw_message", string(m.Value)),
-					)
-				}
-				//判断操作类型
-				if msg.Operation == "subscribe" { // 添加选课
-					if err := service.SubmitCourseForStudent(msg.StudentID, msg.CourseID); err != nil { // 调用course_service执行命令
-						core.Logger.Error(
-							"Submit Course Error",
-							zap.String("snowflake", traceID),
-							zap.String("detail", err.Error()),
-							zap.String("raw_message", string(m.Value)),
-						)
-					}
-				}
-				if msg.Operation == "drop" { // 退课
-					if err := service.DropCourseForStudent(msg.StudentID, msg.CourseID); err != nil { // 调用course_service执行命令
-						core.Logger.Error(
-							"Drop Course Error",
-							zap.String("snowflake", traceID),
-							zap.String("detail", err.Error()),
-							zap.String("raw_message", string(m.Value)),
-						)
-					}
-				}
-			}
-			if commander.Role == "selectedNum" {
-				msg, ok := commander.Msg.(models.SelectedNum)
-				if !ok {
-					err := errors.New("can Not Do Type Assertion")
-					core.Logger.Error(
-						"Type Assertion Error",
-						zap.String("snowflake", traceID),
-						zap.String("detail", err.Error()),
-						zap.String("raw_message", string(m.Value)),
-					)
-				}
-				if err := service.UpdateSelectedStuNum(msg.CourseID, msg.SelectedNum); err != nil {
-					core.Logger.Error(
-						"Update SelectedStuNum Error",
-						zap.String("snowflake", traceID),
-						zap.String("detail", err.Error()),
-						zap.String("raw_message", string(m.Value)),
-					)
-				}
-			}
-			// 输出成功日志
-			core.Logger.Info(
-				"Success Handle Message",
+			// 调用flitter生成业务方法
+			biz := flitter.GetRelatedHandleFunc(commander)
+			// 调用业务方法
+			biz.Do(ctx, commander)
+			// 输出处理日志
+			core.Logger.Debug(
+				"Handle Message With Offset",
 				zap.String("snowflake", traceID),
 				zap.String("offset", strconv.FormatInt(msg.Offset, 10)),
 				zap.String("raw_message", string(m.Value)),
