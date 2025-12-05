@@ -16,5 +16,11 @@ db:
     passwd: ""
     defaultDB: 0
 
+mq:
+  kafka:
+    addr: ""
+    port: ""
+    client_id: "gateway_1"
+
 snowflake:
   machineID: 1

@@ -3,14 +3,8 @@ package models
 type Config struct {
 	Db        Db        `yaml:"db"`
 	Mq        Mq        `yaml:"mq"`
-	HertzAPI  HertzAPI  `yaml:"hertzApi"`
-	SnowFlake SnowFlake `json:"snowflake"`
+	Snowflake Snowflake `yaml:"snowflake"`
 }
-
-type SnowFlake struct {
-	MachineID int64 `yaml:"machineID"`
-}
-
 type Mysql struct {
 	Addr      string `yaml:"addr"`
 	DefaultDB string `yaml:"defaultDB"`
@@ -28,17 +22,14 @@ type Db struct {
 	Mysql Mysql `yaml:"mysql"`
 	Redis Redis `yaml:"redis"`
 }
-type HertzAPI struct {
-	ListenAddr string `yaml:"listenAddr"`
-	ListenPort int    `yaml:"listenPort"`
+type Kafka struct {
+	Addr        string `yaml:"addr"`
+	BlanketPeak int    `yaml:"blanket_peak"`
+	Port        string `yaml:"port"`
 }
-
 type Mq struct {
 	Kafka Kafka `yaml:"kafka"`
 }
-
-type Kafka struct {
-	Addr     string `yaml:"addr"`
-	Port     string `yaml:"port"`
-	ClientID string `yaml:"client_id"`
+type Snowflake struct {
+	MachineID int `yaml:"machineID"`
 }
