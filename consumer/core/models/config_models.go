@@ -19,12 +19,12 @@ type Kafka struct {
 	Addr        string `yaml:"addr"`
 	Port        string `yaml:"port"`
 	GroupID     string `yaml:"group_id"`
-	BlanketPeek uint   `yaml:"blanket_peak"`
+	BlanketPeek int    `yaml:"blanket_peak"`
 }
 type Mq struct {
 	Kafka Kafka `yaml:"kafka"`
 }
 
 type SnowFlake struct {
-	MachineID uint `yaml:"machineID"`
+	MachineID int64 `yaml:"machineID"`
 }

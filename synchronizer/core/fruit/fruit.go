@@ -72,8 +72,8 @@ func GenesisFruit() {
 	logs.Info("Successfully loaded mod <kafka-producer>")
 
 	// 初始化kafka消费者
-	pc, err := kafka.NewConsumer()
 	logs.Debug("Started to init mod <kafka-consumer>")
+	pc, err := kafka.NewConsumer()
 	if err != nil {
 		logs.Warn("Init mod <kafka-consumer> error: %v", err.Error())
 		os.Exit(1)
@@ -117,13 +117,6 @@ func WorldEndingFruit() {
 	}()
 	time.Sleep(500 * time.Millisecond)
 
-	// 清除日志缓存
-	logs.Debug("Started to clean mod <zap>")
-	if err := core.Logger.Sync(); err != nil {
-		logs.Warn("Cleaning mod <zap> error: %v", err.Error())
-	}
-	logs.Info("Successfully cleaned mod <zap>")
-
 	// 关闭生产者
 	logs.Debug("Started to clean mod <kafka-producer>")
 	core.GlobalWg.Wait() // 等待结束
@@ -138,4 +131,11 @@ func WorldEndingFruit() {
 		logs.Warn("Cleaning mod <redis> error: %v", err.Error())
 	}
 	logs.Info("Successfully cleaned mod <redis>")
+
+	// 清除日志缓存
+	logs.Debug("Started to clean mod <zap>")
+	if err := core.Logger.Sync(); err != nil {
+		logs.Warn("Cleaning mod <zap> error: %v", err.Error())
+	}
+	logs.Info("Successfully cleaned mod <zap>")
 }

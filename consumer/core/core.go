@@ -3,6 +3,7 @@ package core
 import (
 	"RedRockMidAssessment-Consumer/core/models"
 	"RedRockMidAssessment-Consumer/core/utils/snowflake"
+	"context"
 	"sync"
 
 	"github.com/IBM/sarama"
@@ -15,9 +16,11 @@ var (
 	Logger    *zap.Logger          // 消费者节点日志核心
 	Group     sarama.ConsumerGroup // 消费者组
 	MysqlConn *gorm.DB             // MySQL数据库连接
-	SnowFlake snowflake.Snowflake  // SnowFlakeID生成器
+	SnowFlake *snowflake.Snowflake // SnowFlakeID生成器
 
 	GlobalWg *sync.WaitGroup // 全局WaitGroup
 
 	CONSUME_TOPIC = "Consumer"
+
+	Cancel context.CancelFunc
 )
