@@ -48,42 +48,43 @@ func MsgReader() {
 		if err := json.Unmarshal(msg.Value, &commander); err != nil {
 			core.Logger.Error(
 				"Unmarshal JSON Byte Error",
-				// zap.String("snowflake", traceID),
 				zap.String("detail", err.Error()),
 				zap.String("raw_message", string(msg.Value)),
 			)
+			return
 		}
 		// 判断操作类型
-		if commander.Role == "CourseSelectionEvent" {
-			// 类型断言
-			status, ok := commander.Msg.(string)
-			if !ok {
-				core.Logger.Error(
-					"Type Assertion Error",
-					// zap.String("snowflake", traceID),
-					zap.Any("detail", commander.Msg),
-					zap.String("raw_message", string(msg.Value)),
-				)
+		if commander.Role != "CourseSelectionEvent" {
+			return
+		}
+		//类型断言
+		status, ok := commander.Msg.(string)
+		if !ok {
+			core.Logger.Error(
+				"Type Assertion Error",
+				zap.Any("detail", commander.Msg),
+				zap.String("raw_message", string(msg.Value)),
+			)
+			return
+		}
+		// 判断操作
+		switch status {
+		case "open":
+			if core.TimerStatus != 1 {
+				core.TimerStatus = 1
+				go timer.Timer()
 			}
-			switch status {
-			case "open":
-				if core.TimerStatus != 1 {
-					core.TimerStatus = 1
-					go timer.Timer()
-				}
-			case "close":
-				if core.TimerStatus != 0 {
-					core.TimerStatus = 0
-					core.TimerStop <- struct{}{}
-					core.TaskQ <- struct{}{}
-				}
-			default:
-				core.Logger.Error(
-					"Unknow Status",
-					// zap.String("snowflake", traceID),
-					zap.Any("detail", status),
-				)
-			} //switch
-		} // if
-	} // for
+		case "close":
+			if core.TimerStatus != 0 {
+				core.TimerStatus = 0
+				core.TimerStop <- struct{}{}
+				core.TaskQ <- struct{}{}
+			}
+		default:
+			core.Logger.Error(
+				"Unknow Status",
+				zap.Any("detail", status),
+			)
+		}
+	}
 }

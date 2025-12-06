@@ -8,7 +8,7 @@ import (
 	"github.com/go-redis/redis/v8"
 )
 
-func ConnectToRedis(debug bool) error {
+func ConnectToRedis() (*redis.Client, error) {
 	//建立连接
 	client := redis.NewClient(&redis.Options{
 		Addr: fmt.Sprintf(
@@ -24,11 +24,8 @@ func ConnectToRedis(debug bool) error {
 	ctx := context.Background()
 	_, err := client.Ping(ctx).Result()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	//全局化
-	core.RedisConn = client
-
-	return nil
+	return client, nil
 }

@@ -7,7 +7,7 @@ import (
 	"github.com/IBM/sarama"
 )
 
-func NewProducer() error {
+func NewProducer() (sarama.AsyncProducer, error) {
 	// 配置
 	cfg := sarama.NewConfig()
 	cfg.Producer.Partitioner = sarama.NewManualPartitioner
@@ -19,14 +19,13 @@ func NewProducer() error {
 	dsn := fmt.Sprintf("%v:%v", core.Config.Mq.Kafka.Addr, core.Config.Mq.Kafka.Port)
 	producer, err := sarama.NewAsyncProducer([]string{dsn}, cfg)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	//defer producer.Close()
-	core.Producer = producer
-	return nil
+	return producer, nil
 }
 
-func NewConsumer() error {
+func NewConsumer() (sarama.PartitionConsumer, error) {
 	// 生成配置
 	cfg := sarama.NewConfig()
 	cfg.Consumer.Return.Errors = true
@@ -35,15 +34,15 @@ func NewConsumer() error {
 	dsn := fmt.Sprintf("%v:%v", core.Config.Mq.Kafka.Addr, core.Config.Mq.Kafka.Port)
 	consumer, err := sarama.NewConsumer([]string{dsn}, cfg)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// 构造消息接收器
 	pc, err := consumer.ConsumePartition(core.READ_TOPIC, core.DEFAULT_PARTITION, sarama.OffsetNewest)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	core.PartitionConsumer = pc
-	return nil
+	//core.PartitionConsumer = pc
+	return pc, nil
 }

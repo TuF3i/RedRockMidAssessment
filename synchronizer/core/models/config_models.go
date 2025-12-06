@@ -31,5 +31,5 @@ type Mq struct {
 	Kafka Kafka `yaml:"kafka"`
 }
 type Snowflake struct {
-	MachineID int `yaml:"machineID"`
+	MachineID int64 `yaml:"machineID"`
 }

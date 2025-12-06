@@ -1,7 +1,6 @@
 package zap
 
 import (
-	"RedRockMidAssessment-Consumer/core"
 	"os"
 
 	"go.uber.org/zap"
@@ -12,7 +11,7 @@ import (
 var logLevel = zap.DebugLevel           //debug级别
 var timeFmt = "2006-01-02 15:04:05.000" //格式化时间
 
-func InitZap(path string) {
+func InitZap(path string) *zap.Logger {
 	// 轮转文件
 	logFile := &lumberjack.Logger{
 		Filename:   path,  // 日志路径
@@ -63,5 +62,5 @@ func InitZap(path string) {
 	consoleCore := zapcore.NewCore(consoleEncoder, zapcore.Lock(os.Stdout), logLevel)
 
 	//合并两个日志核心
-	core.Logger = zap.New(zapcore.NewTee(jsonCore, consoleCore), zap.AddCaller())
+	return zap.New(zapcore.NewTee(jsonCore, consoleCore), zap.AddCaller())
 }
