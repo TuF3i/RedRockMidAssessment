@@ -21,7 +21,7 @@ type WorkerGroup struct {
 
 func RunWorker() {
 	// 生成线程池对象
-	WorkerPoll := WorkerGroup{innerTask: make(chan task, 2*core.Config.Mq.Kafka.BlanketPeak), w: sync.WaitGroup{}}
+	WorkerPoll := WorkerGroup{innerTask: make(chan task), w: sync.WaitGroup{}}
 	// 更新全局指针
 	core.GlobalWg = &WorkerPoll.w
 	// 启动工作线程
@@ -57,6 +57,7 @@ func (w *WorkerGroup) PublishWork() {
 	for _, id := range i {
 		w.innerTask <- task{courseID: id, ctx: ctx}
 	}
+	close(w.innerTask)
 }
 
 func (w *WorkerGroup) WakeUpWorker() {

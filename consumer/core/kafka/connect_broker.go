@@ -7,7 +7,7 @@ import (
 	"github.com/IBM/sarama"
 )
 
-func ConnectToKafka() error {
+func ConnectToKafka() (sarama.ConsumerGroup, error) {
 	// 生成配置
 	cfg := sarama.NewConfig()
 	cfg.Consumer.Group.Rebalance.Strategy = sarama.BalanceStrategyRoundRobin
@@ -17,9 +17,9 @@ func ConnectToKafka() error {
 	dst := fmt.Sprintf("%v:%v", core.Config.Mq.Kafka.Addr, core.Config.Mq.Kafka.Port) // 生成连接地址
 	group, err := sarama.NewConsumerGroup([]string{dst}, core.Config.Mq.Kafka.GroupID, cfg)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	core.Group = group
-	return nil
+	//core.Group = group
+	return group, nil
 }

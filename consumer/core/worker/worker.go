@@ -7,36 +7,51 @@ import (
 	"context"
 	"encoding/json"
 	"strconv"
+	"sync"
 
 	"github.com/IBM/sarama"
 	"go.uber.org/zap"
 )
 
+// 消费者组
 type Worker struct {
-	blanket chan struct{} // 令牌桶（用于并发控制）
+	blanket chan struct{} // 并发度控制令牌桶
 }
 
-func NewConsumer(max int) *Worker {
-	return &Worker{blanket: make(chan struct{}, max)}
+// 创建全局WaitGroup
+func InitGlobalWg() {
+	core.GlobalWg = &sync.WaitGroup{}
 }
 
-func (c *Worker) Setup(_ sarama.ConsumerGroupSession) error { return nil }
+// 等待消费完成
+func WaitGlobalWg() {
+	core.GlobalWg.Wait()
+}
 
-func (c *Worker) Cleanup(_ sarama.ConsumerGroupSession) error { return nil }
+// 新建消费者组
+func NewWorker(maxConcurrency int) *Worker {
+	w := Worker{blanket: make(chan struct{}, maxConcurrency)}
+	return &w
+}
 
+// 消费方法
 func (c *Worker) ConsumeClaim(sess sarama.ConsumerGroupSession, claim sarama.ConsumerGroupClaim) error {
 	for msg := range claim.Messages() {
 		// 过滤topic
-		if msg.Topic != "Consumer" {
-			return nil
+		if msg.Topic != core.CONSUME_TOPIC {
+			continue
 		}
 		// 拿令牌
 		c.blanket <- struct{}{}
+		core.GlobalWg.Add(1)
 		// 异步处理
 		go func(m *sarama.ConsumerMessage) {
 			var commander models.Commander
 			// 释放令牌
-			defer func() { <-c.blanket }()
+			defer func() {
+				<-c.blanket
+				core.GlobalWg.Done()
+			}()
 			// 生成snowflakeID
 			traceID := core.SnowFlake.TraceID()
 			ctx := context.WithValue(context.Background(), "TraceID", traceID)
@@ -57,7 +72,7 @@ func (c *Worker) ConsumeClaim(sess sarama.ConsumerGroupSession, claim sarama.Con
 			core.Logger.Debug(
 				"Handle Message With Offset",
 				zap.String("snowflake", traceID),
-				zap.String("offset", strconv.FormatInt(msg.Offset, 10)),
+				zap.String("offset", strconv.FormatInt(m.Offset, 10)),
 				zap.String("raw_message", string(m.Value)),
 			)
 			// ACK
@@ -66,3 +81,9 @@ func (c *Worker) ConsumeClaim(sess sarama.ConsumerGroupSession, claim sarama.Con
 	}
 	return nil
 }
+
+// 初始化消费者组方法（无实际意义，仅满足接口）
+func (c *Worker) Setup(sarama.ConsumerGroupSession) error { return nil }
+
+// 释放化消费者组方法（无实际意义，仅满足接口）
+func (c *Worker) Cleanup(sarama.ConsumerGroupSession) error { return nil }
