@@ -13,4 +13,6 @@ var (
 	courseIDsKey          = func() string { return fmt.Sprintf("course:allID") }                               // 所有课程的ID
 
 	studentSelectedCourseKey = func(userID string) string { return fmt.Sprintf("user:%v:selectedCourse", userID) } // 生成studentSelectedCourse的Key
+
+	courseSelectionStatusKey = func() string { return fmt.Sprintf("courseSelection:status") } // 选课服务状态
 )

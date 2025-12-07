@@ -151,3 +151,24 @@ func JWTRefreshMiddleWare() app.HandlerFunc {
 		return
 	}
 }
+
+func CheckIfCourseSelectionStartedMiddleWare() app.HandlerFunc {
+	return func(ctx context.Context, c *app.RequestContext) {
+		// 生成TraceID
+		traceID := core.SnowFlake.TraceID()
+		ctx = context.WithValue(ctx, "trace_id", traceID)
+		// 查Redis
+		ok, rsp := redis.CheckIfCourseSelectionStarted(ctx)
+		if !errors.Is(rsp, response.OperationSuccess) {
+			c.JSON(consts.StatusOK, response.GenFinalResponse(rsp, nil))
+			c.Abort()
+			return
+		}
+		// 判断选课是否开始
+		if !ok {
+			c.JSON(consts.StatusOK, response.GenFinalResponse(rsp, nil))
+			c.Abort()
+			return
+		}
+	}
+}

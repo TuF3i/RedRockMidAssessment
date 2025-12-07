@@ -3,7 +3,9 @@ package service
 import (
 	"RedRockMidAssessment/core/dao/mysql"
 	"RedRockMidAssessment/core/dao/redis"
+	"RedRockMidAssessment/core/kafka"
 	"RedRockMidAssessment/core/models"
+	msg2 "RedRockMidAssessment/core/utils/msg"
 	"RedRockMidAssessment/core/utils/response"
 	"RedRockMidAssessment/core/utils/verify"
 	"context"
@@ -386,4 +388,54 @@ func DelCourseForAdmin(ctx context.Context, courseID string) response.Response {
 	// 删除课程
 	rsp = mysql.DeleteCourse(ctx, courseID)
 	return rsp
+}
+
+func StartCourseSelection(ctx context.Context) response.Response {
+	// 检查选课是否已开启
+	ok, rsp := redis.CheckIfCourseSelectionStarted(ctx)
+	if !errors.Is(rsp, response.OperationSuccess) {
+		return rsp
+	}
+	if ok {
+		return response.CourseSelectionEventAlreadyStart
+	}
+
+	// 开启选课（写Redis）
+	rsp = redis.UpdateCourseSelectionEventStatus(ctx, true)
+	if !errors.Is(rsp, response.OperationSuccess) {
+		return rsp
+	}
+	// 开启选课（发kafka消息）
+	msg := msg2.GenStartCourseSelection(ctx)
+	rsp = kafka.Writer(ctx, msg)
+	if !errors.Is(rsp, response.OperationSuccess) {
+		return rsp
+	}
+
+	return response.OperationSuccess
+}
+
+func StopCourseSelection(ctx context.Context) response.Response {
+	// 检查选课是否已开启
+	ok, rsp := redis.CheckIfCourseSelectionStarted(ctx)
+	if !errors.Is(rsp, response.OperationSuccess) {
+		return rsp
+	}
+	if !ok {
+		return response.CourseSelectionEventNotStart
+	}
+
+	// 结束选课（写Redis）
+	rsp = redis.UpdateCourseSelectionEventStatus(ctx, false)
+	if !errors.Is(rsp, response.OperationSuccess) {
+		return rsp
+	}
+	// 开启选课（发kafka消息）
+	msg := msg2.GenStopCourseSelection(ctx)
+	rsp = kafka.Writer(ctx, msg)
+	if !errors.Is(rsp, response.OperationSuccess) {
+		return rsp
+	}
+
+	return response.OperationSuccess
 }

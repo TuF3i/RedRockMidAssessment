@@ -80,7 +80,7 @@ func GetStuSelectedCourseID(ctx context.Context, userID string) (interface{}, re
 		)
 		return nil, response.ServerInternalError(err)
 	}
-	
+
 	return ids, response.OperationSuccess
 }
 
@@ -217,4 +217,49 @@ func CheckIfCourseSelected(ctx context.Context, userID string, courseID string) 
 	}
 	// 判断是否存在
 	return ok, response.OperationSuccess
+}
+
+func CheckIfCourseSelectionStarted(ctx context.Context) (bool, response.Response) { // 中间件直接调用
+	// 生成key
+	key := courseSelectionStatusKey()
+	// 读Redis
+	val, err := core.RedisConn.Get(ctx, key).Result()
+	if err != nil {
+		core.Logger.Error(
+			"Check If Course Selection Start",
+			zap.String("snowflake", ctx.Value("trace_id").(string)),
+			zap.String("detail", err.Error()),
+		)
+		return false, response.ServerInternalError(err)
+	}
+	// 判断是否开始选课
+	if val == "1" {
+		return true, response.OperationSuccess
+	}
+
+	return false, response.OperationSuccess
+}
+
+func UpdateCourseSelectionEventStatus(ctx context.Context, status bool) response.Response {
+	// 1: 开始 0: 结束
+	var Rstatus string
+	// 生成key
+	key := courseSelectionStatusKey()
+	// 判断状态
+	if status {
+		Rstatus = "1"
+	} else {
+		Rstatus = "0"
+	}
+	// 写Redis
+	err := core.RedisConn.Set(ctx, key, Rstatus, 0).Err()
+	if err != nil {
+		core.Logger.Error(
+			"Update Course Selection Event Status",
+			zap.String("snowflake", ctx.Value("trace_id").(string)),
+			zap.String("detail", err.Error()),
+		)
+		return response.ServerInternalError(err)
+	}
+	return response.OperationSuccess
 }
