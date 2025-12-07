@@ -79,7 +79,7 @@ func JWTAuthMiddleWare() app.HandlerFunc {
 
 		// 将Token写入上下文
 		c.Set("jwt_claims", claim)
-		return
+		c.Next(context.Background()) // 以后再改
 	}
 }
 
@@ -120,7 +120,7 @@ func JWTRefreshMiddleWare() app.HandlerFunc {
 		userID := claim.UserID
 		uuid := claim.UUID
 		// 从Redis中校验Token
-		ok, rsp := redis.IfTokenExist(ctx, userID, 1) // 是否存在该AccessToken
+		ok, rsp := redis.IfTokenExist(ctx, userID, 1) // 是否存在该RefreshToken
 		if !ok {
 			c.JSON(consts.StatusOK, response.GenFinalResponse(rsp, nil))
 			c.Abort()
@@ -148,7 +148,7 @@ func JWTRefreshMiddleWare() app.HandlerFunc {
 
 		// 将Token写入上下文
 		c.Set("jwt_claims", claim)
-		return
+		c.Next(context.Background()) // 以后再改
 	}
 }
 
@@ -166,9 +166,32 @@ func CheckIfCourseSelectionStartedMiddleWare() app.HandlerFunc {
 		}
 		// 判断选课是否开始
 		if !ok {
+			c.JSON(consts.StatusOK, response.GenFinalResponse(response.CourseSelectionEventNotStart, nil))
+			c.Abort()
+			return
+		}
+		c.Next(context.Background()) // 以后再改
+	}
+}
+
+func CheckIfCourseSelectionStartedMiddleWareForAdmin() app.HandlerFunc {
+	return func(ctx context.Context, c *app.RequestContext) {
+		// 生成TraceID
+		traceID := core.SnowFlake.TraceID()
+		ctx = context.WithValue(ctx, "trace_id", traceID)
+		// 查Redis
+		ok, rsp := redis.CheckIfCourseSelectionStarted(ctx)
+		if !errors.Is(rsp, response.OperationSuccess) {
 			c.JSON(consts.StatusOK, response.GenFinalResponse(rsp, nil))
 			c.Abort()
 			return
 		}
+		// 判断选课是否开始
+		if ok {
+			c.JSON(consts.StatusOK, response.GenFinalResponse(response.NoChangingData, nil))
+			c.Abort()
+			return
+		}
+		c.Next(context.Background()) // 以后再改
 	}
 }

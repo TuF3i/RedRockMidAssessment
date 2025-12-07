@@ -11,7 +11,7 @@ import (
 	"moul.io/zapgorm2"
 )
 
-func ConnectToMySQL(debug bool) error {
+func ConnectToMySQL(debug bool, autoMigrate bool) (*gorm.DB, error) {
 	//生成连接URL
 	dsn := fmt.Sprintf(
 		"%v:%v@tcp(%v:%v)/%v?charset=utf8mb4&parseTime=True&loc=Local",
@@ -32,26 +32,26 @@ func ConnectToMySQL(debug bool) error {
 		Logger: gormLogger, //用zap接管日志输出
 	})
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	//数据库迁移
-	err = conn.AutoMigrate(
-		&models.Student{},
-		&models.Course{},
-		&models.Relation{},
-	)
+	if autoMigrate == true {
+		err = conn.AutoMigrate(
+			&models.Student{},
+			&models.Course{},
+			&models.Relation{},
+		)
 
-	if err != nil {
-		return err
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	//将连接全局化
 	if debug {
-		core.MysqlConn = conn.Debug()
+		return conn.Debug(), nil
 	} else {
-		core.MysqlConn = conn
+		return conn, nil
 	}
-
-	return nil
 }

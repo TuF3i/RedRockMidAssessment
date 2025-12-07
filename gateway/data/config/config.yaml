@@ -1,6 +1,7 @@
 hertzApi:
   listenAddr: "localhost"
   listenPort: 8080
+  monitorPort: 8081
 
 db:
   mysql:

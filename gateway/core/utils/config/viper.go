@@ -7,20 +7,20 @@ import (
 	"github.com/spf13/viper"
 )
 
-func InitConfig(path string) error {
-	core.Config = new(models.Config)
+func InitConfig(path string) (*models.Config, error) {
+	Config := new(models.Config)
 
 	v := viper.New()
 	v.SetConfigType("yaml")
 	v.SetConfigFile(path)
 
 	if err := v.ReadInConfig(); err != nil {
-		return err
+		return nil, err
 	}
 
 	if err := v.Unmarshal(core.Config); err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return Config, nil
 }

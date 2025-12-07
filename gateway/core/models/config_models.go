@@ -29,8 +29,9 @@ type Db struct {
 	Redis Redis `yaml:"redis"`
 }
 type HertzAPI struct {
-	ListenAddr string `yaml:"listenAddr"`
-	ListenPort int    `yaml:"listenPort"`
+	ListenAddr  string `yaml:"listenAddr"`
+	ListenPort  int    `yaml:"listenPort"`
+	MonitorPort int    `yaml:"monitorPort"`
 }
 
 type Mq struct {

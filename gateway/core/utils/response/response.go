@@ -51,6 +51,9 @@ var (
 
 	// 空数据错误
 	EmptyData = Response{Status: 10015, Info: "empty update columns"} // 无效的字段信息
+
+	// 管理员修改信息错误
+	NoChangingData = Response{Status: 10026, Info: "you can not change the data until the selection event finished"} // 管理员无法在选课期间更改学生选课的如何信息
 )
 
 func GenFinalResponse(response Response, data interface{}) FinalResponse {

@@ -175,6 +175,33 @@ func GetStudentListForAdminHandleFunc() app.HandlerFunc {
 	}
 }
 
+func GetStudentInfoForAdminHandleFunc() app.HandlerFunc {
+	// Permission: Admin
+	return func(ctx context.Context, c *app.RequestContext) {
+		// 生成TraceID
+		traceID := core.SnowFlake.TraceID()
+		ctx = context.WithValue(ctx, "trace_id", traceID)
+		// 解析JWT
+		rawClaims, _ := c.Get("jwt_claims")
+		claims := rawClaims.(jwt.CustomClaims)
+		// 判断权限
+		if claims.Role != "admin" { // 不可以拿admin来调用给学生的接口，避免权限混乱
+			c.JSON(consts.StatusOK, response.GenFinalResponse(response.PermissionDenied, nil))
+			return
+		}
+		// 从Param中提取StuID
+		stuID := c.Param("stuID")
+		// 调用stu_service
+		data, rsp := service.GetStuInfo(ctx, stuID)
+		if !errors.Is(rsp, response.OperationSuccess) {
+			c.JSON(consts.StatusOK, response.GenFinalResponse(rsp, nil))
+			return
+		}
+		c.JSON(consts.StatusOK, response.GenFinalResponse(rsp, data))
+		return
+	}
+}
+
 func UpdateStudentInfoForAdminHandleFunc() app.HandlerFunc {
 	// Permission: admin
 	return func(ctx context.Context, c *app.RequestContext) {
