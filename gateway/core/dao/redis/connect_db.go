@@ -8,7 +8,7 @@ import (
 	"github.com/go-redis/redis/v8"
 )
 
-func ConnectToRedis(debug bool) error {
+func ConnectToRedis() error {
 	//建立连接
 	client := redis.NewClient(&redis.Options{
 		Addr: fmt.Sprintf(
