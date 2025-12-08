@@ -19,7 +19,7 @@ type Business struct {
 func DefaultHandleFunc(ctx context.Context, commander models.Commander) {
 	core.Logger.Error(
 		"Unknow Operation Object",
-		zap.String("snowflake", ctx.Value("traceID").(string)),
+		zap.String("snowflake", ctx.Value("TraceID").(string)),
 		zap.String("detail", commander.Role),
 	)
 }
@@ -31,7 +31,7 @@ func CourseHandleFunc(ctx context.Context, commander models.Commander) {
 		err := errors.New("can Not Do Type Assertion")
 		core.Logger.Error(
 			"Type Assertion Error",
-			zap.String("snowflake", ctx.Value("traceID").(string)),
+			zap.String("snowflake", ctx.Value("TraceID").(string)),
 			zap.String("detail", err.Error()),
 		)
 		return
@@ -43,14 +43,14 @@ func CourseHandleFunc(ctx context.Context, commander models.Commander) {
 		if err := service.SubmitCourseForStudent(msg.StudentID, msg.CourseID); err != nil { // 调用course_service执行命令
 			core.Logger.Error(
 				"Submit Course Error",
-				zap.String("snowflake", ctx.Value("traceID").(string)),
+				zap.String("snowflake", ctx.Value("TraceID").(string)),
 				zap.String("detail", err.Error()),
 			)
 			return
 		}
 		core.Logger.Info(
 			"Success Handle Message",
-			zap.String("snowflake", ctx.Value("traceID").(string)),
+			zap.String("snowflake", ctx.Value("TraceID").(string)),
 			zap.String("op_obj", commander.Role),
 			zap.String("op", msg.Operation),
 			zap.Any("data", msg),
@@ -60,14 +60,14 @@ func CourseHandleFunc(ctx context.Context, commander models.Commander) {
 		if err := service.DropCourseForStudent(msg.StudentID, msg.CourseID); err != nil { // 调用course_service执行命令
 			core.Logger.Error(
 				"Drop Course Error",
-				zap.String("snowflake", ctx.Value("traceID").(string)),
+				zap.String("snowflake", ctx.Value("TraceID").(string)),
 				zap.String("detail", err.Error()),
 			)
 			return
 		}
 		core.Logger.Info(
 			"Success Handle Message",
-			zap.String("snowflake", ctx.Value("traceID").(string)),
+			zap.String("snowflake", ctx.Value("TraceID").(string)),
 			zap.String("op_obj", commander.Role),
 			zap.String("op", msg.Operation),
 			zap.Any("data", msg),
@@ -76,7 +76,7 @@ func CourseHandleFunc(ctx context.Context, commander models.Commander) {
 		// 未知操作类型
 		core.Logger.Error(
 			"Unknow Operation",
-			zap.String("snowflake", ctx.Value("traceID").(string)),
+			zap.String("snowflake", ctx.Value("TraceID").(string)),
 			zap.String("detail", msg.Operation),
 			zap.Any("data", msg),
 		)
@@ -90,7 +90,7 @@ func SelectedNumHandleFunc(ctx context.Context, commander models.Commander) {
 		err := errors.New("can Not Do Type Assertion")
 		core.Logger.Error(
 			"Type Assertion Error",
-			zap.String("snowflake", ctx.Value("traceID").(string)),
+			zap.String("snowflake", ctx.Value("TraceID").(string)),
 			zap.String("detail", err.Error()),
 		)
 		return
@@ -106,7 +106,7 @@ func SelectedNumHandleFunc(ctx context.Context, commander models.Commander) {
 	}
 	core.Logger.Info(
 		"Success Handle Message",
-		zap.String("snowflake", ctx.Value("traceID").(string)),
+		zap.String("snowflake", ctx.Value("TraceID").(string)),
 		zap.String("op_obj", commander.Role),
 		zap.Any("data", msg),
 	)

@@ -17,7 +17,7 @@ import (
 
 const (
 	CONFIG_PATH = "./data/config/config.yaml"
-	LOG_PATH    = "./data/log"
+	LOG_PATH    = "./data/logs"
 )
 
 func GenesisFruit() {

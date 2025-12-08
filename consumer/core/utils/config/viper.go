@@ -1,7 +1,6 @@
 package viper
 
 import (
-	"RedRockMidAssessment-Consumer/core"
 	"RedRockMidAssessment-Consumer/core/models"
 
 	"github.com/spf13/viper"
@@ -18,7 +17,7 @@ func InitConfig(path string) (*models.Config, error) {
 		return nil, err
 	}
 
-	if err := v.Unmarshal(core.Config); err != nil {
+	if err := v.Unmarshal(Config); err != nil {
 		return nil, err
 	}
 

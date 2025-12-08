@@ -18,7 +18,7 @@ func ConnectToMySQL(debug bool, autoMigrate bool) (*gorm.DB, error) {
 		core.Config.Db.Mysql.User,
 		core.Config.Db.Mysql.Passwd,
 		core.Config.Db.Mysql.Addr,
-		core.Config.Db.Mysql.Passwd,
+		core.Config.Db.Mysql.Port,
 		core.Config.Db.Mysql.DefaultDB,
 	)
 

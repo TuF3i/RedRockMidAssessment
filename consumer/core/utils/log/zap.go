@@ -2,6 +2,8 @@ package zap
 
 import (
 	"os"
+	"path/filepath"
+	"time"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
@@ -12,13 +14,14 @@ var logLevel = zap.DebugLevel           //debug级别
 var timeFmt = "2006-01-02 15:04:05.000" //格式化时间
 
 func InitZap(path string) *zap.Logger {
+	fileName := filepath.Join(path, time.Now().Format("2006-01-02")+".log")
 	// 轮转文件
 	logFile := &lumberjack.Logger{
-		Filename:   path,  // 日志路径
-		MaxSize:    10,    // 单个文件最大10M
-		MaxBackups: 3,     // 最多3个备份文件夹
-		MaxAge:     7,     // 日志最多保留7天
-		Compress:   false, // 是否压缩日志
+		Filename:   fileName, // 日志路径
+		MaxSize:    10,       // 单个文件最大10M
+		MaxBackups: 3,        // 最多3个备份文件夹
+		MaxAge:     7,        // 日志最多保留7天
+		Compress:   false,    // 是否压缩日志
 	}
 
 	//JSON编码器

@@ -18,8 +18,8 @@ type Db struct {
 type Kafka struct {
 	Addr        string `yaml:"addr"`
 	Port        string `yaml:"port"`
-	GroupID     string `yaml:"group_id"`
-	BlanketPeek int    `yaml:"blanket_peak"`
+	GroupID     string `yaml:"groupID"`
+	BlanketPeek int    `yaml:"blanketPeek"`
 }
 type Mq struct {
 	Kafka Kafka `yaml:"kafka"`

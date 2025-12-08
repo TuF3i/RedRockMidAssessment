@@ -7,15 +7,17 @@ import (
 	viper "RedRockMidAssessment-Consumer/core/utils/config"
 	zap "RedRockMidAssessment-Consumer/core/utils/log"
 	"RedRockMidAssessment-Consumer/core/utils/snowflake"
+	"RedRockMidAssessment-Consumer/core/worker"
 	"fmt"
 	"os"
+	"time"
 
 	"gitee.com/liumou_site/logger"
 )
 
 const (
 	CONFIG_PATH = "./data/config/config.yaml"
-	LOG_PATH    = "./data/log"
+	LOG_PATH    = "./data/logs"
 )
 
 func GenesisFruit() {
@@ -51,13 +53,16 @@ func GenesisFruit() {
 
 	// 初始化MySQL连接
 	logs.Debug("Started to init mod <MySQL>")
-	mysqlConn, err := dao.ConnectToMySQL(true, false)
+	mysqlConn, err := dao.ConnectToMySQL(true, true)
 	if err != nil {
 		logs.Warn("Init mod <MySQL> error: %v", err.Error())
 		os.Exit(1)
 	}
 	core.MysqlConn = mysqlConn
 	logs.Info("Successfully loaded mod <MySQL>")
+
+	// 初始化全局WaitGroup
+	worker.InitGlobalWg()
 
 	// 初始化kafka消费者组
 	logs.Debug("Started to init mod <kafka-consumer-group>")
@@ -78,7 +83,7 @@ func GenesisFruit() {
 	// 完成提示
 	fmt.Println()
 	logs.Alert("Server Started Successfully, present logs: ")
-
+	core.Logger.Debug("Debug")
 }
 
 func WorldEndingFruit() {
@@ -89,6 +94,7 @@ func WorldEndingFruit() {
 	// 发送取消消息（暂时没用，先留着）
 	logs.Info("Sending Cancel() Message...")
 	core.Cancel()
+	time.Sleep(time.Second)
 
 	// 关闭底层连接
 	logs.Debug("Started to clean mod <kafka-consumer>")
@@ -100,7 +106,9 @@ func WorldEndingFruit() {
 
 	// 等待全部ACK
 	logs.Info("Waiting for consumer...")
-	core.GlobalWg.Wait()
+	if core.GlobalWg != nil {
+		worker.WaitGlobalWg()
+	}
 
 	// 关闭MySQL连接
 	//（其实并不需要，gorm.db不持有socket）

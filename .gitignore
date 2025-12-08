@@ -30,3 +30,8 @@ go.work.sum
 # Editor/IDE
 # .idea/
 # .vscode/
+
+# ConfigFile
+consumer\data\config\config.yaml
+gateway\data\config\config.yaml
+synchronizer\data\config\config.yaml
