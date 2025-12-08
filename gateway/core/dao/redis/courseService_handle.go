@@ -89,12 +89,15 @@ func SubscribeACourse(ctx context.Context, userID string, courseID string) respo
 	keyForStu := courseUsersKey(courseID)
 	keyForStock := courseStockKey(courseID)
 	keyForStudentSelectedCourseKey := studentSelectedCourseKey(userID)
+	keyForCourseInfo := courseInfoKey(courseID)
 
 	// Lua脚本 -- AI写的
 	lua := `
 local stockKey  = KEYS[1]
 local usersKey  = KEYS[2]
 local userSelectedKey = KEYS[3]
+local courseInfoKey = KEYS[4]
+
 local userID    = ARGV[1]
 local courseID  = ARGV[2]
 
@@ -109,6 +112,12 @@ end
 -- 把用户加入集合
 redis.call('SADD', usersKey, userID)
 redis.call('SADD', userSelectedKey, courseID)
+
+-- 改课程信息
+local v = redis.call('HGET', courseInfoKey, 'ClassSelectedNum') or 0
+v = v + 1
+redis.call('HSET', courseInfoKey, 'ClassSelectedNum', v)
+
 return 1
 `
 	// 初始化脚本
@@ -117,7 +126,7 @@ return 1
 	ok, err := script.Run(
 		ctx,
 		core.RedisConn,
-		[]string{keyForStock, keyForStu, keyForStudentSelectedCourseKey},
+		[]string{keyForStock, keyForStu, keyForStudentSelectedCourseKey, keyForCourseInfo},
 		[]string{userID, courseID},
 	).Result()
 	// 判断返回值
@@ -142,6 +151,7 @@ func DropACourse(ctx context.Context, userID string, courseID string) response.R
 	keyForStock := courseStockKey(courseID)
 	keyForStuDropped := courseDroppedUsersKey(courseID)
 	keyForStudentSelectedCourseKey := studentSelectedCourseKey(userID)
+	keyForCourseInfo := courseInfoKey(courseID)
 
 	// Lua脚本 -- AI写的
 	lua := `
@@ -149,6 +159,8 @@ local stockKey   = KEYS[1]   -- 课程库存
 local usersKey   = KEYS[2]   -- 已报名用户集合
 local droppedKey = KEYS[3]   -- 已退课用户集合
 local userSelectedKey = KEYS[4] -- 学生选课集合
+local courseInfoKey = KEYS[5] -- 课程信息
+
 local userID     = ARGV[1]   -- 要退课的用户
 local courseID   = ARGV[2]   -- 课程ID
 
@@ -169,6 +181,11 @@ redis.call('SADD', droppedKey, userID)
 -- 4. 从学生选课集合中移除课程
 redis.call('SREM', userSelectedKey, courseID)
 
+-- 5. 改课程信息
+local v = redis.call('HGET', courseInfoKey, 'ClassSelectedNum') or 0
+v = v - 1
+redis.call('HSET', courseInfoKey, 'ClassSelectedNum', v)
+
 return 1
 `
 	// 初始化脚本
@@ -176,7 +193,7 @@ return 1
 	// 执行脚本
 	ok, err := script.Run(ctx,
 		core.RedisConn,
-		[]string{keyForStock, keyForStu, keyForStuDropped, keyForStudentSelectedCourseKey},
+		[]string{keyForStock, keyForStu, keyForStuDropped, keyForStudentSelectedCourseKey, keyForCourseInfo},
 		[]string{userID, courseID},
 	).Result()
 	// 判断返回值

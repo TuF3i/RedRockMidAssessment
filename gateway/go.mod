@@ -6,6 +6,7 @@ require (
 	gitee.com/liumou_site/logger v1.2.3
 	github.com/IBM/sarama v1.46.3
 	github.com/cloudwego/hertz v0.10.3
+	github.com/fatih/color v1.18.0
 	github.com/fatih/structs v1.1.0
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/golang-jwt/jwt/v5 v5.3.0
@@ -49,7 +50,7 @@ require (
 	github.com/klauspost/compress v1.18.1 // indirect
 	github.com/klauspost/cpuid/v2 v2.3.0 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect
-	github.com/mattn/go-isatty v0.0.16 // indirect
+	github.com/mattn/go-isatty v0.0.20 // indirect
 	github.com/munnerz/goautoneg v0.0.0-20191010083416-a7dc8b61c822 // indirect
 	github.com/nyaruka/phonenumbers v1.6.7 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.4 // indirect

@@ -1,9 +1,11 @@
 package fruit
 
 import (
-	"RedRockMidAssessment-Consumer/core/dao"
 	"RedRockMidAssessment/core"
+	"RedRockMidAssessment/core/api"
 	"RedRockMidAssessment/core/dao/mysql"
+	"RedRockMidAssessment/core/dao/redis"
+	"RedRockMidAssessment/core/kafka"
 	viper "RedRockMidAssessment/core/utils/config"
 	zap "RedRockMidAssessment/core/utils/log"
 	"RedRockMidAssessment/core/utils/snowflake"
@@ -57,4 +59,58 @@ func GenesisFruit() {
 	}
 	core.MysqlConn = mysqlConn
 	logs.Info("Successfully loaded mod <MySQL>")
+
+	// 初始化Redis连接
+	logs.Debug("Started to init mod <redis>")
+	redisConn, err := redis.ConnectToRedis()
+	if err != nil {
+		logs.Warn("Init mod <redis> error: %v", err.Error())
+		os.Exit(1)
+	}
+	core.RedisConn = redisConn
+	logs.Info("Successfully loaded mod <redis>")
+
+	// 初始化kafka生产者
+	logs.Debug("Started to init mod <kafka-producer>")
+	producer, err := kafka.NewProducer()
+	if err != nil {
+		logs.Warn("Init mod <kafka-producer> error: %v", err.Error())
+		os.Exit(1)
+	}
+	core.Producer = producer
+	logs.Info("Successfully loaded mod <kafka-producer>")
+
+	// 启动HertzAPI
+	api.HertzApi()
+}
+
+func WorldEndingFruit() {
+	// 初始化日志
+	logs := logger.NewLogger(1)
+	logs.Modular = "WorldEndingFruit"
+
+	// 关闭kafka生产者
+	logs.Debug("Started to clean mod <kafka-producer>")
+	if err := core.Producer.Close(); err != nil {
+		logs.Warn("Cleaning mod <kafka-producer> error: %v", err.Error())
+	}
+	logs.Info("Successfully cleaned mod <kafka-producer>")
+
+	// 关闭Redis连接
+	logs.Debug("Started to clean mod <redis>")
+	if err := core.RedisConn.Close(); err != nil {
+		logs.Warn("Cleaning mod <redis> error: %v", err.Error())
+	}
+	logs.Info("Successfully cleaned mod <redis>")
+
+	// 关闭MySQL连接
+	//（其实并不需要，gorm.db不持有socket）
+
+	// 清除日志缓存
+	logs.Debug("Started to clean mod <zap>")
+	if err := core.Logger.Sync(); err != nil {
+		logs.Warn("Cleaning mod <zap> error: %v", err.Error())
+	}
+	logs.Info("Successfully cleaned mod <zap>")
+
 }

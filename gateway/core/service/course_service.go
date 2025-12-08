@@ -3,6 +3,7 @@ package service
 import (
 	"RedRockMidAssessment/core/dao/mysql"
 	"RedRockMidAssessment/core/dao/redis"
+	"RedRockMidAssessment/core/dao/union_init"
 	"RedRockMidAssessment/core/kafka"
 	"RedRockMidAssessment/core/models"
 	msg2 "RedRockMidAssessment/core/utils/msg"
@@ -399,7 +400,16 @@ func StartCourseSelection(ctx context.Context) response.Response {
 	if ok {
 		return response.CourseSelectionEventAlreadyStart
 	}
-
+	// 清空数据库缓存
+	rsp = union_init.CleanUpCache(ctx)
+	if !errors.Is(rsp, response.OperationSuccess) {
+		return rsp
+	}
+	// 缓存预热
+	rsp = union_init.PreloadCache(ctx)
+	if !errors.Is(rsp, response.OperationSuccess) {
+		return rsp
+	}
 	// 开启选课（写Redis）
 	rsp = redis.UpdateCourseSelectionEventStatus(ctx, true)
 	if !errors.Is(rsp, response.OperationSuccess) {

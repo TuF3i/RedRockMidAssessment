@@ -8,7 +8,7 @@ import (
 	monitor "github.com/hertz-contrib/monitor-prometheus"
 )
 
-func HertzApi() *server.Hertz {
+func HertzApi() {
 	// 构造Url
 	url := fmt.Sprintf("%v:%v", core.Config.HertzAPI.ListenAddr, core.Config.HertzAPI.ListenPort)
 	monitorUrl := fmt.Sprintf("%v:%v", core.Config.HertzAPI.ListenAddr, core.Config.HertzAPI.MonitorPort)
@@ -16,8 +16,8 @@ func HertzApi() *server.Hertz {
 	h := server.Default(server.WithHostPorts(url), server.WithTracer(monitor.NewServerTracer(monitorUrl, "/monitor")))
 	// 初始化路由
 	initRouter(h)
-	// 返回Hertz引擎
-	return h
+	// 启动Hertz引擎
+	go func() { h.Spin() }()
 }
 
 func initRouter(h *server.Hertz) {

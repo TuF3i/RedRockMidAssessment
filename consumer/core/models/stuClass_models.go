@@ -32,7 +32,7 @@ type Course struct {
 	ClassCapacity    uint   `json:"class_capacity" gorm:"column:class_capacity; not null; type:int"`
 	ClassSelectedNum uint   `json:"class_selection" gorm:"column:class_selected_num; not null; type:int"`
 
-	Students []Student `json:"students" gorm:"many2many:relation; foreignKey:ClassID; joinForeignKey:CouID; references:StudentID; joinReferences:StuID"`
+	Students []Student `json:"students" gorm:"many2many:relation; foreignKey:ClassID; joinForeignKey:CouID; references:StudentID; joinReferences:StuID; constraint:OnDelete:CASCADE"`
 }
 
 func (Course) TableName() string {
@@ -55,7 +55,7 @@ type Student struct {
 	Grade        uint   `json:"grade" gorm:"column:grade; not null"`
 	Age          uint   `json:"age" gorm:"column:age; not null"`
 
-	Courses []Course `json:"courses" gorm:"many2many:relation; foreignKey:StudentID; joinForeignKey:StuID; references:ClassID; joinReferences:CouID"`
+	Courses []Course `json:"courses" gorm:"many2many:relation; foreignKey:StudentID; joinForeignKey:StuID; references:ClassID; joinReferences:CouID; constraint:OnDelete:CASCADE"`
 }
 
 func (Student) TableName() string {
