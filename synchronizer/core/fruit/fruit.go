@@ -8,6 +8,7 @@ import (
 	viper "RedRockMidAssessment-Synchronizer/core/utils/config"
 	zap "RedRockMidAssessment-Synchronizer/core/utils/log"
 	"RedRockMidAssessment-Synchronizer/core/utils/snowflake"
+	"context"
 	"fmt"
 	"os"
 	"time"
@@ -18,6 +19,11 @@ import (
 const (
 	CONFIG_PATH = "./data/config/config.yaml"
 	LOG_PATH    = "./data/logs"
+)
+
+var (
+	cancel context.CancelFunc
+	ctx    context.Context
 )
 
 func GenesisFruit() {
@@ -85,9 +91,12 @@ func GenesisFruit() {
 	core.TimerStop = make(chan struct{}) // 计时器停止指令
 	core.TaskQ = make(chan struct{}, 5)  // 全局任务队列
 
+	// 初始化Context
+	ctx, cancel = context.WithCancel(context.Background())
+
 	//启动一些监视携程
-	go kafka.KLogger()          // 启动kafka日志携程
-	go kafka.MsgReader()        // 启动信息监听携程
+	go kafka.KLogger(ctx)       // 启动kafka日志携程
+	go kafka.MsgReader(ctx)     // 启动信息监听携程
 	go timerlistener.Listener() // 启动计时器信号监听携程
 
 	fmt.Println()
@@ -99,6 +108,9 @@ func WorldEndingFruit() {
 	logs := logger.NewLogger(1)
 	logs.Modular = "WorldEndingFruit"
 
+	// 发送Cancel消息
+	cancel()
+
 	// 关闭消费者,等待消息处理完毕
 	logs.Debug("Started to clean mod <kafka-consumer>")
 	err := core.PartitionConsumer.Close()
@@ -108,22 +120,33 @@ func WorldEndingFruit() {
 	logs.Info("Successfully cleaned mod <kafka-consumer>")
 
 	// 进行关闭前的一次同步
-	go func() { // 防止死锁
-		if core.TimerStatus != 0 {
-			core.TimerStatus = 0
-			core.TimerStop <- struct{}{}
-			core.TaskQ <- struct{}{}
-		}
-	}()
+	if core.TimerStatus != 0 {
+		core.TimerStatus = 0
+		core.TimerStop <- struct{}{}
+		core.TaskQ <- struct{}{}
+	}
+	//go func() { // 防止死锁
+	//	if core.TimerStatus != 0 {
+	//		core.TimerStatus = 0
+	//		core.TimerStop <- struct{}{}
+	//		core.TaskQ <- struct{}{}
+	//	}
+	//}()
 	time.Sleep(500 * time.Millisecond)
 
 	// 关闭生产者
 	logs.Debug("Started to clean mod <kafka-producer>")
-	core.GlobalWg.Wait() // 等待结束
 	if err := core.Producer.Close(); err != nil {
 		logs.Warn("Cleaning mod <kafka-producer> error: %v", err.Error())
 	}
+	core.GlobalWg.Wait() // 等待结束
 	logs.Info("Successfully cleaned mod <kafka-producer>")
+
+	// 关闭管道
+	logs.Debug("Started to close some <pipeline>")
+	close(core.TaskQ)
+	close(core.TimerStop)
+	logs.Info("Successfully closed some <pipeline>")
 
 	// 关闭Redis缓存
 	logs.Debug("Started to clean mod <redis>")

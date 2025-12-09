@@ -1,0 +1,6 @@
+{"level":"debug","ts":"2025-12-09 11:21:38.639","caller":"fruit/fruit.go:86","msg":"Debug"}
+{"level":"warn","ts":"2025-12-09 11:21:51.405","caller":"kafka/handle.go:16","msg":"Consume Error","detail":"kafka: tried to use a consumer group that was closed"}
+{"level":"debug","ts":"2025-12-09 11:22:15.853","caller":"fruit/fruit.go:86","msg":"Debug"}
+{"level":"warn","ts":"2025-12-09 11:22:28.525","caller":"kafka/handle.go:16","msg":"Consume Error","detail":"context canceled"}
+{"level":"debug","ts":"2025-12-09 11:23:07.331","caller":"fruit/fruit.go:86","msg":"Debug"}
+{"level":"warn","ts":"2025-12-09 11:23:20.011","caller":"kafka/handle.go:16","msg":"Consume Error","detail":"kafka: tried to use a consumer group that was closed"}

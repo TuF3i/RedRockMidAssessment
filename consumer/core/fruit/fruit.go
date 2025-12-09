@@ -96,6 +96,12 @@ func WorldEndingFruit() {
 	core.Cancel()
 	time.Sleep(time.Second)
 
+	// 等待全部ACK
+	logs.Info("Waiting for consumer...")
+	if core.GlobalWg != nil {
+		worker.WaitGlobalWg()
+	}
+
 	// 关闭底层连接
 	logs.Debug("Started to clean mod <kafka-consumer>")
 	err := core.Group.Close()
@@ -103,12 +109,6 @@ func WorldEndingFruit() {
 		logs.Warn("Cleaning mod <kafka-consumer> error: %v", err.Error())
 	}
 	logs.Info("Successfully cleaned mod <kafka-consumer>")
-
-	// 等待全部ACK
-	logs.Info("Waiting for consumer...")
-	if core.GlobalWg != nil {
-		worker.WaitGlobalWg()
-	}
 
 	// 关闭MySQL连接
 	//（其实并不需要，gorm.db不持有socket）
