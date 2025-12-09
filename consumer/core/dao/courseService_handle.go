@@ -118,3 +118,16 @@ func UpdateSelectedStuNum(courseID string, num uint) error {
 
 	return nil
 }
+
+func GetCourseCapacity(courseID string) (uint, error) {
+	var capacity uint
+	// 开启数据库事务
+	tx := core.MysqlConn.Begin()
+	defer tx.Commit()
+	// 查询课程容量
+	if err := tx.Where("class_id = ?", courseID).Pluck("class_capacity", &capacity).Error; err != nil {
+		return 0, err
+	}
+
+	return capacity, nil
+}

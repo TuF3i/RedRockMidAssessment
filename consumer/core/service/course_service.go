@@ -89,8 +89,14 @@ func UpdateSelectedStuNum(courseID string, num uint) error {
 		return fmt.Errorf("course not exist")
 	}
 
+	// 获取课程容量
+	capacity, err := dao.GetCourseCapacity(courseID)
+
+	// 计算课程容量
+	selectedNum := capacity - num
+
 	// 更改已选课人数
-	err = dao.UpdateSelectedStuNum(courseID, num)
+	err = dao.UpdateSelectedStuNum(courseID, selectedNum)
 	if err != nil {
 		return err
 	}
