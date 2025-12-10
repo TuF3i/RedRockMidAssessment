@@ -6,13 +6,13 @@ import (
 
 	"github.com/IBM/sarama"
 	"github.com/go-redis/redis/v8"
-	"go.uber.org/zap"
+	hertzzap "github.com/hertz-contrib/logger/zap"
 	"gorm.io/gorm"
 )
 
 var (
-	Logger *zap.Logger    // 日志组件
-	Config *models.Config // 配置结构体
+	Logger *hertzzap.Logger // 日志组件
+	Config *models.Config   // 配置结构体
 
 	MysqlConn *gorm.DB             // MySQL连接
 	RedisConn *redis.Client        // Redis连接

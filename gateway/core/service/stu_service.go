@@ -11,6 +11,7 @@ import (
 	"RedRockMidAssessment/core/utils/verify"
 	"context"
 	"errors"
+	"fmt"
 	"reflect"
 
 	"go.uber.org/zap"
@@ -35,8 +36,8 @@ func Login(ctx context.Context, userForm models.LoginForm) (interface{}, respons
 		return nil, rsp
 	}
 
-	if ifExist { // 检测学生是否存在
-		return nil, response.StudentIDAlreadyExist
+	if !ifExist { // 检测学生是否存在
+		return nil, response.UserNotExiOrWrongStuID
 	}
 
 	/* MySQL读库 */
@@ -49,12 +50,13 @@ func Login(ctx context.Context, userForm models.LoginForm) (interface{}, respons
 
 	/* 校验密码 */
 	if typedData.Password != md5.GenMD5(password) {
+		core.Logger.Info(fmt.Sprintf("%v : %v", typedData.Password, md5.GenMD5(password)))
 		return nil, response.WrongPassword
 	}
 
 	/* 校验角色 */
 	role := func() string {
-		if typedData.Role {
+		if !typedData.Role {
 			return "admin"
 		} else {
 			return "student"

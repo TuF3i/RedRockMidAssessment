@@ -41,5 +41,5 @@ type Mq struct {
 type Kafka struct {
 	Addr     string `yaml:"addr"`
 	Port     string `yaml:"port"`
-	ClientID string `yaml:"client_id"`
+	ClientID string `yaml:"clientID"`
 }

@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 	"time"
 
+	hertzzap "github.com/hertz-contrib/logger/zap"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
@@ -13,9 +14,10 @@ import (
 var logLevel = zap.DebugLevel           //debug级别
 var timeFmt = "2006-01-02 15:04:05.000" //格式化时间
 
-func InitZap(path string) *zap.Logger {
+func InitZap(path string) *hertzzap.Logger {
 	fileName := filepath.Join(path, time.Now().Format("2006-01-02")+".log")
 	// 轮转文件
+
 	logFile := &lumberjack.Logger{
 		Filename:   fileName, // 日志路径
 		MaxSize:    10,       // 单个文件最大10M
@@ -40,11 +42,11 @@ func InitZap(path string) *zap.Logger {
 	})
 
 	//JSON日志核心
-	jsonCore := zapcore.NewCore(
-		jsonEncoder,
-		zapcore.AddSync(logFile),
-		logLevel,
-	)
+	//jsonCore := zapcore.NewCore(
+	//	jsonEncoder,
+	//	zapcore.AddSync(logFile),
+	//	logLevel,
+	//)
 
 	//控制台日志编码器
 	consoleEncoder := zapcore.NewConsoleEncoder(zapcore.EncoderConfig{
@@ -62,8 +64,22 @@ func InitZap(path string) *zap.Logger {
 	})
 
 	//控制台日志核心
-	consoleCore := zapcore.NewCore(consoleEncoder, zapcore.Lock(os.Stdout), logLevel)
+	//consoleCore := zapcore.NewCore(consoleEncoder, zapcore.Lock(os.Stdout), logLevel)
+
+	// JSON日志核心
+	jsonCore := hertzzap.CoreConfig{
+		Enc: jsonEncoder,
+		Ws:  zapcore.AddSync(logFile),
+		Lvl: logLevel,
+	}
+
+	// 控制台日志核心
+	consoleCore := hertzzap.CoreConfig{
+		Enc: consoleEncoder,
+		Ws:  zapcore.Lock(os.Stdout),
+		Lvl: logLevel,
+	}
 
 	//合并两个日志核心
-	return zap.New(zapcore.NewTee(jsonCore, consoleCore), zap.AddCaller())
+	return hertzzap.NewLogger(hertzzap.WithCores(consoleCore, jsonCore))
 }

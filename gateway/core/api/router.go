@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/cloudwego/hertz/pkg/app/server"
+	"github.com/cloudwego/hertz/pkg/common/hlog"
 	monitor "github.com/hertz-contrib/monitor-prometheus"
 )
 
@@ -16,6 +17,8 @@ func HertzApi() {
 	h := server.Default(server.WithHostPorts(url), server.WithTracer(monitor.NewServerTracer(monitorUrl, "/monitor")))
 	// 初始化路由
 	initRouter(h)
+	// 设置日志内核
+	hlog.SetLogger(core.Logger)
 	// 启动Hertz引擎
 	go func() { h.Spin() }()
 }

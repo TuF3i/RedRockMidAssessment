@@ -6,9 +6,12 @@ import (
 	"RedRockMidAssessment/core/dao/mysql"
 	"RedRockMidAssessment/core/dao/redis"
 	"RedRockMidAssessment/core/kafka"
+	"RedRockMidAssessment/core/models"
 	viper "RedRockMidAssessment/core/utils/config"
 	zap "RedRockMidAssessment/core/utils/log"
+	"RedRockMidAssessment/core/utils/md5"
 	"RedRockMidAssessment/core/utils/snowflake"
+	"fmt"
 	"os"
 
 	"gitee.com/liumou_site/logger"
@@ -80,8 +83,20 @@ func GenesisFruit() {
 	core.Producer = producer
 	logs.Info("Successfully loaded mod <kafka-producer>")
 
+	// 添加Root用户
+	logs.Debug("Started to add user <admin>")
+	err = CreateAdminUser()
+	if err != nil {
+		logs.Warn("Init mod <kafka-producer> error: %v", err.Error())
+		os.Exit(1)
+	}
+	logs.Info("Successfully added user <admin>")
+
 	// 启动HertzAPI
 	api.HertzApi()
+	// 测试日志
+	core.Logger.Info(fmt.Sprintf("DEBUG"))
+
 }
 
 func WorldEndingFruit() {
@@ -108,9 +123,42 @@ func WorldEndingFruit() {
 
 	// 清除日志缓存
 	logs.Debug("Started to clean mod <zap>")
-	if err := core.Logger.Sync(); err != nil {
-		logs.Warn("Cleaning mod <zap> error: %v", err.Error())
-	}
+	core.Logger.Sync()
 	logs.Info("Successfully cleaned mod <zap>")
 
+}
+
+func CreateAdminUser() error {
+	// 用户信息
+	userForm := models.Student{
+		Role:         false,
+		Name:         "admin",
+		StudentID:    "1234567890",
+		StudentClass: "adminGroup",
+		Password:     md5.GenMD5("P@ssw0rd=Ping12345"),
+		Sex:          0,
+		Grade:        4,
+		Age:          19,
+	}
+	// 开启数据库事务
+	tx := core.MysqlConn.Begin()
+	// 检测用户是否存在
+	result := tx.Where("student_id = ?", userForm.StudentID).Find(&models.Student{})
+	if err := result.Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	// 判断用户是否存在
+	if result.RowsAffected != 0 {
+		tx.Rollback()
+		return nil
+	}
+	// 添加用户
+	if err := tx.Create(&userForm).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+	// 提交事务
+	tx.Commit()
+	return nil
 }

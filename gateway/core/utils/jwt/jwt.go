@@ -67,7 +67,7 @@ func GenTokens(userID string, role string) (accessToken string, refreshToken str
 		},
 	}
 	//生成令牌
-	accessToken, err = jwt.NewWithClaims(jwt.SigningMethodHS256, refreshClaims).SignedString(refreshSecret) //签名密钥
+	refreshToken, err = jwt.NewWithClaims(jwt.SigningMethodHS256, refreshClaims).SignedString(refreshSecret) //签名密钥
 	if err != nil {
 		return "", "", "", "", fmt.Errorf("gen refershToken: %v", err.Error())
 	}
