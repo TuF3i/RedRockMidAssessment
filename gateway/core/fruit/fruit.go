@@ -104,6 +104,13 @@ func WorldEndingFruit() {
 	logs := logger.NewLogger(1)
 	logs.Modular = "WorldEndingFruit"
 
+	// 关闭HertzAPI
+	logs.Debug("Started to shutdown <hertz-engine>")
+	if err := api.HertzShutdown(); err != nil {
+		logs.Warn("Shutting down <hertz-engine> error: %v", err.Error())
+	}
+	logs.Info("Successfully shutdown <hertz-engine>")
+
 	// 关闭kafka生产者
 	logs.Debug("Started to clean mod <kafka-producer>")
 	if err := core.Producer.Close(); err != nil {

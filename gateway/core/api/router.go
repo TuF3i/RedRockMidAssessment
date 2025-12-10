@@ -2,19 +2,32 @@ package api
 
 import (
 	"RedRockMidAssessment/core"
+	"context"
 	"fmt"
+	"time"
 
 	"github.com/cloudwego/hertz/pkg/app/server"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
 	monitor "github.com/hertz-contrib/monitor-prometheus"
 )
 
+var h *server.Hertz
+
+func HertzShutdown() error {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	if err := h.Shutdown(ctx); err != nil { // 会触发优雅停服
+		return err
+	}
+	return nil
+}
+
 func HertzApi() {
 	// 构造Url
 	url := fmt.Sprintf("%v:%v", core.Config.HertzAPI.ListenAddr, core.Config.HertzAPI.ListenPort)
 	monitorUrl := fmt.Sprintf("%v:%v", core.Config.HertzAPI.ListenAddr, core.Config.HertzAPI.MonitorPort)
 	// 创建服务核心
-	h := server.Default(server.WithHostPorts(url), server.WithTracer(monitor.NewServerTracer(monitorUrl, "/monitor")))
+	h = server.Default(server.WithHostPorts(url), server.WithTracer(monitor.NewServerTracer(monitorUrl, "/monitor")))
 	// 初始化路由
 	initRouter(h)
 	// 设置日志内核
