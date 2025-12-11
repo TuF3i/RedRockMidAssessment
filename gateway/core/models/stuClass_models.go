@@ -43,12 +43,12 @@ func (Course) TableName() string {
 
 type Student struct {
 	// 学生表
-	ID        uint           `gorm:"primarykey"`
+	ID        uint           `json:"-" gorm:"primarykey"`
 	CreatedAt time.Time      `json:"create_at"`
 	UpdatedAt time.Time      `json:"-"`
 	DeletedAt gorm.DeletedAt `json:"-" gorm:"index"`
 
-	Role         bool   `json:"role" gorm:"column:role; not null; type:tinyint; default:1"` // 0为admin, 1为学生
+	Role         bool   `json:"-" gorm:"column:role; not null; type:tinyint; default:1"` // 0为admin, 1为学生
 	Name         string `json:"name" gorm:"column:name; not null; type:varchar(90)"`
 	StudentID    string `json:"stu_id" gorm:"column:student_id; index; unique; not null; type:bigint"`
 	StudentClass string `json:"stu_class" gorm:"column:student_class; not null; type:varchar(40)"`

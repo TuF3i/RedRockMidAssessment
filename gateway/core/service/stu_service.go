@@ -145,6 +145,9 @@ func AddStudent(ctx context.Context, userForm models.Student) response.Response 
 		return response.StudentIDAlreadyExist
 	}
 
+	/* MD5对密码进行加密 */
+	userForm.Password = md5.GenMD5(userForm.Password)
+
 	/* MySQL写库 */
 	rsp = mysql.InsertStudentIntoDB(ctx, userForm)
 	return rsp // 直接上抛来自dao层的结果
