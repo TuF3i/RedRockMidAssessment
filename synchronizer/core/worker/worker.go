@@ -45,7 +45,7 @@ func (w *WorkerGroup) Worker() {
 func (w *WorkerGroup) PublishWork() {
 	// 生成TraceID
 	traceID := core.SnowFlake.TraceID()
-	ctx := context.WithValue(context.Background(), "TraceID", traceID)
+	ctx := context.WithValue(context.Background(), "trace_id", traceID)
 	// 获取所有课程ID
 	ids := service.GetAllCourseID(ctx)
 	if ids == nil { // 空ID则跳过

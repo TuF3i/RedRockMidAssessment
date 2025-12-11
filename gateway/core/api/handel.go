@@ -22,7 +22,7 @@ func RefreshTokensHandleFunc() app.HandlerFunc {
 		ctx = context.WithValue(ctx, "trace_id", traceID)
 		// 解析JWT
 		rawClaims, _ := c.Get("jwt_claims")
-		claims := rawClaims.(jwt.CustomClaims)
+		claims := rawClaims.(*jwt.CustomClaims)
 		//调用调用stu_service
 		data, rsp := service.RefreshTokens(ctx, claims.UserID, claims.Role)
 		c.JSON(consts.StatusOK, response.GenFinalResponse(rsp, data))

@@ -11,8 +11,8 @@ func VerifyUserName(userName string) bool {
 	var (
 		miniLength = 2 //长度控制，最短2个，最长15个
 		maxLength  = 15
-		reserved   = map[string]struct{}{"admin": {}, "root": {}, "user": {}, "api": {}, "bob": {}}                        // 0. 系统保留字（bob是测试账号）
-		userRe     = regexp.MustCompile(`^[a-zA-Z0-9\u4e00-\u9fa5]([a-zA-Z0-9_\u4e00-\u9fa5]*[a-zA-Z0-9\u4e00-\u9fa5])?$`) // 1. 合法字符：字母数字中文下划线；禁止首尾下划线 *AI生成的正则表达式*
+		reserved   = map[string]struct{}{"admin": {}, "root": {}, "user": {}, "api": {}, "bob": {}}      // 0. 系统保留字（bob是测试账号）
+		userRe     = regexp.MustCompile(`^[a-zA-Z0-9\p{Han}]([a-zA-Z0-9_\p{Han}]*[a-zA-Z0-9\p{Han}])?$`) // 1. 合法字符：字母数字中文下划线；禁止首尾下划线 *AI生成的正则表达式*
 	)
 
 	// 校验用户名
