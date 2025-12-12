@@ -138,7 +138,7 @@ func WorldEndingFruit() {
 func CreateAdminUser() error {
 	// 用户信息
 	userForm := models.Student{
-		Role:         false,
+		Role:         0,
 		Name:         "admin",
 		StudentID:    "1234567890",
 		StudentClass: "adminGroup",

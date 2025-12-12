@@ -85,7 +85,7 @@ func initRouter(h *server.Hertz) {
 	// 管理员查看选课情况
 	courseManagerForAdmin.GET("/get-class-status", GetCourseInfoForAdminHandleFunc())
 	// 管理员查看学生选课情况
-	courseManagerForAdmin.GET("/get-stu-classes", GetStuCourseSelectionInfoForAdminHandleFunc())
+	courseManagerForAdmin.GET("/get-stu-classes/:stuID", GetStuCourseSelectionInfoForAdminHandleFunc())
 	// 管理员修改学生选课
 	courseManagerForAdmin.PATCH("/update-stu-classes", CheckIfCourseSelectionStartedMiddleWareForAdmin(), AddStuCourseSelectionInfoForAdminHandleFunc())
 	// 管理员删除学生选课

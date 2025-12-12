@@ -5,6 +5,7 @@ import (
 	"RedRockMidAssessment/core/models"
 	"RedRockMidAssessment/core/utils/response"
 	"context"
+	"errors"
 
 	"github.com/cloudwego/hertz/pkg/common/json"
 	"github.com/go-redis/redis/v8"
@@ -89,7 +90,6 @@ func SubscribeACourse(ctx context.Context, userID string, courseID string) respo
 	keyForStu := courseUsersKey(courseID)
 	keyForStock := courseStockKey(courseID)
 	keyForStudentSelectedCourseKey := studentSelectedCourseKey(userID)
-	keyForCourseInfo := courseInfoKey(courseID)
 
 	// Lua脚本 -- AI写的
 	lua := `
@@ -126,7 +126,7 @@ return 1
 	ok, err := script.Run(
 		ctx,
 		core.RedisConn,
-		[]string{keyForStock, keyForStu, keyForStudentSelectedCourseKey, keyForCourseInfo},
+		[]string{keyForStock, keyForStu, keyForStudentSelectedCourseKey},
 		[]string{userID, courseID},
 	).Result()
 	// 判断返回值
@@ -151,7 +151,6 @@ func DropACourse(ctx context.Context, userID string, courseID string) response.R
 	keyForStock := courseStockKey(courseID)
 	keyForStuDropped := courseDroppedUsersKey(courseID)
 	keyForStudentSelectedCourseKey := studentSelectedCourseKey(userID)
-	keyForCourseInfo := courseInfoKey(courseID)
 
 	// Lua脚本 -- AI写的
 	lua := `
@@ -193,7 +192,7 @@ return 1
 	// 执行脚本
 	ok, err := script.Run(ctx,
 		core.RedisConn,
-		[]string{keyForStock, keyForStu, keyForStuDropped, keyForStudentSelectedCourseKey, keyForCourseInfo},
+		[]string{keyForStock, keyForStu, keyForStuDropped, keyForStudentSelectedCourseKey},
 		[]string{userID, courseID},
 	).Result()
 	// 判断返回值
@@ -251,6 +250,9 @@ func CheckIfCourseSelectionStarted(ctx context.Context) (bool, response.Response
 	key := courseSelectionStatusKey()
 	// 读Redis
 	val, err := core.RedisConn.Get(ctx, key).Result()
+	if errors.Is(err, redis.Nil) {
+		return false, response.OperationSuccess
+	}
 	if err != nil {
 		core.Logger.Error(
 			"Check If Course Selection Start",

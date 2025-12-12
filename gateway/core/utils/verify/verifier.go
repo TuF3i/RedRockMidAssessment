@@ -228,7 +228,11 @@ func VerifyCourseStock(courseStock uint) bool {
 	var maxStock uint = 500
 	var miniStock uint = 10
 
-	return courseStock <= maxStock && courseStock >= miniStock
+	if (courseStock <= maxStock) && (courseStock >= miniStock) {
+		return true
+	}
+
+	return false
 }
 
 //func VerifyOperationForUpdateCourse(operation string) bool {

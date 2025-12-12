@@ -11,7 +11,6 @@ import (
 	"RedRockMidAssessment/core/utils/verify"
 	"context"
 	"errors"
-	"reflect"
 )
 
 func GetCourseInfo(ctx context.Context) (interface{}, response.Response) {
@@ -116,85 +115,172 @@ func DropCourse(ctx context.Context, userID string, courseID string) response.Re
 	return response.OperationSuccess
 }
 
-func UpdateCourseInfoForAdmin(ctx context.Context, courseID string, data []models.UpdateColumnsEntityForCourse) response.Response {
-	field := make([]string, 0)
-	dataList := make(map[string]interface{})
-	for _, item := range data {
-		v := reflect.ValueOf(item)
-		t := reflect.TypeOf(item)
-		if v.Kind() == reflect.Ptr {
-			v = v.Elem()
-			t = t.Elem()
-		}
-		for i := 0; i < v.NumField(); i++ { // TODO
-			value := v.Field(i).Interface()
-			column := t.Field(i).Tag.Get("json")
-			switch column {
-			case "class_name": // 校验课程名称
-				v := value.(string)
-				if !verify.VerifyCourseName(v) {
-					return response.InvalidCourseName
-				}
-				field = append(field, column)
-				dataList[column] = value
-			case "class_id":
-				v := value.(string)
-				if !verify.VerifyCourseID(v) {
-					return response.InvalidCourse
-				}
-				field = append(field, column)
-				dataList[column] = value
-			case "class_location":
-				v := value.(string)
-				if !verify.VerifyCourseID(v) {
-					return response.InvalidCourseLocation
-				}
-				field = append(field, column)
-				dataList[column] = value
-			case "class_time":
-				v := value.(string)
-				if !verify.VerifyCourseID(v) {
-					return response.InvalidCourseName
-				}
-				field = append(field, column)
-				dataList[column] = value
-			case "class_teacher":
-				v := value.(string)
-				if !verify.VerifyCourseID(v) {
-					return response.InvalidCourseTeacher
-				}
-				field = append(field, column)
-				dataList[column] = value
-			case "class_capcity":
-				v := value.(string)
-				if !verify.VerifyCourseID(v) {
-					return response.InvalidCourseStock
-				}
-				field = append(field, column)
-				dataList[column] = value
-			}
-		}
-	} // for
+// Ai优化的版本
+func UpdateCourseInfoForAdmin(ctx context.Context, courseID string,
+	data []models.UpdateColumnsEntityForCourse) response.Response {
 
-	/* 空数据直接返回 */
-	if len(field) == 0 {
+	mData := make(map[string]interface{})
+	for _, item := range data {
+		mData[item.Field] = item.Value
+	}
+
+	// 1. 校验 + 收集要更新的字段
+	fieldSet := make(map[string]struct{}, len(mData))
+	for col, val := range mData {
+		switch col {
+		case "class_name":
+			v, ok := val.(string)
+			if !ok || !verify.VerifyCourseName(v) {
+				return response.InvalidCourseName
+			}
+			fieldSet[col] = struct{}{}
+
+		case "class_id":
+			v, ok := val.(string)
+			if !ok || !verify.VerifyCourseID(v) {
+				return response.InvalidCourse
+			}
+			fieldSet[col] = struct{}{}
+
+		case "class_location":
+			v, ok := val.(string)
+			if !ok || !verify.VerifyCourseLocation(v) {
+				return response.InvalidCourseLocation
+			}
+			fieldSet[col] = struct{}{}
+
+		case "class_time":
+			v, ok := val.(string)
+			if !ok || !verify.VerifyCourseTime(v) {
+				return response.InvalidCourseTime
+			}
+			fieldSet[col] = struct{}{}
+
+		case "class_teacher":
+			v, ok := val.(string)
+			if !ok || !verify.VerifyCourseTeacher(v) {
+				return response.InvalidCourseTeacher
+			}
+			fieldSet[col] = struct{}{}
+
+		case "class_capacity":
+			v, err := toUint(val)
+			if err != nil || !verify.VerifyCourseStock(v) {
+				return response.InvalidCourseStock
+			}
+			mData[col] = v // 把转好的 uint 写回去
+			fieldSet[col] = struct{}{}
+
+		default:
+			return response.GenInvalidField(col)
+		}
+	}
+
+	if len(fieldSet) == 0 {
 		return response.EmptyData
 	}
 
-	/* 检查学生是否存在 */
-	ifExist, rsp := mysql.CheckIfCourseExist(ctx, courseID)
-	if !errors.Is(rsp, response.OperationSuccess) { // 出现错误直接上抛
-		return rsp
+	// 2. 转切片
+	fields := make([]string, 0, len(fieldSet))
+	for f := range fieldSet {
+		fields = append(fields, f)
 	}
 
+	// 3. 课程存在性校验
+	ifExist, rsp := mysql.CheckIfCourseExist(ctx, courseID)
+	if !errors.Is(rsp, response.OperationSuccess) {
+		return rsp
+	}
 	if !ifExist {
 		return response.CourseNotExist
 	}
 
-	/* 写MySQL */
-	rsp = mysql.UpdateCourseInfo(ctx, courseID, field, dataList)
-	return rsp
+	// 4. 一次性 UPDATE
+	if rsp := mysql.UpdateCourseInfo(ctx, courseID, fields, mData); !errors.Is(rsp, response.OperationSuccess) {
+		return rsp
+	}
+	return response.OperationSuccess
 }
+
+//func UpdateCourseInfoForAdmin(ctx context.Context, courseID string, data []models.UpdateColumnsEntityForCourse) response.Response {
+//	field := make([]string, 0)
+//	dataList := make(map[string]interface{})
+//	for _, item := range data {
+//		v := reflect.ValueOf(item)
+//		t := reflect.TypeOf(item)
+//		if v.Kind() == reflect.Ptr {
+//			v = v.Elem()
+//			t = t.Elem()
+//		}
+//		for i := 0; i < v.NumField(); i++ { // TODO
+//			value := v.Field(i).Interface()
+//			column := t.Field(i).Tag.Get("json")
+//			switch column {
+//			case "class_name": // 校验课程名称
+//				v := value.(string)
+//				if !verify.VerifyCourseName(v) {
+//					return response.InvalidCourseName
+//				}
+//				field = append(field, column)
+//				dataList[column] = value
+//			case "class_id":
+//				v := value.(string)
+//				if !verify.VerifyCourseID(v) {
+//					return response.InvalidCourse
+//				}
+//				field = append(field, column)
+//				dataList[column] = value
+//			case "class_location":
+//				v := value.(string)
+//				if !verify.VerifyCourseID(v) {
+//					return response.InvalidCourseLocation
+//				}
+//				field = append(field, column)
+//				dataList[column] = value
+//			case "class_time":
+//				v := value.(string)
+//				if !verify.VerifyCourseID(v) {
+//					return response.InvalidCourseName
+//				}
+//				field = append(field, column)
+//				dataList[column] = value
+//			case "class_teacher":
+//				v := value.(string)
+//				if !verify.VerifyCourseID(v) {
+//					return response.InvalidCourseTeacher
+//				}
+//				field = append(field, column)
+//				dataList[column] = value
+//			case "class_capcity":
+//				v := value.(string)
+//				if !verify.VerifyCourseID(v) {
+//					return response.InvalidCourseStock
+//				}
+//				field = append(field, column)
+//				dataList[column] = value
+//			}
+//		}
+//	} // for
+//
+//	/* 空数据直接返回 */
+//	if len(field) == 0 {
+//		return response.EmptyData
+//	}
+//
+//	/* 检查学生是否存在 */
+//	ifExist, rsp := mysql.CheckIfCourseExist(ctx, courseID)
+//	if !errors.Is(rsp, response.OperationSuccess) { // 出现错误直接上抛
+//		return rsp
+//	}
+//
+//	if !ifExist {
+//		return response.CourseNotExist
+//	}
+//
+//	/* 写MySQL */
+//	rsp = mysql.UpdateCourseInfo(ctx, courseID, field, dataList)
+//	return rsp
+//}
 
 func GetCourseInfoForAdmin(ctx context.Context) (interface{}, response.Response) {
 	// 获取所有课程的信息
@@ -312,7 +398,7 @@ func UpdateCourseStockForAdmin(ctx context.Context, courseID string, stock uint)
 	}
 	// 验证课程是否存在
 	ok, rsp := mysql.CheckIfCourseExist(ctx, courseID)
-	if errors.Is(rsp, response.OperationSuccess) {
+	if !errors.Is(rsp, response.OperationSuccess) {
 		return rsp
 	}
 	if !ok {

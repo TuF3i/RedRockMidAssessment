@@ -95,7 +95,15 @@ func GetStudentList(ctx context.Context, resNum int, offset int) (interface{}, i
 		)
 		return nil, total, response.ServerInternalError(err)
 	}
-	if err := tx.Limit(resNum).Offset(offset).Find(&data).Error; err != nil {
+	// 填充数据
+	err := tx.
+		Model(&models.Student{}).
+		Select("student_id as stu_id", "name as stu_name", "student_class as stu_class", "grade").
+		Limit(resNum).
+		Offset(offset).
+		Scan(&data).Error
+
+	if err != nil {
 		tx.Rollback()
 		core.Logger.Error(
 			"Get Student List Error",

@@ -32,6 +32,10 @@ go.work.sum
 # .vscode/
 
 # ConfigFile
-consumer\data\config\config.yaml
-gateway\data\config\config.yaml
-synchronizer\data\config\config.yaml
+consumer/data/config/
+gateway/data/config
+synchronizer/data/config/
+
+consumer/data/logs
+gateway/data/logs
+synchronizer/data/logs

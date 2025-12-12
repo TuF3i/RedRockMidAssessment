@@ -476,10 +476,10 @@ GET /v1/api/admin/stu-manager/get-stu-list?page=1&resNum=15
     ```json
     {
         stu_id: "xxxxx",
-        update_columns: [
-            {"key_1":"value_1"},
-            {"key_2":"value_2"},
-        ]
+        "update_columns": [
+        	{"field": "key_1", "value": "value_1"},
+        	{"field": "key_2", "value": "value_2"}
+      ]
     }
     ```
 
@@ -738,7 +738,7 @@ GET /v1/api/admin/classes-manager/get-class-status
 - 3.4.3 - 1 修改课程信息
 
   ```
-  PATCH /v1/api/classes-manager/edit-class-info
+  PATCH /v1/api/admin/classes-manager/edit-class-info
   ```
 
   - 请求方法：`PATCH`

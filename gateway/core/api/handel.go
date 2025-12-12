@@ -37,7 +37,7 @@ func LogoutHandleFunc() app.HandlerFunc {
 		ctx = context.WithValue(ctx, "trace_id", traceID)
 		// 解析JWT
 		rawClaims, _ := c.Get("jwt_claims")
-		claims := rawClaims.(jwt.CustomClaims)
+		claims := rawClaims.(*jwt.CustomClaims)
 		//调用调用stu_service
 		rsp := service.Logout(ctx, claims.UserID)
 		c.JSON(consts.StatusOK, response.GenFinalResponse(rsp, nil))
@@ -89,7 +89,7 @@ func GetStudentInfoForStuHandleFunc() app.HandlerFunc {
 		ctx = context.WithValue(ctx, "trace_id", traceID)
 		// 解析JWT
 		rawClaims, _ := c.Get("jwt_claims")
-		claims := rawClaims.(jwt.CustomClaims)
+		claims := rawClaims.(*jwt.CustomClaims)
 		// 判断权限
 		if claims.Role != "student" { // 不可以拿admin来调用给学生的接口，避免权限混乱
 			c.JSON(consts.StatusOK, response.GenFinalResponse(response.PermissionDenied, nil))
@@ -115,7 +115,7 @@ func UpdateStudentInfoForStuHandleFunc() app.HandlerFunc {
 		ctx = context.WithValue(ctx, "trace_id", traceID)
 		// 解析JWT
 		rawClaims, _ := c.Get("jwt_claims")
-		claims := rawClaims.(jwt.CustomClaims)
+		claims := rawClaims.(*jwt.CustomClaims)
 		// 判断权限
 		if claims.Role != "student" { // 不可以拿admin来调用给学生的接口，避免权限混乱
 			c.JSON(consts.StatusOK, response.GenFinalResponse(response.PermissionDenied, nil))
@@ -141,7 +141,7 @@ func GetStudentListForAdminHandleFunc() app.HandlerFunc {
 		ctx = context.WithValue(ctx, "trace_id", traceID)
 		// 解析JWT
 		rawClaims, _ := c.Get("jwt_claims")
-		claims := rawClaims.(jwt.CustomClaims)
+		claims := rawClaims.(*jwt.CustomClaims)
 		// 判断权限
 		if claims.Role != "admin" { // 不可以拿student来调用给admin的接口，避免权限混乱
 			c.JSON(consts.StatusOK, response.GenFinalResponse(response.PermissionDenied, nil))
@@ -211,7 +211,7 @@ func UpdateStudentInfoForAdminHandleFunc() app.HandlerFunc {
 		ctx = context.WithValue(ctx, "trace_id", traceID)
 		// 解析JWT
 		rawClaims, _ := c.Get("jwt_claims")
-		claims := rawClaims.(jwt.CustomClaims)
+		claims := rawClaims.(*jwt.CustomClaims)
 		// 判断权限
 		if claims.Role != "admin" { // 不可以拿student来调用给admin的接口，避免权限混乱
 			c.JSON(consts.StatusOK, response.GenFinalResponse(response.PermissionDenied, nil))
@@ -237,7 +237,7 @@ func AddStudentForAdminHandleFunc() app.HandlerFunc {
 		ctx = context.WithValue(ctx, "trace_id", traceID)
 		// 解析JWT
 		rawClaims, _ := c.Get("jwt_claims")
-		claims := rawClaims.(jwt.CustomClaims)
+		claims := rawClaims.(*jwt.CustomClaims)
 		// 判断权限
 		if claims.Role != "admin" { // 不可以拿student来调用给admin的接口，避免权限混乱
 			c.JSON(consts.StatusOK, response.GenFinalResponse(response.PermissionDenied, nil))
@@ -264,7 +264,7 @@ func DelStudentForAdminHandleFunc() app.HandlerFunc {
 		ctx = context.WithValue(ctx, "trace_id", traceID)
 		// 解析JWT
 		rawClaims, _ := c.Get("jwt_claims")
-		claims := rawClaims.(jwt.CustomClaims)
+		claims := rawClaims.(*jwt.CustomClaims)
 		// 判断权限
 		if claims.Role != "admin" { // 不可以拿student来调用给admin的接口，避免权限混乱
 			c.JSON(consts.StatusOK, response.GenFinalResponse(response.PermissionDenied, nil))
@@ -381,7 +381,7 @@ func GetCourseInfoForAdminHandleFunc() app.HandlerFunc {
 		ctx = context.WithValue(ctx, "trace_id", traceID)
 		// 解析JWT
 		rawClaims, _ := c.Get("jwt_claims")
-		claims := rawClaims.(jwt.CustomClaims)
+		claims := rawClaims.(*jwt.CustomClaims)
 		// 判断权限
 		if claims.Role != "admin" { // 不可以拿admin来调用给student的接口，避免权限混乱
 			c.JSON(consts.StatusOK, response.GenFinalResponse(response.PermissionDenied, nil))
@@ -400,7 +400,7 @@ func GetStuCourseSelectionInfoForAdminHandleFunc() app.HandlerFunc {
 		ctx = context.WithValue(ctx, "trace_id", traceID)
 		// 解析JWT
 		rawClaims, _ := c.Get("jwt_claims")
-		claims := rawClaims.(jwt.CustomClaims)
+		claims := rawClaims.(*jwt.CustomClaims)
 		// 判断权限
 		if claims.Role != "admin" { // 不可以拿admin来调用给student的接口，避免权限混乱
 			c.JSON(consts.StatusOK, response.GenFinalResponse(response.PermissionDenied, nil))
@@ -422,7 +422,7 @@ func AddStuCourseSelectionInfoForAdminHandleFunc() app.HandlerFunc {
 		ctx = context.WithValue(ctx, "trace_id", traceID)
 		// 解析JWT
 		rawClaims, _ := c.Get("jwt_claims")
-		claims := rawClaims.(jwt.CustomClaims)
+		claims := rawClaims.(*jwt.CustomClaims)
 		// 判断权限
 		if claims.Role != "admin" { // 不可以拿admin来调用给student的接口，避免权限混乱
 			c.JSON(consts.StatusOK, response.GenFinalResponse(response.PermissionDenied, nil))
@@ -447,7 +447,7 @@ func DelStuCourseSelectionInfoForAdminHandleFunc() app.HandlerFunc {
 		ctx = context.WithValue(ctx, "trace_id", traceID)
 		// 解析JWT
 		rawClaims, _ := c.Get("jwt_claims")
-		claims := rawClaims.(jwt.CustomClaims)
+		claims := rawClaims.(*jwt.CustomClaims)
 		// 判断权限
 		if claims.Role != "admin" { // 不可以拿admin来调用给student的接口，避免权限混乱
 			c.JSON(consts.StatusOK, response.GenFinalResponse(response.PermissionDenied, nil))
@@ -472,7 +472,7 @@ func UpdateCourseInfoForAdminHandleFunc() app.HandlerFunc {
 		ctx = context.WithValue(ctx, "trace_id", traceID)
 		// 解析JWT
 		rawClaims, _ := c.Get("jwt_claims")
-		claims := rawClaims.(jwt.CustomClaims)
+		claims := rawClaims.(*jwt.CustomClaims)
 		// 判断权限
 		if claims.Role != "admin" { // 不可以拿admin来调用给student的接口，避免权限混乱
 			c.JSON(consts.StatusOK, response.GenFinalResponse(response.PermissionDenied, nil))
@@ -497,7 +497,7 @@ func UpdateCourseStockForAdminHandleFunc() app.HandlerFunc {
 		ctx = context.WithValue(ctx, "trace_id", traceID)
 		// 解析JWT
 		rawClaims, _ := c.Get("jwt_claims")
-		claims := rawClaims.(jwt.CustomClaims)
+		claims := rawClaims.(*jwt.CustomClaims)
 		// 判断权限
 		if claims.Role != "admin" { // 不可以拿admin来调用给student的接口，避免权限混乱
 			c.JSON(consts.StatusOK, response.GenFinalResponse(response.PermissionDenied, nil))
@@ -522,7 +522,7 @@ func AddCourseForAdminHandleFunc() app.HandlerFunc {
 		ctx = context.WithValue(ctx, "trace_id", traceID)
 		// 解析JWT
 		rawClaims, _ := c.Get("jwt_claims")
-		claims := rawClaims.(jwt.CustomClaims)
+		claims := rawClaims.(*jwt.CustomClaims)
 		// 判断权限
 		if claims.Role != "admin" { // 不可以拿admin来调用给student的接口，避免权限混乱
 			c.JSON(consts.StatusOK, response.GenFinalResponse(response.PermissionDenied, nil))
@@ -547,7 +547,7 @@ func DelCourseForAdminHandleFunc() app.HandlerFunc {
 		ctx = context.WithValue(ctx, "trace_id", traceID)
 		// 解析JWT
 		rawClaims, _ := c.Get("jwt_claims")
-		claims := rawClaims.(jwt.CustomClaims)
+		claims := rawClaims.(*jwt.CustomClaims)
 		// 判断权限
 		if claims.Role != "admin" { // 不可以拿admin来调用给student的接口，避免权限混乱
 			c.JSON(consts.StatusOK, response.GenFinalResponse(response.PermissionDenied, nil))
@@ -571,7 +571,7 @@ func StartCourseSelectionEventForAdminHandleFunc() app.HandlerFunc {
 		ctx = context.WithValue(ctx, "trace_id", traceID)
 		// 解析JWT
 		rawClaims, _ := c.Get("jwt_claims")
-		claims := rawClaims.(jwt.CustomClaims)
+		claims := rawClaims.(*jwt.CustomClaims)
 		// 判断权限
 		if claims.Role != "admin" { // 不可以拿admin来调用给student的接口，避免权限混乱
 			c.JSON(consts.StatusOK, response.GenFinalResponse(response.PermissionDenied, nil))

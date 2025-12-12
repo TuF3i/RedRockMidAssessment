@@ -14,7 +14,7 @@ func CheckIfCourseSelected(ctx context.Context, courseID string, userID string) 
 	tx := core.MysqlConn.Begin() // 开启数据库事务
 	defer tx.Commit()            // 查询结束后提交
 
-	result := tx.Where("class_id = ? AND student_id = ?", courseID, userID).Find(&models.Relation{}) // 用courseID查询学生信息
+	result := tx.Where("cou_id = ? AND stu_id = ?", courseID, userID).Find(&models.Relation{}) // 用courseID查询学生信息
 	if err := result.Error; err != nil {
 		core.Logger.Error(
 			"Check Course Selected Error",
@@ -71,7 +71,7 @@ func InsertCourseIntoDB(ctx context.Context, courseForm models.Course) response.
 
 func UpdateCourseInfo(ctx context.Context, courseID string, field []string, dataList map[string]interface{}) response.Response {
 	tx := core.MysqlConn.Begin()
-	if err := tx.Model(&models.Student{}).Where("class_id = ?", courseID).Select(field).Updates(dataList).Error; err != nil {
+	if err := tx.Model(&models.Course{}).Where("class_id = ?", courseID).Select(field).Updates(dataList).Error; err != nil {
 		tx.Rollback()
 		core.Logger.Error(
 			"Update Student Info Error",
@@ -86,7 +86,7 @@ func UpdateCourseInfo(ctx context.Context, courseID string, field []string, data
 
 func DeleteCourse(ctx context.Context, courseID string) response.Response {
 	tx := core.MysqlConn.Begin()
-	if err := tx.Where("class_id = ?", courseID).Delete(&models.Student{}).Error; err != nil {
+	if err := tx.Where("class_id = ?", courseID).Delete(&models.Course{}).Error; err != nil {
 		tx.Rollback()
 		core.Logger.Error(
 			"Delete Course Error",
@@ -103,7 +103,7 @@ func GetAllCourseInfo(ctx context.Context) (interface{}, response.Response) {
 	var data []models.Course
 	tx := core.MysqlConn.Begin()
 	defer tx.Commit()
-	if err := tx.Find(&data).Error; err != nil {
+	if err := tx.Preload("Students").Find(&data).Error; err != nil {
 		tx.Rollback()
 		core.Logger.Error(
 			"Get Course List Error",
@@ -247,5 +247,6 @@ func UpdateCourseStock(ctx context.Context, courseID string, stock uint) respons
 		return response.ServerInternalError(err)
 	}
 
+	tx.Commit()
 	return response.OperationSuccess
 }

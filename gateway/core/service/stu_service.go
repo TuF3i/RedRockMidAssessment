@@ -12,7 +12,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"reflect"
+	"strconv"
 
 	"go.uber.org/zap"
 )
@@ -56,7 +56,7 @@ func Login(ctx context.Context, userForm models.LoginForm) (interface{}, respons
 
 	/* 校验角色 */
 	role := func() string {
-		if !typedData.Role {
+		if typedData.Role == 0 {
 			return "admin"
 		} else {
 			return "student"
@@ -208,92 +208,194 @@ func GetStuInfo(ctx context.Context, userID string) (interface{}, response.Respo
 	return data, rsp
 }
 
+// AI优化过的版本
 func UpdateStuInfo(ctx context.Context, userID string, data []models.UpdateColumnsEntityForStu) response.Response {
-	field := make([]string, 0)
-	dataList := make(map[string]interface{})
+	mData := make(map[string]interface{})
 	for _, item := range data {
-		v := reflect.ValueOf(item)
-		t := reflect.TypeOf(item)
-		if v.Kind() == reflect.Ptr {
-			v = v.Elem()
-			t = t.Elem()
-		}
-		for i := 0; i < v.NumField(); i++ {
-			value := v.Field(i).Interface()
-			column := t.Field(i).Tag.Get("json")
-			switch column {
-			case "password": // 校验密码规范
-				v := value.(string)
-				if !verify.VerifyPassword(v) {
-					return response.InvalidPassword
-				}
-				field = append(field, column)
-				dataList[column] = value
-			case "stu_id": // 校验学生ID规范
-				v := value.(string)
-				if !verify.VerifyUserID(v) {
-					return response.InvalidStudentID
-				}
-				field = append(field, column)
-				dataList[column] = value
-			case "name": // 校验名字规范
-				v := value.(string)
-				if !verify.VerifyUserName(v) {
-					return response.InvalidUserName
-				}
-				field = append(field, column)
-				dataList[column] = value
-			case "stu_class": // 校验班级字符串规范
-				v := value.(string)
-				if !verify.VerifyStudentClass(v) {
-					return response.InvalidClass
-				}
-				field = append(field, column)
-				dataList[column] = value
-			case "sex": // 校验性别设置规范
-				v := value.(uint)
-				if !verify.VerifySexSetting(v) {
-					return response.InvalidSexSetting
-				}
-				field = append(field, column)
-				dataList[column] = value
-			case "grade": // 校验年级设置规范
-				v := value.(uint)
-				if !verify.VerifyGrade(v) {
-					return response.InvalidGrade
-				}
-				field = append(field, column)
-				dataList[column] = value
-			case "age": // 校验年龄设置规范
-				v := value.(uint)
-				if !verify.VerifyAge(v) {
-					return response.InvalidAge
-				}
-				field = append(field, column)
-				dataList[column] = value
+		mData[item.Field] = item.Value
+	}
+	// 1. 校验 + 收集要去重的字段名
+	fieldSet := make(map[string]struct{}, len(data))
+	for col, val := range mData {
+		switch col {
+		case "password":
+			v, ok := val.(string)
+			if !ok || !verify.VerifyPassword(v) {
+				return response.InvalidPassword
 			}
-		}
-	} // for
+			fieldSet[col] = struct{}{}
 
-	/* 空数据直接返回 */
-	if len(field) == 0 {
+		case "student_id":
+			v, ok := val.(string)
+			if !ok || !verify.VerifyUserID(v) {
+				return response.InvalidStudentID
+			}
+			fieldSet[col] = struct{}{}
+
+		case "name":
+			v, ok := val.(string)
+			if !ok || !verify.VerifyUserName(v) {
+				return response.InvalidUserName
+			}
+			fieldSet[col] = struct{}{}
+
+		case "student_class":
+			v, ok := val.(string)
+			if !ok || !verify.VerifyStudentClass(v) {
+				return response.InvalidClass
+			}
+			fieldSet[col] = struct{}{}
+
+		case "sex":
+			v, err := toUint(val)
+			if err != nil || !verify.VerifySexSetting(v) {
+				return response.InvalidSexSetting
+			}
+			mData[col] = v // 把转好的 uint 写回去
+			fieldSet[col] = struct{}{}
+
+		case "grade":
+			v, err := toUint(val)
+			if err != nil || !verify.VerifyGrade(v) {
+				return response.InvalidGrade
+			}
+			mData[col] = v
+			fieldSet[col] = struct{}{}
+
+		case "age":
+			v, err := toUint(val)
+			if err != nil || !verify.VerifyAge(v) {
+				return response.InvalidAge
+			}
+			mData[col] = v
+			fieldSet[col] = struct{}{}
+
+		default:
+			// 忽略未知字段，或者 return response.InvalidField
+			return response.GenInvalidField(col)
+		}
+	}
+
+	if len(fieldSet) == 0 {
 		return response.EmptyData
 	}
 
-	/* 检查学生是否存在 */
-	ifExist, rsp := mysql.CheckIfStudentExist(ctx, userID)
-	if !errors.Is(rsp, response.OperationSuccess) { // 出现错误直接上抛
+	// 2. map 转切片
+	fields := make([]string, 0, len(fieldSet))
+	for f := range fieldSet {
+		fields = append(fields, f)
+	}
+
+	// 3. 一次性 UPDATE；MySQL 层返回 RowsAffected，0 行表示用户不存在
+	if rsp := mysql.UpdateStudentInfo(ctx, userID, fields, mData); !errors.Is(rsp, response.OperationSuccess) {
 		return rsp
 	}
-
-	if !ifExist {
-		return response.UserNotExiOrWrongStuID
-	}
-
-	/* 写MySQL */
-	rsp = mysql.UpdateStudentInfo(ctx, userID, field, dataList)
-	return rsp
+	return response.OperationSuccess
 }
+
+// toUint 统一处理 json.Number / float64 / int / uint，不会 panic
+func toUint(v interface{}) (uint, error) {
+	switch val := v.(type) {
+	case string:
+		u, err := strconv.ParseUint(val, 10, 64)
+		return uint(u), err
+	case float64:
+		return uint(val), nil
+	case int:
+		return uint(val), nil
+	case uint:
+		return val, nil
+	default:
+		return 0, strconv.ErrSyntax
+	}
+}
+
+//func UpdateStuInfo(ctx context.Context, userID string, data []models.UpdateColumnsEntityForStu) response.Response {
+//	field := make([]string, 0, len(data))
+//	dataList := make(map[string]interface{})
+//	for _, item := range data {
+//		v := reflect.ValueOf(item)
+//		t := reflect.TypeOf(item)
+//		if v.Kind() == reflect.Ptr {
+//			v = v.Elem()
+//			t = t.Elem()
+//		}
+//		for i := 0; i < v.NumField(); i++ {
+//			value := v.Field(i).Interface()
+//			column := t.Field(i).Tag.Get("json")
+//			switch column {
+//			case "password": // 校验密码规范
+//				v := value.(string)
+//				if !verify.VerifyPassword(v) {
+//					return response.InvalidPassword
+//				}
+//				field = append(field, column)
+//				dataList[column] = value
+//			case "stu_id": // 校验学生ID规范
+//				v := value.(string)
+//				if !verify.VerifyUserID(v) {
+//					return response.InvalidStudentID
+//				}
+//				field = append(field, column)
+//				dataList[column] = value
+//			case "name": // 校验名字规范
+//				v := value.(string)
+//				if !verify.VerifyUserName(v) {
+//					return response.InvalidUserName
+//				}
+//				field = append(field, column)
+//				dataList[column] = value
+//			case "stu_class": // 校验班级字符串规范
+//				v := value.(string)
+//				if !verify.VerifyStudentClass(v) {
+//					return response.InvalidClass
+//				}
+//				field = append(field, column)
+//				dataList[column] = value
+//			case "sex": // 校验性别设置规范
+//				v := value.(uint)
+//				if !verify.VerifySexSetting(v) {
+//					return response.InvalidSexSetting
+//				}
+//				field = append(field, column)
+//				dataList[column] = value
+//			case "grade": // 校验年级设置规范
+//				v := value.(uint)
+//				if !verify.VerifyGrade(v) {
+//					return response.InvalidGrade
+//				}
+//				field = append(field, column)
+//				dataList[column] = value
+//			case "age": // 校验年龄设置规范
+//				v := value.(uint)
+//				if !verify.VerifyAge(v) {
+//					return response.InvalidAge
+//				}
+//				field = append(field, column)
+//				dataList[column] = value
+//			}
+//		}
+//	} // for
+//
+//	/* 空数据直接返回 */
+//	if len(field) == 0 {
+//		return response.EmptyData
+//	}
+//
+//	/* 检查学生是否存在 */
+//	ifExist, rsp := mysql.CheckIfStudentExist(ctx, userID)
+//	if !errors.Is(rsp, response.OperationSuccess) { // 出现错误直接上抛
+//		return rsp
+//	}
+//
+//	if !ifExist {
+//		return response.UserNotExiOrWrongStuID
+//	}
+//
+//	/* 写MySQL */
+//	rsp = mysql.UpdateStudentInfo(ctx, userID, field, dataList)
+//	return rsp
+//}
 
 func GetStudentsList(ctx context.Context, page int, resNum int) (interface{}, response.Response) {
 	//var students models.Students

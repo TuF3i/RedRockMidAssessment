@@ -11,8 +11,8 @@ import (
 type Relation struct {
 	// 关联表
 	gorm.Model
-	CouID string `gorm:"column:CouID"`
-	StuID uint   `gorm:"column:StuID"`
+	CouID string `gorm:"column:cou_id"`
+	StuID uint   `gorm:"column:stu_id"`
 }
 
 func (Relation) TableName() string {
@@ -48,10 +48,10 @@ type Student struct {
 	UpdatedAt time.Time      `json:"-"`
 	DeletedAt gorm.DeletedAt `json:"-" gorm:"index"`
 
-	Role         bool   `json:"-" gorm:"column:role; not null; type:tinyint; default:1"` // 0为admin, 1为学生
+	Role         int    `json:"-" gorm:"column:role; not null; type:tinyint; default:1"` // 0为admin, 1为学生
 	Name         string `json:"name" gorm:"column:name; not null; type:varchar(90)"`
-	StudentID    string `json:"stu_id" gorm:"column:student_id; index; unique; not null; type:bigint"`
-	StudentClass string `json:"stu_class" gorm:"column:student_class; not null; type:varchar(40)"`
+	StudentID    string `json:"student_id" gorm:"column:student_id; index; unique; not null; type:bigint"`
+	StudentClass string `json:"student_class" gorm:"column:student_class; not null; type:varchar(40)"`
 	Password     string `json:"password" gorm:"column:password; not null; type:varchar(90)"`
 	Sex          uint   `json:"sex" gorm:"column:sex; not null"`
 	Grade        uint   `json:"grade" gorm:"column:grade; not null"`
@@ -83,9 +83,9 @@ type Students struct {
 }
 
 type StudentsListEntity struct {
-	StuId    uint   `json:"stu_id"`
-	StuName  string `json:"stu_name"`
-	StuClass string `json:"stu_class"`
+	StuId    string `json:"stu_id"`
+	StuName  string `json:"student_name"`
+	StuClass string `json:"student_class"`
 	Grade    string `json:"grade"`
 }
 

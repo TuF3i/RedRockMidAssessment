@@ -1,5 +1,7 @@
 package response
 
+import "fmt"
+
 // 操作成功响应
 var OperationSuccess = Response{Status: 20000, Info: "Operation Success"}
 
@@ -82,5 +84,13 @@ func ServerInternalError(err error) Response {
 	return Response{
 		Status: 500,
 		Info:   err.Error(),
+	}
+}
+
+// 非法字段
+func GenInvalidField(field string) Response {
+	return Response{
+		Status: 10026,
+		Info:   fmt.Sprintf("InvalidField: %v", field),
 	}
 }
