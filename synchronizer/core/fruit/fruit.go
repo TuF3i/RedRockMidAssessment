@@ -4,6 +4,7 @@ import (
 	"RedRockMidAssessment-Synchronizer/core"
 	"RedRockMidAssessment-Synchronizer/core/dao"
 	"RedRockMidAssessment-Synchronizer/core/kafka"
+	"RedRockMidAssessment-Synchronizer/core/timer"
 	"RedRockMidAssessment-Synchronizer/core/timerlistener"
 	viper "RedRockMidAssessment-Synchronizer/core/utils/config"
 	zap "RedRockMidAssessment-Synchronizer/core/utils/log"
@@ -95,9 +96,17 @@ func GenesisFruit() {
 	ctx, cancel = context.WithCancel(context.Background())
 
 	//启动一些监视携程
-	go kafka.KLogger(ctx)       // 启动kafka日志携程
-	go kafka.MsgReader(ctx)     // 启动信息监听携程
-	go timerlistener.Listener() // 启动计时器信号监听携程
+	go kafka.KLogger(ctx)          // 启动kafka日志携程
+	go kafka.MsgReader(ctx)        // 启动信息监听携程
+	go timerlistener.Listener(ctx) // 启动计时器信号监听携程
+
+	// 检测并恢复计时器状态
+	logs.Debug("Started to recover <timer>")
+	if err := RecoverTimerStatus(); err != nil {
+		logs.Warn("Recover <timer> error: %v", err.Error())
+		os.Exit(1)
+	}
+	logs.Info("Successfully recovered <timer>")
 
 	fmt.Println()
 	logs.Alert("Server Started Successfully, present logs: ")
@@ -134,12 +143,14 @@ func WorldEndingFruit() {
 	//}()
 	time.Sleep(500 * time.Millisecond)
 
+	// 等待结束
+	core.GlobalWg.Wait()
+
 	// 关闭生产者
 	logs.Debug("Started to clean mod <kafka-producer>")
 	if err := core.Producer.Close(); err != nil {
 		logs.Warn("Cleaning mod <kafka-producer> error: %v", err.Error())
 	}
-	core.GlobalWg.Wait() // 等待结束
 	logs.Info("Successfully cleaned mod <kafka-producer>")
 
 	// 关闭管道
@@ -163,4 +174,18 @@ func WorldEndingFruit() {
 		logs.Warn("Cleaning mod <zap> error: %v", err.Error())
 	}
 	logs.Info("Successfully cleaned mod <zap>")
+}
+
+func RecoverTimerStatus() error {
+	// 恢复计时器状态
+	var KEY = "courseSelection:status"
+	val, err := core.RedisConn.Get(context.Background(), KEY).Result()
+	if err != nil {
+		return err
+	}
+	if val == "1" && core.TimerStatus == 0 {
+		core.TimerStatus = 1
+		go timer.Timer()
+	}
+	return nil
 }
