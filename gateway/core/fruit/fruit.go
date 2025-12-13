@@ -71,6 +71,12 @@ func GenesisFruit() {
 		os.Exit(1)
 	}
 	core.RedisConn = redisConn
+	redisConnForSM, err := redis.ConnectToRedisForSM()
+	if err != nil {
+		logs.Warn("Init mod <redis-sm> error: %v", err.Error())
+		os.Exit(1)
+	}
+	core.RedisConnForSM = redisConnForSM
 	logs.Info("Successfully loaded mod <redis>")
 
 	// 初始化kafka生产者

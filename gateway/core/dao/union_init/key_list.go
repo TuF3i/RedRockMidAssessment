@@ -7,4 +7,8 @@ var (
 	courseIDsKey             = func() string { return fmt.Sprintf("course:allID") }                             // 所有课程的ID
 	courseStockKey           = func(courseID string) string { return fmt.Sprintf("course:%v:stock", courseID) } // 生成courseStock的Key
 	courseInfoKey            = func(courseID string) string { return fmt.Sprintf("course:%v:info", courseID) }  // 生成courseInfo的Key
+
+	courseUsersKey           = func(courseID string) string { return fmt.Sprintf("course:%v:users", courseID) }    // 生成courseUsers的Key
+	studentSelectedCourseKey = func(userID string) string { return fmt.Sprintf("user:%v:selectedCourse", userID) } // 生成studentSelectedCourse的Key
+
 )

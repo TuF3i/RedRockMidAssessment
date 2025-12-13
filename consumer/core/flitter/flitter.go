@@ -5,7 +5,7 @@ import (
 	"RedRockMidAssessment-Consumer/core/models"
 	"RedRockMidAssessment-Consumer/core/service"
 	"context"
-	"errors"
+	"encoding/json"
 
 	"go.uber.org/zap"
 )
@@ -25,12 +25,22 @@ func DefaultHandleFunc(ctx context.Context, commander models.Commander) {
 }
 
 func CourseHandleFunc(ctx context.Context, commander models.Commander) {
-	// 类型断言
-	msg, ok := commander.Msg.(models.CourseMsg)
-	if !ok {
-		err := errors.New("can Not Do Type Assertion")
+	var msg models.CourseMsg
+	//// 类型断言
+	//raw, ok := commander.Msg.([]byte)
+	//if !ok {
+	//	err := errors.New("can Not Do Type Assertion")
+	//	core.Logger.Error(
+	//		"Type Assertion Error",
+	//		zap.String("snowflake", ctx.Value("TraceID").(string)),
+	//		zap.String("detail", err.Error()),
+	//	)
+	//	return
+	//}
+	// 解析json
+	if err := json.Unmarshal(commander.Msg, &msg); err != nil {
 		core.Logger.Error(
-			"Type Assertion Error",
+			"Unmarshal JSON Error",
 			zap.String("snowflake", ctx.Value("TraceID").(string)),
 			zap.String("detail", err.Error()),
 		)
@@ -84,12 +94,22 @@ func CourseHandleFunc(ctx context.Context, commander models.Commander) {
 }
 
 func SelectedNumHandleFunc(ctx context.Context, commander models.Commander) {
-	// 类型断言
-	msg, ok := commander.Msg.(models.SelectedNum)
-	if !ok {
-		err := errors.New("can Not Do Type Assertion")
+	var msg models.SelectedNum
+	//// 类型断言
+	//raw, ok := commander.Msg.([]byte)
+	//if !ok {
+	//	err := errors.New("can Not Do Type Assertion")
+	//	core.Logger.Error(
+	//		"Type Assertion Error",
+	//		zap.String("snowflake", ctx.Value("TraceID").(string)),
+	//		zap.String("detail", err.Error()),
+	//	)
+	//	return
+	//}
+	// 解析json
+	if err := json.Unmarshal(commander.Msg, &msg); err != nil {
 		core.Logger.Error(
-			"Type Assertion Error",
+			"Unmarshal JSON Error",
 			zap.String("snowflake", ctx.Value("TraceID").(string)),
 			zap.String("detail", err.Error()),
 		)

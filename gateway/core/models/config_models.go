@@ -21,6 +21,7 @@ type Mysql struct {
 type Redis struct {
 	Addr      string `yaml:"addr"`
 	DefaultDB int    `yaml:"defaultDB"`
+	SmDB      int    `yaml:"smDB"`
 	Passwd    string `yaml:"passwd"`
 	Port      int    `yaml:"port"`
 }

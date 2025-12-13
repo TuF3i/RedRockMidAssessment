@@ -13,6 +13,7 @@ func ConnectToKafka() (sarama.ConsumerGroup, error) {
 	// 生成配置
 	cfg := sarama.NewConfig()
 	cfg.Consumer.Group.Rebalance.Strategy = sarama.BalanceStrategyRoundRobin
+	//cfg.Consumer.Offsets.Initial = sarama.OffsetOldest
 	cfg.Consumer.Offsets.Initial = sarama.OffsetNewest
 	//cfg.Version = sarama.V4_0_0_0
 

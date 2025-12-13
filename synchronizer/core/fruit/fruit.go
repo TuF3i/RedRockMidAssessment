@@ -148,6 +148,8 @@ func WorldEndingFruit() {
 	close(core.TimerStop)
 	logs.Info("Successfully closed some <pipeline>")
 
+	time.Sleep(2 * time.Second)
+
 	// 关闭Redis缓存
 	logs.Debug("Started to clean mod <redis>")
 	if err := core.RedisConn.Close(); err != nil {

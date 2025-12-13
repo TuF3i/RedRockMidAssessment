@@ -14,10 +14,11 @@ var (
 	Logger *hertzzap.Logger // 日志组件
 	Config *models.Config   // 配置结构体
 
-	MysqlConn *gorm.DB             // MySQL连接
-	RedisConn *redis.Client        // Redis连接
-	SnowFlake *snowflake.Snowflake // snowflake生成器
-	Producer  sarama.SyncProducer  // kafka生产者
+	MysqlConn      *gorm.DB             // MySQL连接
+	RedisConn      *redis.Client        // Redis连接
+	RedisConnForSM *redis.Client        // Session管理的Redis连接
+	SnowFlake      *snowflake.Snowflake // snowflake生成器
+	Producer       sarama.SyncProducer  // kafka生产者
 
 	WRITE_TOPIC             = "Sync" // kafka发送的默认主题
 	DEFAULT_PARTITION int32 = 0      // kafka默认分区

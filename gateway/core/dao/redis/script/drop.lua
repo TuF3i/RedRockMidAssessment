@@ -7,20 +7,19 @@ local userID     = ARGV[1]   -- 要退课的用户
 local courseID   = ARGV[2]   -- 课程ID
 
 -- 1. 减库存（退课逻辑里也可 INCR，这里演示 DECR 场景）
-local left = redis.call('DECR', stockKey)
-if left < 0 then
--- 库存不允许为负，回滚
-	redis.call('INCR', stockKey)
-	return 0
-end
+local left = redis.call('INCR', stockKey)
 
 -- 2. 从报名集合移除
-redis.call('SREM', usersKey, userID)
+if redis.call('EXISTS', usersKey) == 1 then
+	redis.call('SREM', usersKey, userID)
+end
 
 -- 3. 加入退课集合
 redis.call('SADD', droppedKey, userID)
 
 -- 4. 从学生选课集合中移除课程
-redis.call('SREM', userSelectedKey, courseID)
+if redis.call('EXISTS', userSelectedKey) == 1 then
+	redis.call('SREM', userSelectedKey, courseID)
+end
 
 return 1

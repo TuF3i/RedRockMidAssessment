@@ -29,3 +29,25 @@ func ConnectToRedis() (*redis.Client, error) {
 
 	return client, nil
 }
+
+func ConnectToRedisForSM() (*redis.Client, error) {
+	//建立连接
+	client := redis.NewClient(&redis.Options{
+		Addr: fmt.Sprintf(
+			"%v:%v",
+			core.Config.Db.Redis.Addr,
+			core.Config.Db.Redis.Port,
+		),
+		Password: core.Config.Db.Redis.Passwd,
+		DB:       core.Config.Db.Redis.SmDB,
+	})
+
+	//测试连接
+	ctx := context.Background()
+	_, err := client.Ping(ctx).Result()
+	if err != nil {
+		return nil, err
+	}
+
+	return client, nil
+}

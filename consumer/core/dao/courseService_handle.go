@@ -3,9 +3,7 @@ package dao
 import (
 	"RedRockMidAssessment-Consumer/core"
 	"RedRockMidAssessment-Consumer/core/models"
-	"errors"
-
-	"gorm.io/gorm"
+	"fmt"
 )
 
 func SubscribeCourseForStu(stuID string, courseID string) error {
@@ -30,6 +28,8 @@ func SubscribeCourseForStu(stuID string, courseID string) error {
 		return err
 	}
 
+	fmt.Println("Signal -- --- --- ----- ---- --")
+	tx.Commit()
 	return nil
 }
 
@@ -55,6 +55,7 @@ func DropCourseForStu(stuID string, courseID string) error {
 		return err
 	}
 
+	tx.Commit()
 	return nil
 }
 
@@ -63,15 +64,12 @@ func CheckIfCourseExist(courseID string) (bool, error) {
 	tx := core.MysqlConn.Begin()
 	defer tx.Commit()
 	// 查询Course是否存在
-	err := tx.Where("class_id = ?", courseID).Find(&models.Course{}).Error
-	switch {
-	case err == nil:
-		return true, nil
-	case errors.Is(err, gorm.ErrRecordNotFound):
-		return false, nil
-	default:
-		return false, err
+	result := tx.Where("class_id = ?", courseID).Find(&models.Course{})
+	if result.Error != nil || result.RowsAffected == 0 {
+		return false, result.Error
 	}
+
+	return true, nil
 }
 
 func CheckIfCourseSelected(stuID string, courseID string) (bool, error) {
@@ -79,15 +77,12 @@ func CheckIfCourseSelected(stuID string, courseID string) (bool, error) {
 	tx := core.MysqlConn.Begin()
 	defer tx.Commit()
 	// 查询Course是否已被选择
-	err := tx.Where("StuID = ? AND CouID = ?", stuID, courseID).Find(&models.Relation{}).Error
-	switch {
-	case err == nil:
-		return true, nil
-	case errors.Is(err, gorm.ErrRecordNotFound):
-		return false, nil
-	default:
-		return false, err
+	result := tx.Where("stu_id = ? AND cou_id = ?", stuID, courseID).Find(&models.Relation{})
+	if result.Error != nil || result.RowsAffected == 0 {
+		return false, result.Error
 	}
+
+	return true, nil
 }
 
 func CheckIfStudentExist(stuID string) (bool, error) {
@@ -95,15 +90,12 @@ func CheckIfStudentExist(stuID string) (bool, error) {
 	tx := core.MysqlConn.Begin()
 	defer tx.Commit()
 	// 查询Student是否存在
-	err := tx.Where("student_id = ?", stuID).Find(&models.Student{}).Error
-	switch {
-	case err == nil:
-		return true, nil
-	case errors.Is(err, gorm.ErrRecordNotFound):
-		return false, nil
-	default:
-		return false, err
+	result := tx.Where("student_id = ?", stuID).Find(&models.Student{})
+	if result.Error != nil || result.RowsAffected == 0 {
+		return false, result.Error
 	}
+
+	return true, nil
 }
 
 func UpdateSelectedStuNum(courseID string, num uint) error {
@@ -116,6 +108,7 @@ func UpdateSelectedStuNum(courseID string, num uint) error {
 		return err
 	}
 
+	tx.Commit()
 	return nil
 }
 
@@ -125,7 +118,7 @@ func GetCourseCapacity(courseID string) (uint, error) {
 	tx := core.MysqlConn.Begin()
 	defer tx.Commit()
 	// 查询课程容量
-	if err := tx.Where("class_id = ?", courseID).Pluck("class_capacity", &capacity).Error; err != nil {
+	if err := tx.Model(&models.Course{}).Where("class_id = ?", courseID).Pluck("class_capacity", &capacity).Error; err != nil {
 		return 0, err
 	}
 

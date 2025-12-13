@@ -28,7 +28,7 @@ func AddTokenToRedis(ctx context.Context, userID string, tokenType uint, uuid st
 	}
 
 	// 写入Token
-	_, err := core.RedisConn.Set(ctx, key, uuid, expireTime).Result()
+	_, err := core.RedisConnForSM.Set(ctx, key, uuid, expireTime).Result()
 	if err != nil {
 		core.Logger.Error(
 			"Add Token To Redis Error",
@@ -57,7 +57,7 @@ func DelTokenFromRedis(ctx context.Context, userID string, tokenType uint) respo
 		return response.ServerInternalError(err)
 	}
 	// 写入Token
-	_, err := core.RedisConn.Del(ctx, key).Result()
+	_, err := core.RedisConnForSM.Del(ctx, key).Result()
 	if err != nil {
 		core.Logger.Error(
 			"Delete Token From Redis Error",
@@ -86,7 +86,7 @@ func IfTokenExist(ctx context.Context, userID string, tokenType uint) (bool, res
 		return false, response.ServerInternalError(err)
 	}
 	// 检查是否存在
-	val, err := core.RedisConn.Exists(ctx, key).Result()
+	val, err := core.RedisConnForSM.Exists(ctx, key).Result()
 	if err != nil {
 		core.Logger.Error(
 			"Check If The Key Exists",
@@ -120,7 +120,7 @@ func GetUUIDOfToken(ctx context.Context, userID string, tokenType uint) (interfa
 		return nil, response.ServerInternalError(err)
 	}
 	// 取值
-	val, err := core.RedisConn.Get(ctx, key).Result()
+	val, err := core.RedisConnForSM.Get(ctx, key).Result()
 	if err != nil {
 		core.Logger.Error(
 			"Get UUID From Key",

@@ -289,7 +289,7 @@ func GetCourseInfoForStudentHandleFunc() app.HandlerFunc {
 		ctx = context.WithValue(ctx, "trace_id", traceID)
 		// 解析JWT
 		rawClaims, _ := c.Get("jwt_claims")
-		claims := rawClaims.(jwt.CustomClaims)
+		claims := rawClaims.(*jwt.CustomClaims)
 		// 判断权限
 		if claims.Role != "student" { // 不可以拿student来调用给admin的接口，避免权限混乱
 			c.JSON(consts.StatusOK, response.GenFinalResponse(response.PermissionDenied, nil))
@@ -309,7 +309,7 @@ func GetSelectedCourseForStudentHandleFunc() app.HandlerFunc {
 		ctx = context.WithValue(ctx, "trace_id", traceID)
 		// 解析JWT
 		rawClaims, _ := c.Get("jwt_claims")
-		claims := rawClaims.(jwt.CustomClaims)
+		claims := rawClaims.(*jwt.CustomClaims)
 		// 判断权限
 		if claims.Role != "student" { // 不可以拿student来调用给admin的接口，避免权限混乱
 			c.JSON(consts.StatusOK, response.GenFinalResponse(response.PermissionDenied, nil))
@@ -330,7 +330,7 @@ func SubscribeCourseForStudentHandleFunc() app.HandlerFunc {
 		ctx = context.WithValue(ctx, "trace_id", traceID)
 		// 解析JWT
 		rawClaims, _ := c.Get("jwt_claims")
-		claims := rawClaims.(jwt.CustomClaims)
+		claims := rawClaims.(*jwt.CustomClaims)
 		// 判断权限
 		if claims.Role != "student" { // 不可以拿student来调用给admin的接口，避免权限混乱
 			c.JSON(consts.StatusOK, response.GenFinalResponse(response.PermissionDenied, nil))
@@ -356,7 +356,7 @@ func DropCourseForStudentHandleFunc() app.HandlerFunc {
 		ctx = context.WithValue(ctx, "trace_id", traceID)
 		// 解析JWT
 		rawClaims, _ := c.Get("jwt_claims")
-		claims := rawClaims.(jwt.CustomClaims)
+		claims := rawClaims.(*jwt.CustomClaims)
 		// 判断权限
 		if claims.Role != "student" { // 不可以拿student来调用给admin的接口，避免权限混乱
 			c.JSON(consts.StatusOK, response.GenFinalResponse(response.PermissionDenied, nil))
@@ -590,7 +590,7 @@ func StopCourseSelectionEventForAdminHandleFunc() app.HandlerFunc {
 		ctx = context.WithValue(ctx, "trace_id", traceID)
 		// 解析JWT
 		rawClaims, _ := c.Get("jwt_claims")
-		claims := rawClaims.(jwt.CustomClaims)
+		claims := rawClaims.(*jwt.CustomClaims)
 		// 判断权限
 		if claims.Role != "admin" { // 不可以拿admin来调用给student的接口，避免权限混乱
 			c.JSON(consts.StatusOK, response.GenFinalResponse(response.PermissionDenied, nil))

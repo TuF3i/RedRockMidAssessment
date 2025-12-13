@@ -91,6 +91,9 @@ func UpdateSelectedStuNum(courseID string, num uint) error {
 
 	// 获取课程容量
 	capacity, err := dao.GetCourseCapacity(courseID)
+	if err != nil {
+		return err
+	}
 
 	// 计算课程容量
 	selectedNum := capacity - num

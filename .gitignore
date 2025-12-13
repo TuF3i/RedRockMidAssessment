@@ -36,6 +36,7 @@ consumer/data/config/
 gateway/data/config
 synchronizer/data/config/
 
+# Logs
 consumer/data/logs
 gateway/data/logs
 synchronizer/data/logs

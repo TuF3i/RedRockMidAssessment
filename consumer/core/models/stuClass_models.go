@@ -1,6 +1,7 @@
 package models
 
 import (
+	"encoding/json"
 	"time"
 
 	"gorm.io/gorm"
@@ -9,8 +10,8 @@ import (
 type Relation struct {
 	// 关联表
 	gorm.Model
-	CouID string `gorm:"column:CouID"`
-	StuID uint   `gorm:"column:StuID"`
+	CouID string `gorm:"column:cou_id"`
+	StuID uint   `gorm:"column:stu_id"`
 }
 
 func (Relation) TableName() string {
@@ -41,15 +42,15 @@ func (Course) TableName() string {
 
 type Student struct {
 	// 学生表
-	ID        uint           `gorm:"primarykey"`
+	ID        uint           `json:"-" gorm:"primarykey"`
 	CreatedAt time.Time      `json:"create_at"`
 	UpdatedAt time.Time      `json:"-"`
 	DeletedAt gorm.DeletedAt `json:"-" gorm:"index"`
 
-	Role         bool   `json:"role" gorm:"column:role; not null; type:tinyint; default:1"` // 0为admin, 1为学生
+	Role         int    `json:"-" gorm:"column:role; not null; type:tinyint; default:1"` // 0为admin, 1为学生
 	Name         string `json:"name" gorm:"column:name; not null; type:varchar(90)"`
-	StudentID    string `json:"stu_id" gorm:"column:student_id; index; unique; not null; type:bigint"`
-	StudentClass string `json:"stu_class" gorm:"column:student_class; not null; type:varchar(40)"`
+	StudentID    string `json:"student_id" gorm:"column:student_id; index; unique; not null; type:bigint"`
+	StudentClass string `json:"student_class" gorm:"column:student_class; not null; type:varchar(40)"`
 	Password     string `json:"password" gorm:"column:password; not null; type:varchar(90)"`
 	Sex          uint   `json:"sex" gorm:"column:sex; not null"`
 	Grade        uint   `json:"grade" gorm:"column:grade; not null"`
@@ -63,8 +64,8 @@ func (Student) TableName() string {
 }
 
 type Commander struct {
-	Role string      `json:"role"`
-	Msg  interface{} `json:"msg"`
+	Role string          `json:"role"`
+	Msg  json.RawMessage `json:"msg"`
 }
 
 type CourseMsg struct {

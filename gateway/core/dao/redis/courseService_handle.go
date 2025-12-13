@@ -7,10 +7,20 @@ import (
 	"context"
 	"errors"
 
+	_ "embed"
+
 	"github.com/cloudwego/hertz/pkg/common/json"
 	"github.com/go-redis/redis/v8"
 	"go.uber.org/zap"
 )
+
+// 加载Lua脚本
+
+//go:embed script/subscribe.lua
+var subscribe string
+
+//go:embed script/drop.lua
+var drop string
 
 func GetAllCourseID(ctx context.Context) (interface{}, response.Response) {
 	// 生成Key
@@ -33,8 +43,9 @@ func GetCourseDetails(ctx context.Context, courseID string) (interface{}, respon
 	var data models.Course
 	// 生成Key
 	key := courseInfoKey(courseID)
+	stockKet := courseStockKey(courseID)
 	// 取出课程的信息
-	raw, err := core.RedisConn.HGetAll(ctx, key).Result()
+	raw, err := core.RedisConn.Get(ctx, key).Result()
 	if err != nil {
 		core.Logger.Error(
 			"Get Course Info",
@@ -43,21 +54,31 @@ func GetCourseDetails(ctx context.Context, courseID string) (interface{}, respon
 		)
 		return nil, response.ServerInternalError(err)
 	}
-	if len(raw) == 0 {
-		return models.Course{ClassID: courseID}, response.OperationSuccess // 保险加个，防止Key不存在导致查不出来
-	}
-	// 把查出来的map[string]string转成jsonByte
-	buf, err := json.Marshal(raw)
+	// 取出课程容量
+	remain, err := core.RedisConn.Get(ctx, stockKet).Int()
 	if err != nil {
 		core.Logger.Error(
-			"Convert map to jsonByte",
+			"Get Course Remaining",
 			zap.String("snowflake", ctx.Value("trace_id").(string)),
 			zap.String("detail", err.Error()),
 		)
 		return nil, response.ServerInternalError(err)
 	}
+	if len(raw) == 0 {
+		return models.Course{ClassID: courseID}, response.OperationSuccess // 保险加个，防止Key不存在导致查不出来
+	}
+	//// 把查出来的map[string]string转成jsonByte
+	//buf, err := json.Marshal(raw)
+	//if err != nil {
+	//	core.Logger.Error(
+	//		"Convert map to jsonByte",
+	//		zap.String("snowflake", ctx.Value("trace_id").(string)),
+	//		zap.String("detail", err.Error()),
+	//	)
+	//	return nil, response.ServerInternalError(err)
+	//}
 	// 把jsonByte重新转成json（保护数据类型）
-	if err := json.Unmarshal(buf, &data); err != nil {
+	if err := json.Unmarshal([]byte(raw), &data); err != nil {
 		core.Logger.Error(
 			"Convert jsonByte to json",
 			zap.String("snowflake", ctx.Value("trace_id").(string)),
@@ -65,6 +86,8 @@ func GetCourseDetails(ctx context.Context, courseID string) (interface{}, respon
 		)
 		return nil, response.ServerInternalError(err)
 	}
+	// 重新填充已选人数
+	data.ClassSelectedNum = data.ClassCapacity - uint(remain)
 	return data, response.OperationSuccess
 }
 
@@ -90,43 +113,15 @@ func SubscribeACourse(ctx context.Context, userID string, courseID string) respo
 	keyForStu := courseUsersKey(courseID)
 	keyForStock := courseStockKey(courseID)
 	keyForStudentSelectedCourseKey := studentSelectedCourseKey(userID)
+	keyForStuDropped := courseDroppedUsersKey(courseID)
 
-	// Lua脚本 -- AI写的
-	lua := `
-local stockKey  = KEYS[1]
-local usersKey  = KEYS[2]
-local userSelectedKey = KEYS[3]
-local courseInfoKey = KEYS[4]
-
-local userID    = ARGV[1]
-local courseID  = ARGV[2]
-
--- 减库存
-local left = redis.call('DECR', stockKey)
-if left < 0 then
-    -- 库存不足，回滚刚才的 DECR，返回 0
-    redis.call('INCR', stockKey)
-    return 0
-end
-
--- 把用户加入集合
-redis.call('SADD', usersKey, userID)
-redis.call('SADD', userSelectedKey, courseID)
-
--- 改课程信息
-local v = redis.call('HGET', courseInfoKey, 'ClassSelectedNum') or 0
-v = v + 1
-redis.call('HSET', courseInfoKey, 'ClassSelectedNum', v)
-
-return 1
-`
 	// 初始化脚本
-	script := redis.NewScript(lua)
+	script := redis.NewScript(subscribe)
 	// 执行脚本
 	ok, err := script.Run(
 		ctx,
 		core.RedisConn,
-		[]string{keyForStock, keyForStu, keyForStudentSelectedCourseKey},
+		[]string{keyForStock, keyForStu, keyForStudentSelectedCourseKey, keyForStuDropped},
 		[]string{userID, courseID},
 	).Result()
 	// 判断返回值
@@ -152,43 +147,8 @@ func DropACourse(ctx context.Context, userID string, courseID string) response.R
 	keyForStuDropped := courseDroppedUsersKey(courseID)
 	keyForStudentSelectedCourseKey := studentSelectedCourseKey(userID)
 
-	// Lua脚本 -- AI写的
-	lua := `
-local stockKey   = KEYS[1]   -- 课程库存
-local usersKey   = KEYS[2]   -- 已报名用户集合
-local droppedKey = KEYS[3]   -- 已退课用户集合
-local userSelectedKey = KEYS[4] -- 学生选课集合
-local courseInfoKey = KEYS[5] -- 课程信息
-
-local userID     = ARGV[1]   -- 要退课的用户
-local courseID   = ARGV[2]   -- 课程ID
-
--- 1. 减库存（退课逻辑里也可 INCR，这里演示 DECR 场景）
-local left = redis.call('DECR', stockKey)
-if left < 0 then
-    -- 库存不允许为负，回滚
-    redis.call('INCR', stockKey)
-    return 0
-end
-
--- 2. 从报名集合移除
-redis.call('SREM', usersKey, userID)
-
--- 3. 加入退课集合
-redis.call('SADD', droppedKey, userID)
-
--- 4. 从学生选课集合中移除课程
-redis.call('SREM', userSelectedKey, courseID)
-
--- 5. 改课程信息
-local v = redis.call('HGET', courseInfoKey, 'ClassSelectedNum') or 0
-v = v - 1
-redis.call('HSET', courseInfoKey, 'ClassSelectedNum', v)
-
-return 1
-`
 	// 初始化脚本
-	script := redis.NewScript(lua)
+	script := redis.NewScript(drop)
 	// 执行脚本
 	ok, err := script.Run(ctx,
 		core.RedisConn,
