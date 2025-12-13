@@ -126,8 +126,13 @@ func JWTRefreshMiddleWare() app.HandlerFunc {
 		uuid := claim.UUID
 		// 从Redis中校验Token
 		ok, rsp := redis.IfTokenExist(ctx, userID, 1) // 是否存在该RefreshToken
-		if !ok {
+		if !errors.Is(rsp, response.OperationSuccess) {
 			c.JSON(consts.StatusOK, response.GenFinalResponse(rsp, nil))
+			c.Abort()
+			return
+		}
+		if !ok {
+			c.JSON(consts.StatusOK, response.GenFinalResponse(response.PermissionDenied, nil))
 			c.Abort()
 			return
 		}
