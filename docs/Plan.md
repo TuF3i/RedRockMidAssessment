@@ -871,6 +871,23 @@ GET /v1/api/admin/classes-manager/stop-course-select-event
 - 请求体data为`null`
 - 响应体data字段为`null`
 
+#### 3.4.7 查询选课状态
+
+```
+GET /v1/api/admin/classes-manager/get-course-select-event-status
+```
+
+- 请求方法`GET`
+
+- 请求体data为`null`
+
+- 响应体data字段为`bool`:
+
+  | 布尔值 | 备注 |
+  | ------ | ---- |
+  | true   | 开始 |
+  | false  | 结束 |
+
 ## 4. 错误传递规范
 
 ### 4.1 错误传递和日志规范

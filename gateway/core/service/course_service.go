@@ -344,6 +344,14 @@ func SubscribeCourseForAdmin(ctx context.Context, userID string, courseID string
 	if ok {
 		return response.RecordAlreadyExist
 	}
+	// 检查课程是否超容
+	data, rsp := mysql.GetCourseInfo(ctx, courseID)
+	if !errors.Is(rsp, response.OperationSuccess) {
+		return rsp
+	}
+	if data.(models.Course).ClassSelectedNum >= data.(models.Course).ClassCapacity {
+		return response.CourseIsFull
+	}
 	// 执行写入操作
 	rsp = mysql.AddCourseToStudent(ctx, courseID, userID)
 	return rsp
@@ -534,4 +542,13 @@ func StopCourseSelection(ctx context.Context) response.Response {
 	}
 
 	return response.OperationSuccess
+}
+
+func GetCourseSelectionEventStatus(ctx context.Context) (bool, response.Response) {
+	// 查Redis
+	ok, rsp := redis.CheckIfCourseSelectionStarted(ctx)
+	if !errors.Is(rsp, response.OperationSuccess) {
+		return false, rsp
+	}
+	return ok, response.OperationSuccess
 }

@@ -2,10 +2,31 @@
 const API_BASE_URL = 'http://localhost:8080';
 let currentUser = null;
 let authToken = null;
+let refreshToken = null;
 let currentSection = 'selectable-courses';
 let confirmCallback = null;
 
 // 工具函数
+function gradeNumberToChinese(grade) {
+    const gradeMap = {
+        1: '大一',
+        2: '大二',
+        3: '大三',
+        4: '大四'
+    };
+    return gradeMap[grade] || grade;
+}
+
+function gradeChineseToNumber(gradeChinese) {
+    const gradeMap = {
+        '大一': 1,
+        '大二': 2,
+        '大三': 3,
+        '大四': 4
+    };
+    return gradeMap[gradeChinese] || gradeChinese;
+}
+
 function showLoading(button) {
     const btnText = button.querySelector('.btn-text');
     const btnLoading = button.querySelector('.btn-loading');
@@ -51,7 +72,7 @@ function confirmAction() {
 }
 
 // API请求函数
-async function apiRequest(url, options = {}) {
+async function apiRequest(url, options = {}, retry = true) {
     const defaultOptions = {
         headers: {
             'Content-Type': 'application/json',
@@ -90,7 +111,133 @@ async function apiRequest(url, options = {}) {
                 info: '无法连接到服务器，请检查网络连接'
             }));
         }
+
+        // 检查是否为令牌过期错误
+        try {
+            const errorData = JSON.parse(error.message);
+            
+            // 当错误码为500且包含"token is expired"时，自动刷新token
+            if (retry && errorData.status === 500 && errorData.info && errorData.info.includes('token is expired')) {
+                if (refreshToken) {
+                    try {
+                        const refreshResponse = await fetch(`${API_BASE_URL}/v1/api/public/refresh`, {
+                            method: 'GET',
+                            headers: {
+                                'Authorization': `Bearer ${refreshToken}`
+                            }
+                        });
+                        
+                        const refreshData = await refreshResponse.json();
+                        if (refreshData.status === 20000 && refreshData.data) {
+                            // 更新access_token和refresh_token
+                            authToken = refreshData.data.access_token;
+                            refreshToken = refreshData.data.refresh_token;
+                            
+                            // 重新发送原请求
+                            return await apiRequest(url, options, false);
+                        }
+                    } catch (refreshError) {
+                        console.error('Token刷新失败:', refreshError);
+                        // 如果刷新失败，重新登录
+                        handleTokenRefreshFailure();
+                        throw error;
+                    }
+                } else {
+                    // 没有refreshToken，需要重新登录
+                    handleTokenRefreshFailure();
+                    throw error;
+                }
+            }
+        } catch (parseError) {
+            // 如果解析错误消息失败，直接抛出原错误
+        }
+        
         throw error;
+    }
+}
+
+// 处理令牌刷新失败的情况
+function handleTokenRefreshFailure() {
+    // 清除本地存储的token和用户信息
+    authToken = null;
+    refreshToken = null;
+    currentUser = null;
+    
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('userRole');
+    
+    // 显示错误信息并跳转到登录页
+    alert('登录已过期，请重新登录');
+    window.location.href = 'index.html';
+}
+
+// 管理员为学生添加课程
+async function adminAddCourse(stuId, classId, buttonElement) {
+    try {
+        buttonElement.disabled = true;
+        buttonElement.textContent = '添加中...';
+        
+        // 使用管理员权限为学生添加选课
+        const response = await apiRequest('/v1/api/admin/classes-manager/update-stu-classes', {
+            method: 'PATCH',
+            body: JSON.stringify({
+                stu_id: stuId,
+                update_class_id: classId
+            })
+        });
+        
+        alert(`为学生 ${stuId} 添加课程成功！`);
+        
+        // 关闭所有模态框
+        document.querySelectorAll('.modal').forEach(modal => modal.remove());
+        
+        // 刷新学生选课列表
+        viewStudentCourses(stuId);
+        
+    } catch (error) {
+        try {
+            const errorData = JSON.parse(error.message);
+            showErrorModal(errorData.status, errorData.info);
+        } catch {
+            showErrorModal('错误', error.message);
+        }
+    } finally {
+        // 恢复按钮状态
+        if (buttonElement) {
+            buttonElement.disabled = false;
+            buttonElement.textContent = '添加选课';
+        }
+    }
+}
+
+// 管理员删除学生选课
+async function adminDeleteCourse(stuId, classId) {
+    if (!confirm(`确定要为学生 ${stuId} 删除课程 ${classId} 吗？`)) {
+        return;
+    }
+    
+    try {
+        const response = await apiRequest('/v1/api/admin/classes-manager/update-stu-classes', {
+            method: 'DELETE',
+            body: JSON.stringify({
+                stu_id: stuId,
+                update_class_id: classId
+            })
+        });
+        
+        alert(`为学生 ${stuId} 删除课程成功！`);
+        
+        // 刷新学生选课列表
+        viewStudentCourses(stuId);
+        
+    } catch (error) {
+        try {
+            const errorData = JSON.parse(error.message);
+            showErrorModal(errorData.status, errorData.info);
+        } catch {
+            showErrorModal('错误', error.message);
+        }
     }
 }
 
@@ -175,7 +322,9 @@ async function login() {
         });
         
         authToken = response.data.access_token;
+        refreshToken = response.data.refresh_token;
         localStorage.setItem('authToken', authToken);
+        localStorage.setItem('refreshToken', refreshToken);
         localStorage.setItem('userRole', role);
         
         // 根据角色跳转到相应页面
@@ -250,6 +399,7 @@ async function register() {
     showLoading(registerBtn);
     
     try {
+        const gradeNumber = gradeChineseToNumber(grade);
         const response = await apiRequest('/v1/api/public/register', {
             method: 'POST',
             body: JSON.stringify({
@@ -258,7 +408,7 @@ async function register() {
                 student_class: stuClass,
                 password: password,
                 sex: sex,
-                grade: grade,
+                grade: gradeNumber,
                 age: age
             })
         });
@@ -298,6 +448,7 @@ async function logout() {
     }
     
     localStorage.removeItem('authToken');
+    localStorage.removeItem('refreshToken');
     localStorage.removeItem('userRole');
     window.location.href = 'index.html';
 }
@@ -310,6 +461,7 @@ function checkAuth() {
     
     try {
         authToken = localStorage.getItem('authToken');
+        refreshToken = localStorage.getItem('refreshToken');
         const userRole = localStorage.getItem('userRole');
         const currentPage = window.location.pathname.split('/').pop();
         
@@ -363,6 +515,8 @@ function showSection(sectionId) {
         loadSelectedCourses();
     } else if (sectionId === 'profile') {
         loadStudentInfo();
+    } else if (sectionId === 'course-control') {
+        updateSelectionStatus();
     }
 }
 
@@ -385,7 +539,7 @@ async function loadStudentInfo() {
         document.getElementById('profile_name').value = student.name;
         document.getElementById('profile_stu_id').value = student.stu_id || student.student_id;
         document.getElementById('profile_stu_class').value = student.stu_class || student.student_class;
-        document.getElementById('profile_grade').value = student.grade;
+        document.getElementById('profile_grade').value = gradeNumberToChinese(student.grade);
         document.getElementById('profile_sex').value = student.sex;
         document.getElementById('profile_age').value = student.age;
         
@@ -425,11 +579,11 @@ async function loadSelectableCourses() {
                 <div class="course-info"><strong>授课教师：</strong>${course.class_teacher}</div>
                 <div class="course-info"><strong>上课地点：</strong>${course.class_location}</div>
                 <div class="course-info"><strong>上课时间：</strong>${course.class_time}</div>
-                <div class="course-info"><strong>课程容量：</strong>${course.class_selsetion}/${course.class_capcity}</div>
+                <div class="course-info"><strong>课程容量：</strong>${course.class_selection}/${course.class_capacity}</div>
                 <div class="course-actions">
                     <button class="select-btn" onclick="subscribeCourse('${course.class_id}')" 
-                            ${course.class_selsetion >= course.class_capcity ? 'disabled' : ''}>
-                        ${course.class_selsetion >= course.class_capcity ? '已满' : '选课'}
+                            ${course.class_selection >= course.class_capacity ? 'disabled' : ''}>
+                        ${course.class_selection >= course.class_capacity ? '已满' : '选课'}
                     </button>
                 </div>
             </div>
@@ -471,6 +625,7 @@ async function loadSelectedCourses() {
                 <div class="course-info"><strong>授课教师：</strong>${course.class_teacher}</div>
                 <div class="course-info"><strong>上课地点：</strong>${course.class_location}</div>
                 <div class="course-info"><strong>上课时间：</strong>${course.class_time}</div>
+                <div class="course-info"><strong>课程容量：</strong>${course.class_selection}/${course.class_capacity}</div>
                 <div class="course-actions">
                     <button class="drop-btn" onclick="dropCourse('${course.class_id}')">退课</button>
                 </div>
@@ -598,7 +753,7 @@ async function saveProfile() {
         updateColumns.push({ field: 'student_class', value: stuClass });
     }
     if (grade !== currentUser.grade) {
-        updateColumns.push({ field: 'grade', value: grade });
+        updateColumns.push({ field: 'grade', value: gradeChineseToNumber(grade) });
     }
     if (sex !== currentUser.sex) {
         updateColumns.push({ field: 'sex', value: sex.toString() });
@@ -660,11 +815,11 @@ async function loadStudentList(page = 1, pageSize = 15) {
                 <td>${student.stu_id}</td>
                 <td>${student.student_name || student.name}</td>
                 <td>${student.student_class || student.stu_class}</td>
-                <td>${student.grade}</td>
+                <td>${gradeNumberToChinese(student.grade)}</td>
                 <td>
                     <div class="action-buttons">
                         <button class="view-btn" onclick="viewStudentCourses('${student.stu_id}')">查看选课</button>
-                        <button class="edit-btn-small" onclick="editStudent('${student.stu_id}')">编辑</button>
+                        <button class="edit-btn-small" onclick="editStudent('${student.stu_id}', event)">编辑</button>
                         <button class="delete-btn" onclick="deleteStudent('${student.stu_id}')">删除</button>
                     </div>
                 </td>
@@ -711,8 +866,8 @@ async function loadAdminCourses() {
                 <td>${course.class_teacher}</td>
                 <td>${course.class_location}</td>
                 <td>${course.class_time}</td>
-                <td>${course.class_capcity}</td>
-                <td>${course.class_selsetion}</td>
+                <td>${course.class_capacity}</td>
+                <td>${course.class_selection}</td>
                 <td>
                     <div class="action-buttons">
                         <button class="edit-btn-small" onclick="editCourse('${course.class_id}')">编辑</button>
@@ -783,19 +938,33 @@ function showCreateStudent() {
     document.getElementById('studentEditModal').style.display = 'block';
 }
 
-function editStudent(stuId) {
+async function editStudent(stuId, event) {
     document.getElementById('studentEditTitle').textContent = '编辑学生信息';
     document.getElementById('edit_stu_id').readOnly = true;
     document.getElementById('edit_stu_id').value = stuId;
     
-    // 这里应该调用API获取学生详细信息
-    // 为了简化，我们假设数据已经在表格中
-    const row = event.target.closest('tr');
-    document.getElementById('edit_stu_name').value = row.cells[1].textContent;
-    document.getElementById('edit_stu_class').value = row.cells[2].textContent;
-    document.getElementById('edit_grade').value = row.cells[3].textContent;
-    
-    document.getElementById('studentEditModal').style.display = 'block';
+    try {
+        // 调用API获取学生详细信息
+        const response = await apiRequest(`/v1/api/admin/stu-manager/get-stu-info/${stuId}`);
+        const studentData = response.data;
+        
+        // 填充表单数据
+        document.getElementById('edit_stu_name').value = studentData.name || '';
+        document.getElementById('edit_stu_class').value = studentData.student_class || '';
+        document.getElementById('edit_grade').value = gradeNumberToChinese(studentData.grade);
+        document.getElementById('edit_age').value = studentData.age || '';
+        document.getElementById('edit_sex').value = studentData.sex || '1';
+        document.getElementById('edit_password').value = '';
+        
+        document.getElementById('studentEditModal').style.display = 'block';
+    } catch (error) {
+        try {
+            const errorData = JSON.parse(error.message);
+            showErrorModal(errorData.status, errorData.info);
+        } catch {
+            showErrorModal('错误', error.message);
+        }
+    }
 }
 
 async function saveStudentEdit() {
@@ -856,6 +1025,7 @@ async function saveStudentEdit() {
     
     try {
         if (isCreate) {
+            const gradeNumber = gradeChineseToNumber(grade);
             await apiRequest('/v1/api/admin/stu-manager/create-stu', {
                 method: 'POST',
                 body: JSON.stringify({
@@ -864,16 +1034,17 @@ async function saveStudentEdit() {
                     student_class: stuClass,
                     password: password,
                     sex: sex,
-                    grade: grade,
+                    grade: gradeNumber,
                     age: age
                 })
             });
             alert('学生创建成功！');
         } else {
             const updateColumns = [];
+            const gradeNumber = gradeChineseToNumber(grade);
             updateColumns.push({ field: 'name', value: name });
             updateColumns.push({ field: 'student_class', value: stuClass });
-            updateColumns.push({ field: 'grade', value: grade });
+            updateColumns.push({ field: 'grade', value: gradeNumber });
             updateColumns.push({ field: 'sex', value: sex.toString() });
             updateColumns.push({ field: 'age', value: age.toString() });
             
@@ -989,7 +1160,7 @@ async function saveCourseEdit() {
                     class_location: location,
                     class_time: time,
                     class_teacher: teacher,
-                    class_capcity: capacity
+                    class_capacity: capacity
                 })
             });
             alert('课程创建成功！');
@@ -1068,20 +1239,147 @@ async function viewStudentCourses(stuId) {
             method: 'GET'
         });
         
-        const courses = response.data.selected_classes || [];
-        let message = `学生 ${stuId} 的选课情况：\n\n`;
+        const courses = response.data || [];
         
-        if (courses.length === 0) {
-            message += '该学生暂未选择任何课程。';
-        } else {
-            courses.forEach(course => {
-                message += `• ${course.class_name} (${course.class_id})\n`;
-                message += `  教师：${course.class_teacher}\n`;
-                message += `  时间：${course.class_time}\n\n`;
-            });
+        // 创建模态框显示课程列表
+        showCoursesModal(stuId, courses);
+        
+    } catch (error) {
+        try {
+            const errorData = JSON.parse(error.message);
+            showErrorModal(errorData.status, errorData.info);
+        } catch {
+            showErrorModal('错误', error.message);
         }
+    }
+}
+
+// 显示学生课程列表的模态框（管理员版本）
+function showCoursesModal(stuId, courses) {
+    // 创建模态框
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+    modal.style.display = 'block';
+    
+    let coursesHtml = '';
+    
+    if (courses.length === 0) {
+        coursesHtml = `
+            <div class="empty-state">
+                <h3>暂无课程</h3>
+                <p>该学生暂未选择任何课程。</p>
+            </div>
+        `;
+    } else {
+        coursesHtml = courses.map(course => `
+            <div class="course-card">
+                <h3>${course.class_name}</h3>
+                <div class="course-info">
+                    <strong>课程ID：</strong>${course.class_id}
+                </div>
+                <div class="course-info">
+                    <strong>授课教师：</strong>${course.class_teacher}
+                </div>
+                <div class="course-info">
+                    <strong>上课地点：</strong>${course.class_location}
+                </div>
+                <div class="course-info">
+                    <strong>上课时间：</strong>${course.class_time}
+                </div>
+                <div class="course-info">
+                    <strong>课程容量：</strong>${course.class_selection}/${course.class_capacity}
+                </div>
+                <div class="course-info">
+                    <strong>选课时间：</strong>${new Date(course.create_at).toLocaleString('zh-CN')}
+                </div>
+                <div class="course-actions">
+                    <button class="delete-btn" onclick="adminDeleteCourse('${stuId}', '${course.class_id}')">删除选课</button>
+                </div>
+            </div>
+        `).join('');
+    }
+    
+    modal.innerHTML = `
+        <div class="modal-content" style="max-width: 800px;">
+            <div class="modal-header">
+                <h2>学生 ${stuId} 的课程列表</h2>
+                <span class="close-modal" onclick="this.closest('.modal').remove()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="admin-course-actions" style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 5px;">
+                    <h4 style="margin-top: 0;">管理员操作</h4>
+                    <button class="btn btn-primary" onclick="showAddCourseModal('${stuId}')">添加选课</button>
+                </div>
+                ${coursesHtml}
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="this.closest('.modal').remove()">关闭</button>
+            </div>
+        </div>
+    `;
+    
+    // 添加点击外部关闭功能
+    modal.addEventListener('click', function(event) {
+        if (event.target === modal) {
+            modal.remove();
+        }
+    });
+    
+    document.body.appendChild(modal);
+}
+
+// 显示添加课程的模态框
+async function showAddCourseModal(stuId) {
+    try {
+        // 获取可选课程列表
+        const response = await apiRequest('/v1/api/admin/classes-manager/get-class-status', {
+            method: 'GET'
+        });
         
-        alert(message);
+        const allCourses = response.data.selectable_classes || [];
+        
+        // 创建模态框
+        const modal = document.createElement('div');
+        modal.className = 'modal';
+        modal.style.display = 'block';
+        
+        modal.innerHTML = `
+            <div class="modal-content" style="max-width: 600px;">
+                <div class="modal-header">
+                    <h2>为学生 ${stuId} 添加课程</h2>
+                    <span class="close-modal" onclick="this.closest('.modal').remove()">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <div class="course-selection-list">
+                        ${allCourses.map(course => `
+                            <div class="course-option" style="border: 1px solid #ddd; padding: 15px; margin: 10px 0; border-radius: 5px;">
+                                <h4>${course.class_name}</h4>
+                                <p><strong>课程ID：</strong>${course.class_id}</p>
+                                <p><strong>授课教师：</strong>${course.class_teacher}</p>
+                                <p><strong>上课时间：</strong>${course.class_time}</p>
+                                <p><strong>课程容量：</strong>${course.class_selection}/${course.class_capacity}</p>
+                                <div class="course-action">
+                                    <button class="btn btn-primary" onclick="adminAddCourse('${stuId}', '${course.class_id}', this)">
+                                        ${course.class_selection >= course.class_capacity ? '已满' : '添加选课'}
+                                    </button>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" onclick="this.closest('.modal').remove()">关闭</button>
+                </div>
+            </div>
+        `;
+        
+        modal.addEventListener('click', function(event) {
+            if (event.target === modal) {
+                modal.remove();
+            }
+        });
+        
+        document.body.appendChild(modal);
         
     } catch (error) {
         try {
@@ -1122,6 +1420,33 @@ async function stopSelection() {
         alert('选课已停止！');
         document.getElementById('selectionStatus').textContent = '已停止';
         document.getElementById('selectionStatus').className = 'status-stopped';
+        
+    } catch (error) {
+        try {
+            const errorData = JSON.parse(error.message);
+            showErrorModal(errorData.status, errorData.info);
+        } catch {
+            showErrorModal('错误', error.message);
+        }
+    }
+}
+
+async function updateSelectionStatus() {
+    try {
+        const response = await apiRequest('/v1/api/admin/classes-manager/get-course-select-event-status', {
+            method: 'GET'
+        });
+        
+        const isActive = response.data;
+        const statusElement = document.getElementById('selectionStatus');
+        
+        if (isActive) {
+            statusElement.textContent = '进行中';
+            statusElement.className = 'status-running';
+        } else {
+            statusElement.textContent = '已停止';
+            statusElement.className = 'status-stopped';
+        }
         
     } catch (error) {
         try {

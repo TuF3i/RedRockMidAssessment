@@ -183,7 +183,7 @@ func GetStudentInfoForAdminHandleFunc() app.HandlerFunc {
 		ctx = context.WithValue(ctx, "trace_id", traceID)
 		// 解析JWT
 		rawClaims, _ := c.Get("jwt_claims")
-		claims := rawClaims.(jwt.CustomClaims)
+		claims := rawClaims.(*jwt.CustomClaims)
 		// 判断权限
 		if claims.Role != "admin" { // 不可以拿admin来调用给学生的接口，避免权限混乱
 			c.JSON(consts.StatusOK, response.GenFinalResponse(response.PermissionDenied, nil))
@@ -599,5 +599,25 @@ func StopCourseSelectionEventForAdminHandleFunc() app.HandlerFunc {
 		// 调用course_service
 		rsp := service.StopCourseSelection(ctx)
 		c.JSON(consts.StatusOK, response.GenFinalResponse(rsp, nil))
+	}
+}
+
+func GetCourseSelectionEventStatusForAdminHandleFunc() app.HandlerFunc {
+	return func(ctx context.Context, c *app.RequestContext) {
+		// 生成TraceID
+		traceID := core.SnowFlake.TraceID()
+		ctx = context.WithValue(ctx, "trace_id", traceID)
+		// 解析JWT
+		rawClaims, _ := c.Get("jwt_claims")
+		claims := rawClaims.(*jwt.CustomClaims)
+		// 判断权限
+		if claims.Role != "admin" { // 不可以拿admin来调用给student的接口，避免权限混乱
+			c.JSON(consts.StatusOK, response.GenFinalResponse(response.PermissionDenied, nil))
+			return
+		}
+		// 调用course_service
+		ok, rsp := service.GetCourseSelectionEventStatus(ctx)
+
+		c.JSON(consts.StatusOK, response.GenFinalResponse(rsp, ok))
 	}
 }

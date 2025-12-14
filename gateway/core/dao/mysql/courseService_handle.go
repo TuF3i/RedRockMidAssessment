@@ -170,7 +170,17 @@ func AddCourseToStudent(ctx context.Context, courseID string, userID string) res
 		)
 		return response.ServerInternalError(err)
 	}
-
+	// 将selectedNum 加 1
+	var dataNum = course.ClassSelectedNum + 1
+	if err := tx.Model(&models.Course{}).Where("class_id = ?", courseID).Update("class_selected_num", dataNum).Error; err != nil {
+		tx.Rollback()
+		core.Logger.Error(
+			"Increase class_selected_num",
+			zap.String("snowflake", ctx.Value("trace_id").(string)),
+			zap.String("detail", err.Error()),
+		)
+		return response.ServerInternalError(err)
+	}
 	tx.Commit()
 	return response.OperationSuccess
 }
@@ -211,7 +221,17 @@ func DelCourseToStudent(ctx context.Context, courseID string, userID string) res
 		)
 		return response.ServerInternalError(err)
 	}
-
+	// 将selectedNum 减 1
+	var dataNum = course.ClassSelectedNum - 1
+	if err := tx.Model(&models.Course{}).Where("class_id = ?", courseID).Update("class_selected_num", dataNum).Error; err != nil {
+		tx.Rollback()
+		core.Logger.Error(
+			"Decrease class_selected_num",
+			zap.String("snowflake", ctx.Value("trace_id").(string)),
+			zap.String("detail", err.Error()),
+		)
+		return response.ServerInternalError(err)
+	}
 	tx.Commit()
 	return response.OperationSuccess
 }

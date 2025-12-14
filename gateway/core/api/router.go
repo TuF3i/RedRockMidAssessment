@@ -76,9 +76,9 @@ func initRouter(h *server.Hertz) {
 	courseManagerForStu.GET("/get-subscribed-classes", CheckIfCourseSelectionStartedMiddleWare(), GetSelectedCourseForStudentHandleFunc())
 
 	// 管理员查看学生列表接口
-	stuManagerForAdmin.GET("/get-stu-list", CheckIfCourseSelectionStartedMiddleWareForAdmin(), GetStudentListForAdminHandleFunc())
+	stuManagerForAdmin.GET("/get-stu-list", GetStudentListForAdminHandleFunc())
 	// 管理员获取学生信息接口
-	stuManagerForAdmin.GET("/get-stu-info", CheckIfCourseSelectionStartedMiddleWareForAdmin(), GetStudentInfoForAdminHandleFunc())
+	stuManagerForAdmin.GET("/get-stu-info/:stuID", GetStudentInfoForAdminHandleFunc())
 	// 管理员更新学生信息
 	stuManagerForAdmin.PATCH("/update-stu-info", CheckIfCourseSelectionStartedMiddleWareForAdmin(), UpdateStudentInfoForAdminHandleFunc())
 	// 管理员创建学生
@@ -106,4 +106,6 @@ func initRouter(h *server.Hertz) {
 	courseManagerForAdmin.GET("/start-course-select-event", StartCourseSelectionEventForAdminHandleFunc())
 	// 管理员结束选课
 	courseManagerForAdmin.GET("/stop-course-select-event", StopCourseSelectionEventForAdminHandleFunc())
+	// 管理员查看选课状态
+	courseManagerForAdmin.GET("/get-course-select-event-status", GetCourseSelectionEventStatusForAdminHandleFunc())
 }
