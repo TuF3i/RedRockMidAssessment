@@ -1,10 +1,69 @@
 // 全局变量
-const API_BASE_URL = 'http://localhost:8080';
+let API_BASE_URL = 'http://localhost:8080';
 let currentUser = null;
 let authToken = null;
 let refreshToken = null;
 let currentSection = 'selectable-courses';
 let confirmCallback = null;
+
+// 自动获取当前URL中的IP并更新API_BASE_URL
+function autoUpdateApiBaseUrl() {
+    try {
+        // 方法1: 从当前页面的hostname和port获取
+        const currentHost = window.location.hostname;
+        const currentPort = window.location.port;
+        
+        // 如果hostname不是localhost或127.0.0.1，则使用当前hostname和port
+        if (currentHost && currentHost !== 'localhost' && currentHost !== '127.0.0.1' && currentHost !== '0.0.0.0') {
+            // 使用当前页面的端口，如果没有则使用8080
+            const port = currentPort || '8080';
+            API_BASE_URL = `http://${currentHost}:${port}`;
+            console.log(`API URL 已更新为: ${API_BASE_URL} (来自当前页面地址)`);
+            return;
+        }
+        
+        // 方法2: 从URL参数中获取api_host和api_port参数
+        const urlParams = new URLSearchParams(window.location.search);
+        const apiHost = urlParams.get('api_host');
+        const apiPort = urlParams.get('api_port');
+        
+        if (apiHost) {
+            const port = apiPort || '8080';
+            API_BASE_URL = `http://${apiHost}:${port}`;
+            console.log(`API URL 已更新为: ${API_BASE_URL} (来自URL参数)`);
+            return;
+        }
+        
+        // 方法3: 从meta标签中获取 (如果HTML中有相应的meta标签)
+        const metaApiHost = document.querySelector('meta[name="api_host"]');
+        const metaApiPort = document.querySelector('meta[name="api_port"]');
+        
+        if (metaApiHost && metaApiHost.content) {
+            const port = (metaApiPort && metaApiPort.content) || '8080';
+            API_BASE_URL = `http://${metaApiHost.content}:${port}`;
+            console.log(`API URL 已更新为: ${API_BASE_URL} (来自meta标签)`);
+            return;
+        }
+        
+        // 方法4: 检查是否有完整的api_base_url meta标签
+        const metaApiBaseUrl = document.querySelector('meta[name="api_base_url"]');
+        if (metaApiBaseUrl && metaApiBaseUrl.content) {
+            API_BASE_URL = metaApiBaseUrl.content;
+            console.log(`API URL 已更新为: ${API_BASE_URL} (来自完整URL meta标签)`);
+            return;
+        }
+        
+        // 默认使用localhost:8080
+        console.log(`API URL 使用默认设置: ${API_BASE_URL}`);
+        
+    } catch (error) {
+        console.error('自动更新API URL失败:', error);
+        // 失败时保持默认值
+    }
+}
+
+// 页面加载时自动执行
+document.addEventListener('DOMContentLoaded', autoUpdateApiBaseUrl);
 
 // 工具函数
 function gradeNumberToChinese(grade) {
@@ -1260,43 +1319,80 @@ function showCoursesModal(stuId, courses) {
     const modal = document.createElement('div');
     modal.className = 'modal';
     modal.style.display = 'block';
+    modal.setAttribute('id', 'coursesModal');
     
-    let coursesHtml = '';
+    let currentPage = 1;
+    const coursesPerPage = 1;
+    const totalPages = Math.ceil(courses.length / coursesPerPage);
     
-    if (courses.length === 0) {
-        coursesHtml = `
-            <div class="empty-state">
-                <h3>暂无课程</h3>
-                <p>该学生暂未选择任何课程。</p>
+    function renderCurrentPage() {
+        let coursesHtml = '';
+        
+        if (courses.length === 0) {
+            coursesHtml = `
+                <div class="empty-state">
+                    <h3>暂无课程</h3>
+                    <p>该学生暂未选择任何课程。</p>
+                </div>
+            `;
+        } else {
+            const startIndex = (currentPage - 1) * coursesPerPage;
+            const endIndex = Math.min(startIndex + coursesPerPage, courses.length);
+            const currentCourse = courses[startIndex];
+            
+            if (currentCourse) {
+                coursesHtml = `
+                    <div class="course-card-large">
+                        <h3>${currentCourse.class_name}</h3>
+                        <div class="course-info-grid">
+                            <div class="course-info">
+                                <strong>课程ID：</strong>${currentCourse.class_id}
+                            </div>
+                            <div class="course-info">
+                                <strong>授课教师：</strong>${currentCourse.class_teacher}
+                            </div>
+                            <div class="course-info">
+                                <strong>上课地点：</strong>${currentCourse.class_location}
+                            </div>
+                            <div class="course-info">
+                                <strong>上课时间：</strong>${currentCourse.class_time}
+                            </div>
+                            <div class="course-info">
+                                <strong>课程容量：</strong>${currentCourse.class_selection}/${currentCourse.class_capacity}
+                            </div>
+                            <div class="course-info">
+                                <strong>选课时间：</strong>${new Date(currentCourse.create_at).toLocaleString('zh-CN')}
+                            </div>
+                        </div>
+                        <div class="course-actions">
+                            <button class="delete-btn" onclick="adminDeleteCourse('${stuId}', '${currentCourse.class_id}')">删除选课</button>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+        
+        const paginationHtml = totalPages > 1 ? `
+            <div class="pagination-controls">
+                <button class="pagination-btn" onclick="changeCoursePage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>
+                    &laquo; 上一页
+                </button>
+                <span class="page-info">第 ${currentPage} 页，共 ${totalPages} 页</span>
+                <button class="pagination-btn" onclick="changeCoursePage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>
+                    下一页 &raquo;
+                </button>
             </div>
+        ` : '';
+        
+        const modalBody = modal.querySelector('.modal-body');
+        modalBody.innerHTML = `
+            <div class="admin-course-actions" style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 5px;">
+                <h4 style="margin-top: 0;">管理员操作</h4>
+                <button class="btn btn-primary" onclick="showAddCourseModal('${stuId}')">添加选课</button>
+            </div>
+            ${coursesHtml}
+            ${paginationHtml}
         `;
-    } else {
-        coursesHtml = courses.map(course => `
-            <div class="course-card">
-                <h3>${course.class_name}</h3>
-                <div class="course-info">
-                    <strong>课程ID：</strong>${course.class_id}
-                </div>
-                <div class="course-info">
-                    <strong>授课教师：</strong>${course.class_teacher}
-                </div>
-                <div class="course-info">
-                    <strong>上课地点：</strong>${course.class_location}
-                </div>
-                <div class="course-info">
-                    <strong>上课时间：</strong>${course.class_time}
-                </div>
-                <div class="course-info">
-                    <strong>课程容量：</strong>${course.class_selection}/${course.class_capacity}
-                </div>
-                <div class="course-info">
-                    <strong>选课时间：</strong>${new Date(course.create_at).toLocaleString('zh-CN')}
-                </div>
-                <div class="course-actions">
-                    <button class="delete-btn" onclick="adminDeleteCourse('${stuId}', '${course.class_id}')">删除选课</button>
-                </div>
-            </div>
-        `).join('');
     }
     
     modal.innerHTML = `
@@ -1306,11 +1402,6 @@ function showCoursesModal(stuId, courses) {
                 <span class="close-modal" onclick="this.closest('.modal').remove()">&times;</span>
             </div>
             <div class="modal-body">
-                <div class="admin-course-actions" style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 5px;">
-                    <h4 style="margin-top: 0;">管理员操作</h4>
-                    <button class="btn btn-primary" onclick="showAddCourseModal('${stuId}')">添加选课</button>
-                </div>
-                ${coursesHtml}
             </div>
             <div class="modal-footer">
                 <button class="btn btn-secondary" onclick="this.closest('.modal').remove()">关闭</button>
@@ -1326,6 +1417,17 @@ function showCoursesModal(stuId, courses) {
     });
     
     document.body.appendChild(modal);
+    
+    // 添加翻页函数到全局作用域
+    window.changeCoursePage = function(newPage) {
+        if (newPage >= 1 && newPage <= totalPages) {
+            currentPage = newPage;
+            renderCurrentPage();
+        }
+    };
+    
+    // 初始渲染
+    renderCurrentPage();
 }
 
 // 显示添加课程的模态框
