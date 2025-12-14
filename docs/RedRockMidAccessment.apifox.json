@@ -1,0 +1,4010 @@
+{
+  "apifoxProject": "1.0.0",
+  "$schema": {
+    "app": "apifox",
+    "type": "project",
+    "version": "1.2.0"
+  },
+  "info": {
+    "name": "RedRockMidAccessment",
+    "description": "",
+    "mockRule": {
+      "rules": [],
+      "enableSystemRule": true
+    }
+  },
+  "projectSetting": {
+    "id": "7576708",
+    "auth": {},
+    "securityScheme": {},
+    "gateway": [],
+    "language": "zh-CN",
+    "apiStatuses": [
+      "developing",
+      "testing",
+      "released",
+      "deprecated"
+    ],
+    "mockSettings": {},
+    "preProcessors": [],
+    "postProcessors": [],
+    "advancedSettings": {
+      "enableJsonc": false,
+      "enableBigint": false,
+      "responseValidate": true,
+      "enableTestScenarioSetting": false,
+      "enableYAPICompatScript": false,
+      "isDefaultUrlEncoding": 2,
+      "publishedDocUrlRules": {
+        "defaultRule": "RESOURCE_KEY_ONLY",
+        "resourceKeyStandard": "NEW"
+      }
+    },
+    "initialDisabledMockIds": [],
+    "servers": [
+      {
+        "id": "default",
+        "name": "默认服务",
+        "moduleId": 6725878
+      }
+    ],
+    "cloudMock": {
+      "security": "free",
+      "enable": false,
+      "tokenKey": "apifoxToken"
+    }
+  },
+  "apiCollection": [
+    {
+      "name": "根目录",
+      "id": 73348573,
+      "auth": {},
+      "securityScheme": {},
+      "parentId": 0,
+      "serverId": "",
+      "description": "",
+      "identityPattern": {
+        "httpApi": {
+          "type": "methodAndPath",
+          "bodyType": "",
+          "fields": []
+        }
+      },
+      "shareSettings": {},
+      "visibility": "INTERNAL",
+      "moduleId": 6725878,
+      "preProcessors": [
+        {
+          "id": "inheritProcessors",
+          "type": "inheritProcessors",
+          "data": {}
+        }
+      ],
+      "postProcessors": [
+        {
+          "id": "inheritProcessors",
+          "type": "inheritProcessors",
+          "data": {}
+        }
+      ],
+      "inheritPostProcessors": {},
+      "inheritPreProcessors": {},
+      "items": [
+        {
+          "name": "公共接口",
+          "id": 73566019,
+          "auth": {},
+          "securityScheme": {},
+          "parentId": 0,
+          "serverId": "",
+          "description": "",
+          "identityPattern": {
+            "httpApi": {
+              "type": "inherit",
+              "bodyType": "",
+              "fields": []
+            }
+          },
+          "shareSettings": {},
+          "visibility": "INHERITED",
+          "moduleId": 6725878,
+          "preProcessors": [
+            {
+              "id": "inheritProcessors",
+              "type": "inheritProcessors",
+              "data": {}
+            }
+          ],
+          "postProcessors": [
+            {
+              "id": "inheritProcessors",
+              "type": "inheritProcessors",
+              "data": {}
+            }
+          ],
+          "inheritPostProcessors": {},
+          "inheritPreProcessors": {},
+          "items": [
+            {
+              "name": "刷新AccessToken",
+              "api": {
+                "id": "389662507",
+                "method": "get",
+                "path": "/v1/api/public/refresh",
+                "parameters": {
+                  "header": [
+                    {
+                      "required": true,
+                      "description": "",
+                      "type": "string",
+                      "id": "p6UJVJRrnj",
+                      "example": "Bearer {{RefreshToken}}",
+                      "enable": true,
+                      "name": "Authorization"
+                    }
+                  ]
+                },
+                "auth": {},
+                "securityScheme": {},
+                "commonParameters": {
+                  "query": [],
+                  "body": [],
+                  "cookie": [],
+                  "header": []
+                },
+                "responses": [
+                  {
+                    "id": "123244114",
+                    "code": 200,
+                    "name": "成功",
+                    "headers": [],
+                    "jsonSchema": {
+                      "type": "object",
+                      "properties": {
+                        "status": {
+                          "type": "integer"
+                        },
+                        "info": {
+                          "type": "string"
+                        },
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "access_token": {
+                              "type": "string"
+                            },
+                            "refresh_token": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "access_token",
+                            "refresh_token"
+                          ],
+                          "x-apifox-orders": [
+                            "access_token",
+                            "refresh_token"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "status",
+                        "info",
+                        "data"
+                      ],
+                      "x-apifox-orders": [
+                        "status",
+                        "info",
+                        "data"
+                      ]
+                    },
+                    "description": "",
+                    "contentType": "json",
+                    "mediaType": ""
+                  }
+                ],
+                "responseExamples": [
+                  {
+                    "name": "成功示例",
+                    "data": "{\r\n    \"status\": 20000,\r\n    \"info\": \"Operation Success\",\r\n    \"data\": {\r\n        \"access_token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1dWlkIjoiMTdjYjgzN2ItOWZiMy00MjlmLTliYTAtMGRlZWYzYjYzZThlIiwidWlkIjoiMTIzNDU2Nzg5MCIsInJvbGUiOiJzdHVkZW50IiwidHlwZSI6ImFjY2VzcyIsImlzcyI6IlN0dUNsYXNzTVMuQXBpTm9kZSIsInN1YiI6IjEyMzQ1Njc4OTAiLCJhdWQiOlsic3R1ZGVudCIsImFkbWluIl0sImV4cCI6MTc2NTQ1ODQwNywibmJmIjoxNzY1NDU3NTAyLCJpYXQiOjE3NjU0NTc1MDd9.FPitrgXBEwnLe4Z8poPXBSRrXZngI4EwB2uR1vDSyCQ\",\r\n        \"refresh_token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1dWlkIjoiNGZjYzg1OTItZjM4ZS00YzYzLTgzOTMtNzNlY2Q0NDA0MTljIiwidWlkIjoiMTIzNDU2Nzg5MCIsInJvbGUiOiJzdHVkZW50IiwidHlwZSI6InJlZnJlc2giLCJpc3MiOiJTdHVDbGFzc01TLkFwaU5vZGUiLCJzdWIiOiIxMjM0NTY3ODkwIiwiYXVkIjpbInN0dWRlbnQiLCJhZG1pbiJdLCJleHAiOjE3NjYwNjIzMDcsIm5iZiI6MTc2NTQ1NzUwMiwiaWF0IjoxNzY1NDU3NTA3fQ.-77dT8zahiHhX-SeTIQ4-BNaWA2zLWQ3BGGcOdo8b64\"\r\n    }\r\n}",
+                    "responseId": 123244114
+                  }
+                ],
+                "requestBody": {
+                  "type": "none",
+                  "parameters": [],
+                  "required": true,
+                  "mediaType": "",
+                  "examples": [],
+                  "oasExtensions": ""
+                },
+                "description": "> ***AccessToken*** 的刷新接口，请将***RefreshToken*** 写入`Authorization: Bearer <token>` 中",
+                "tags": [],
+                "status": "developing",
+                "serverId": "",
+                "operationId": "",
+                "sourceUrl": "",
+                "ordering": 20,
+                "cases": [],
+                "mocks": [],
+                "customApiFields": "{}",
+                "advancedSettings": {
+                  "disabledSystemHeaders": {}
+                },
+                "mockScript": {},
+                "codeSamples": [],
+                "commonResponseStatus": {},
+                "responseChildren": [],
+                "visibility": "INHERITED",
+                "moduleId": 6725878,
+                "oasExtensions": "",
+                "type": "http",
+                "preProcessors": [],
+                "postProcessors": [
+                  {
+                    "type": "extractor",
+                    "data": {
+                      "variableName": "AccessToken",
+                      "variableType": "environment",
+                      "subject": "responseJson",
+                      "template": "",
+                      "expression": "$.data.access_token",
+                      "extractSettings": {
+                        "expression": "$.data.access_token",
+                        "continueExtractorSettings": {
+                          "isContinueExtractValue": false,
+                          "JsonArrayValueIndexValue": ""
+                        }
+                      }
+                    },
+                    "defaultEnable": false,
+                    "enable": true,
+                    "id": "jF7gzQ8zHMFH3hCyGPU4m"
+                  },
+                  {
+                    "type": "extractor",
+                    "data": {
+                      "variableName": "RefreshToken",
+                      "variableType": "environment",
+                      "subject": "responseJson",
+                      "template": "",
+                      "expression": "$.data.refresh_token",
+                      "extractSettings": {
+                        "expression": "$.data.refresh_token",
+                        "continueExtractorSettings": {
+                          "isContinueExtractValue": false,
+                          "JsonArrayValueIndexValue": ""
+                        }
+                      }
+                    },
+                    "defaultEnable": false,
+                    "enable": true,
+                    "id": "5TMLWYcqy7YhA7d8sbqlh"
+                  }
+                ],
+                "inheritPostProcessors": {},
+                "inheritPreProcessors": {}
+              }
+            },
+            {
+              "name": "登录",
+              "api": {
+                "id": "389088048",
+                "method": "post",
+                "path": "/v1/api/public/login",
+                "parameters": {},
+                "auth": {},
+                "securityScheme": {},
+                "commonParameters": {
+                  "query": [],
+                  "body": [],
+                  "cookie": [],
+                  "header": []
+                },
+                "responses": [
+                  {
+                    "id": "136882263",
+                    "code": 200,
+                    "name": "成功",
+                    "headers": [],
+                    "jsonSchema": {
+                      "type": "object",
+                      "properties": {
+                        "status": {
+                          "type": "integer",
+                          "title": "状态码",
+                          "description": "标识响应状态的状态码"
+                        },
+                        "info": {
+                          "type": "string",
+                          "title": "响应信息",
+                          "description": "响应的信息"
+                        },
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "access_token": {
+                              "type": "string",
+                              "title": "验证Token",
+                              "description": "用于身份验证"
+                            },
+                            "refresh_token": {
+                              "type": "string",
+                              "title": "刷新Token",
+                              "description": "用于刷新AccessToken"
+                            }
+                          },
+                          "x-apifox-orders": [
+                            "access_token",
+                            "refresh_token"
+                          ],
+                          "title": "数据段",
+                          "description": "含有响应数据",
+                          "required": [
+                            "access_token",
+                            "refresh_token"
+                          ]
+                        }
+                      },
+                      "x-apifox-orders": [
+                        "status",
+                        "info",
+                        "data"
+                      ],
+                      "required": [
+                        "status",
+                        "info",
+                        "data"
+                      ]
+                    },
+                    "description": "",
+                    "contentType": "json",
+                    "mediaType": ""
+                  }
+                ],
+                "responseExamples": [
+                  {
+                    "name": "成功响应",
+                    "data": "{\r\n    \"status\": 20000,\r\n    \"info\": \"Operation Success\",\r\n    \"data\": {\r\n        \"access_token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1dWlkIjoiYzQ3OWE0ZTItMWM4OS00MDg3LWFkZGEtNGQwMjQ3NjUzOGY3IiwidWlkIjoiMTIzNDU2Nzg5MCIsInJvbGUiOiJzdHVkZW50IiwidHlwZSI6ImFjY2VzcyIsImlzcyI6IlN0dUNsYXNzTVMuQXBpTm9kZSIsInN1YiI6IjEyMzQ1Njc4OTAiLCJhdWQiOlsic3R1ZGVudCIsImFkbWluIl0sImV4cCI6MTc2NTM4MzI2NCwibmJmIjoxNzY1MzgyMzU5LCJpYXQiOjE3NjUzODIzNjR9.oS98u8MTJ-KP5EwYnSvfvrSaJ39Cbe1GPFduvlb7xzU\",\r\n        \"refresh_token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1dWlkIjoiMjNiNDUxNTItYzA4Ni00MzE2LWJmYWYtYmMxYjVhNWJjZTI2IiwidWlkIjoiMTIzNDU2Nzg5MCIsInJvbGUiOiJzdHVkZW50IiwidHlwZSI6InJlZnJlc2giLCJpc3MiOiJTdHVDbGFzc01TLkFwaU5vZGUiLCJzdWIiOiIxMjM0NTY3ODkwIiwiYXVkIjpbInN0dWRlbnQiLCJhZG1pbiJdLCJleHAiOjE3NjU5ODcxNjQsIm5iZiI6MTc2NTM4MjM1OSwiaWF0IjoxNzY1MzgyMzY0fQ.WfZj48oNlt7aR4wIQLX-61JLiCI0JjnMDJDSnD1X8eI\"\r\n    }\r\n}",
+                    "responseId": 136882263
+                  }
+                ],
+                "requestBody": {
+                  "type": "application/json",
+                  "parameters": [],
+                  "jsonSchema": {
+                    "type": "object",
+                    "properties": {
+                      "stu_id": {
+                        "type": "string",
+                        "title": "学生ID",
+                        "description": "10位学生ID"
+                      },
+                      "password": {
+                        "type": "string",
+                        "title": "密码",
+                        "description": "登录密码"
+                      }
+                    },
+                    "x-apifox-orders": [
+                      "stu_id",
+                      "password"
+                    ],
+                    "required": [
+                      "stu_id",
+                      "password"
+                    ]
+                  },
+                  "required": true,
+                  "mediaType": "",
+                  "examples": [
+                    {
+                      "mediaType": "application/json",
+                      "value": "{\r\n    \"stu_id\":\"1234567890\",\r\n    \"password\":\"P@ssw0rd=Ping12345\"\r\n}"
+                    }
+                  ],
+                  "oasExtensions": ""
+                },
+                "description": "> ***Admin*** 和 ***Student*** 的统一登录接口，接受`stu_id`和`password`两个参数，返回`access_token`和`refresh_token`",
+                "tags": [],
+                "status": "developing",
+                "serverId": "",
+                "operationId": "",
+                "sourceUrl": "",
+                "ordering": 10,
+                "cases": [
+                  {
+                    "id": 327659929,
+                    "type": "DEBUG_CASE",
+                    "path": null,
+                    "name": "管理员登录",
+                    "responseId": "136882263",
+                    "parameters": {
+                      "query": [],
+                      "path": [],
+                      "cookie": [],
+                      "header": []
+                    },
+                    "commonParameters": {
+                      "query": [],
+                      "body": [],
+                      "header": [],
+                      "cookie": []
+                    },
+                    "requestBody": {
+                      "parameters": [],
+                      "data": "{\r\n    \"stu_id\":\"1234567890\",\r\n    \"password\":\"P@ssw0rd=Ping12345\"\r\n}",
+                      "generateMode": "normal"
+                    },
+                    "auth": {},
+                    "securityScheme": {},
+                    "advancedSettings": {
+                      "disabledSystemHeaders": {}
+                    },
+                    "requestResult": "{\"id\":\"temp.61f91d78-57e5-4237-96c1-79038717b329\",\"cursor\":{\"position\":0,\"iteration\":0,\"length\":1,\"cycles\":1,\"empty\":false,\"eof\":false,\"bof\":true,\"cr\":false,\"ref\":\"61f91d78-57e5-4237-96c1-79038717b329\",\"requestIndex\":0,\"httpRequestId\":\"75f197ab-2d28-4115-bdfa-1082a296f339\"},\"type\":\"http\",\"consoles\":[{\"cursor\":{\"position\":0,\"iteration\":0,\"length\":1,\"cycles\":1,\"empty\":false,\"eof\":false,\"bof\":true,\"cr\":false,\"ref\":\"61f91d78-57e5-4237-96c1-79038717b329\",\"requestIndex\":0,\"httpRequestId\":\"75f197ab-2d28-4115-bdfa-1082a296f339\",\"scriptId\":\"postProcessors.0.extractor\"},\"level\":\"log\",\"logs\":[\"[[\\\"1\\\",\\\"2\\\"],\\\"___label_placeholder__processor___\\\",\\\"已设置环境变量【AccessToken】，值为 【eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1dWlkIjoiNjJjOWZmYTYtYTliYS00OThhLThhZWQtYzRkODhiZWFlODRjIiwidWlkIjoiOTg3NjU0MzIxMCIsInJvbGUiOiJzdHVkZW50IiwidHlwZSI6ImFjY2VzcyIsImlzcyI6IlN0dUNsYXNzTVMuQXBpTm9kZSIsInN1YiI6Ijk4NzY1NDMyMTAiLCJhdWQiOlsic3R1ZGVudCIsImFkbWluIl0sImV4cCI6MTc2NTYxMjkwMywibmJmIjoxNzY1NjExOTk4LCJpYXQiOjE3NjU2MTIwMDN9.ZLXPuuwvjn6MW2ywrD0f51II3oL1RyS6ueiETWGAl04】\\\"]\"],\"executeOrderIndex\":2},{\"cursor\":{\"position\":0,\"iteration\":0,\"length\":1,\"cycles\":1,\"empty\":false,\"eof\":false,\"bof\":true,\"cr\":false,\"ref\":\"61f91d78-57e5-4237-96c1-79038717b329\",\"requestIndex\":0,\"httpRequestId\":\"75f197ab-2d28-4115-bdfa-1082a296f339\",\"scriptId\":\"postProcessors.1.extractor\"},\"level\":\"log\",\"logs\":[\"[[\\\"1\\\",\\\"2\\\"],\\\"___label_placeholder__processor___\\\",\\\"已设置环境变量【RefreshToken】，值为 【eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1dWlkIjoiZTY4NTUyOTktYjZiMS00ZGM1LTgyMmItNmU2ZThjN2NhOGYxIiwidWlkIjoiOTg3NjU0MzIxMCIsInJvbGUiOiJzdHVkZW50IiwidHlwZSI6InJlZnJlc2giLCJpc3MiOiJTdHVDbGFzc01TLkFwaU5vZGUiLCJzdWIiOiI5ODc2NTQzMjEwIiwiYXVkIjpbInN0dWRlbnQiLCJhZG1pbiJdLCJleHAiOjE3NjYyMTY4MDMsIm5iZiI6MTc2NTYxMTk5OCwiaWF0IjoxNzY1NjEyMDAzfQ.lR0krYUNdJaKF2XnxUGHWEMIIgIhJkPdxxbwzD1pGkM】\\\"]\"],\"executeOrderIndex\":3}],\"response\":{\"id\":\"07a6dc9c-8744-412a-9992-6545c29cbb0e\",\"status\":\"OK\",\"code\":200,\"header\":[{\"key\":\"Server\",\"value\":\"hertz\"},{\"key\":\"Date\",\"value\":\"Sat, 13 Dec 2025 07:46:43 GMT\"},{\"key\":\"Content-Type\",\"value\":\"application/json; charset=utf-8\"},{\"key\":\"Content-Length\",\"value\":\"845\"}],\"trailer\":[],\"stream\":{\"type\":\"Buffer\",\"data\":[123,34,115,116,97,116,117,115,34,58,50,48,48,48,48,44,34,105,110,102,111,34,58,34,79,112,101,114,97,116,105,111,110,32,83,117,99,99,101,115,115,34,44,34,100,97,116,97,34,58,123,34,97,99,99,101,115,115,95,116,111,107,101,110,34,58,34,101,121,74,104,98,71,99,105,79,105,74,73,85,122,73,49,78,105,73,115,73,110,82,53,99,67,73,54,73,107,112,88,86,67,74,57,46,101,121,74,49,100,87,108,107,73,106,111,105,78,106,74,106,79,87,90,109,89,84,89,116,89,84,108,105,89,83,48,48,79,84,104,104,76,84,104,104,90,87,81,116,89,122,82,107,79,68,104,105,90,87,70,108,79,68,82,106,73,105,119,105,100,87,108,107,73,106,111,105,79,84,103,51,78,106,85,48,77,122,73,120,77,67,73,115,73,110,74,118,98,71,85,105,79,105,74,122,100,72,86,107,90,87,53,48,73,105,119,105,100,72,108,119,90,83,73,54,73,109,70,106,89,50,86,122,99,121,73,115,73,109,108,122,99,121,73,54,73,108,78,48,100,85,78,115,89,88,78,122,84,86,77,117,81,88,66,112,84,109,57,107,90,83,73,115,73,110,78,49,89,105,73,54,73,106,107,52,78,122,89,49,78,68,77,121,77,84,65,105,76,67,74,104,100,87,81,105,79,108,115,105,99,51,82,49,90,71,86,117,100,67,73,115,73,109,70,107,98,87,108,117,73,108,48,115,73,109,86,52,99,67,73,54,77,84,99,50,78,84,89,120,77,106,107,119,77,121,119,105,98,109,74,109,73,106,111,120,78,122,89,49,78,106,69,120,79,84,107,52,76,67,74,112,89,88,81,105,79,106,69,51,78,106,85,50,77,84,73,119,77,68,78,57,46,90,76,88,80,117,117,119,118,106,110,54,77,87,50,121,119,114,68,48,102,53,49,73,73,51,111,76,49,82,121,83,54,117,101,105,69,84,87,71,65,108,48,52,34,44,34,114,101,102,114,101,115,104,95,116,111,107,101,110,34,58,34,101,121,74,104,98,71,99,105,79,105,74,73,85,122,73,49,78,105,73,115,73,110,82,53,99,67,73,54,73,107,112,88,86,67,74,57,46,101,121,74,49,100,87,108,107,73,106,111,105,90,84,89,52,78,84,85,121,79,84,107,116,89,106,90,105,77,83,48,48,90,71,77,49,76,84,103,121,77,109,73,116,78,109,85,50,90,84,104,106,78,50,78,104,79,71,89,120,73,105,119,105,100,87,108,107,73,106,111,105,79,84,103,51,78,106,85,48,77,122,73,120,77,67,73,115,73,110,74,118,98,71,85,105,79,105,74,122,100,72,86,107,90,87,53,48,73,105,119,105,100,72,108,119,90,83,73,54,73,110,74,108,90,110,74,108,99,50,103,105,76,67,74,112,99,51,77,105,79,105,74,84,100,72,86,68,98,71,70,122,99,48,49,84,76,107,70,119,97,85,53,118,90,71,85,105,76,67,74,122,100,87,73,105,79,105,73,53,79,68,99,50,78,84,81,122,77,106,69,119,73,105,119,105,89,88,86,107,73,106,112,98,73,110,78,48,100,87,82,108,98,110,81,105,76,67,74,104,90,71,49,112,98,105,74,100,76,67,74,108,101,72,65,105,79,106,69,51,78,106,89,121,77,84,89,52,77,68,77,115,73,109,53,105,90,105,73,54,77,84,99,50,78,84,89,120,77,84,107,53,79,67,119,105,97,87,70,48,73,106,111,120,78,122,89,49,78,106,69,121,77,68,65,122,102,81,46,108,82,48,107,114,89,85,78,100,74,97,75,70,50,88,110,120,85,71,72,87,69,77,73,73,103,73,104,74,107,80,100,120,120,98,119,122,68,49,112,71,107,77,34,125,125]},\"cookie\":[],\"responseTime\":7,\"responseSize\":845,\"type\":\"http\",\"tempFilePath\":\"\",\"timingPhases\":{\"prepare\":0.43470000103116035,\"wait\":0.25540000200271606,\"dns\":0,\"tcp\":0,\"firstByte\":6.013699997216463,\"download\":0.36419999971985817,\"process\":0.02900000289082527,\"total\":7.097000002861023}},\"request\":{\"url\":{\"protocol\":\"http\",\"port\":\"8080\",\"path\":[\"v1\",\"api\",\"public\",\"login\"],\"host\":[\"localhost\"],\"query\":[],\"variable\":[]},\"header\":[{\"key\":\"User-Agent\",\"value\":\"Apifox/1.0.0 (https://apifox.com)\"},{\"key\":\"Content-Type\",\"value\":\"application/json\"},{\"key\":\"Accept\",\"value\":\"*/*\",\"system\":true},{\"key\":\"Host\",\"value\":\"localhost:8080\",\"system\":true},{\"key\":\"Accept-Encoding\",\"value\":\"gzip, deflate, br\",\"system\":true},{\"key\":\"Connection\",\"value\":\"keep-alive\",\"system\":true},{\"key\":\"Content-Length\",\"value\":69,\"system\":true}],\"method\":\"POST\",\"baseUrl\":\"http://localhost:8080\",\"body\":{\"mode\":\"raw\",\"raw\":\"{\\r\\n    \\\"stu_id\\\":\\\"9876543210\\\",\\r\\n    \\\"password\\\":\\\"P@ssw0rd=Ping12345\\\"\\r\\n}\",\"generateMode\":\"normal\",\"type\":\"application/json\"},\"type\":\"http\"},\"history\":{\"execution\":{\"verbose\":false,\"sessions\":{},\"data\":[{\"request\":{\"method\":\"POST\",\"href\":\"http://localhost:8080/v1/api/public/login\",\"headers\":[{\"key\":\"User-Agent\",\"value\":\"Apifox/1.0.0 (https://apifox.com)\"},{\"key\":\"Content-Type\",\"value\":\"application/json\"},{\"key\":\"Accept\",\"value\":\"*/*\"},{\"key\":\"Host\",\"value\":\"localhost:8080\"},{\"key\":\"Accept-Encoding\",\"value\":\"gzip, deflate, br\"},{\"key\":\"Connection\",\"value\":\"keep-alive\"},{\"key\":\"Content-Length\",\"value\":\"69\"}],\"httpVersion\":\"1.1\"},\"response\":{\"statusCode\":200,\"headers\":[{\"key\":\"Server\",\"value\":\"hertz\"},{\"key\":\"Date\",\"value\":\"Sat, 13 Dec 2025 07:46:43 GMT\"},{\"key\":\"Content-Type\",\"value\":\"application/json; charset=utf-8\"},{\"key\":\"Content-Length\",\"value\":\"845\"}],\"httpVersion\":\"1.1\"},\"timings\":{\"start\":1765612003934,\"requestStart\":1765612003934,\"offset\":{\"request\":0.43470000103116035,\"socket\":0.6901000030338764,\"response\":6.7038000002503395,\"end\":7.067999999970198,\"lookup\":0.6901000030338764,\"connect\":0.6901000030338764,\"done\":7.097000002861023}}}]}},\"responseValidation\":{\"schema\":{\"valid\":true,\"message\":\"\",\"errors\":null},\"responseCode\":{\"valid\":true}},\"passed\":true,\"timings\":{\"started\":1765612003929,\"preProcessorsStarted\":1765612003931,\"preProcessorsCompleted\":1765612003931,\"postProcessorsStarted\":1765612003942,\"postProcessorsCompleted\":1765612003959,\"completed\":1765612003960},\"metaInfo\":{\"httpApiId\":389088048,\"httpApiCaseId\":0,\"httpApiName\":\"登录\",\"httpApiPath\":\"/v1/api/public/login\",\"httpApiMethod\":\"post\",\"httpApiCaseName\":\"\",\"moduleId\":6725878}}",
+                    "visibility": "INHERITED",
+                    "moduleId": 6725878,
+                    "categoryId": 0,
+                    "tagIds": [],
+                    "apiTestDataList": [],
+                    "preProcessors": [],
+                    "postProcessors": [],
+                    "inheritPostProcessors": {},
+                    "inheritPreProcessors": {}
+                  },
+                  {
+                    "id": 327659969,
+                    "type": "DEBUG_CASE",
+                    "path": null,
+                    "name": "学生登录",
+                    "responseId": "136882263",
+                    "parameters": {
+                      "query": [],
+                      "path": [],
+                      "cookie": [],
+                      "header": []
+                    },
+                    "commonParameters": {
+                      "query": [],
+                      "body": [],
+                      "header": [],
+                      "cookie": []
+                    },
+                    "requestBody": {
+                      "parameters": [],
+                      "data": "{\r\n    \"stu_id\":\"9876543210\",\r\n    \"password\":\"P@ssw0rd=Ping12345\"\r\n}",
+                      "generateMode": "normal"
+                    },
+                    "auth": {},
+                    "securityScheme": {},
+                    "advancedSettings": {
+                      "disabledSystemHeaders": {}
+                    },
+                    "requestResult": "{\"id\":\"temp.61f91d78-57e5-4237-96c1-79038717b329\",\"cursor\":{\"position\":0,\"iteration\":0,\"length\":1,\"cycles\":1,\"empty\":false,\"eof\":false,\"bof\":true,\"cr\":false,\"ref\":\"61f91d78-57e5-4237-96c1-79038717b329\",\"requestIndex\":0,\"httpRequestId\":\"75f197ab-2d28-4115-bdfa-1082a296f339\"},\"type\":\"http\",\"consoles\":[{\"cursor\":{\"position\":0,\"iteration\":0,\"length\":1,\"cycles\":1,\"empty\":false,\"eof\":false,\"bof\":true,\"cr\":false,\"ref\":\"61f91d78-57e5-4237-96c1-79038717b329\",\"requestIndex\":0,\"httpRequestId\":\"75f197ab-2d28-4115-bdfa-1082a296f339\",\"scriptId\":\"postProcessors.0.extractor\"},\"level\":\"log\",\"logs\":[\"[[\\\"1\\\",\\\"2\\\"],\\\"___label_placeholder__processor___\\\",\\\"已设置环境变量【AccessToken】，值为 【eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1dWlkIjoiNjJjOWZmYTYtYTliYS00OThhLThhZWQtYzRkODhiZWFlODRjIiwidWlkIjoiOTg3NjU0MzIxMCIsInJvbGUiOiJzdHVkZW50IiwidHlwZSI6ImFjY2VzcyIsImlzcyI6IlN0dUNsYXNzTVMuQXBpTm9kZSIsInN1YiI6Ijk4NzY1NDMyMTAiLCJhdWQiOlsic3R1ZGVudCIsImFkbWluIl0sImV4cCI6MTc2NTYxMjkwMywibmJmIjoxNzY1NjExOTk4LCJpYXQiOjE3NjU2MTIwMDN9.ZLXPuuwvjn6MW2ywrD0f51II3oL1RyS6ueiETWGAl04】\\\"]\"],\"executeOrderIndex\":2},{\"cursor\":{\"position\":0,\"iteration\":0,\"length\":1,\"cycles\":1,\"empty\":false,\"eof\":false,\"bof\":true,\"cr\":false,\"ref\":\"61f91d78-57e5-4237-96c1-79038717b329\",\"requestIndex\":0,\"httpRequestId\":\"75f197ab-2d28-4115-bdfa-1082a296f339\",\"scriptId\":\"postProcessors.1.extractor\"},\"level\":\"log\",\"logs\":[\"[[\\\"1\\\",\\\"2\\\"],\\\"___label_placeholder__processor___\\\",\\\"已设置环境变量【RefreshToken】，值为 【eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1dWlkIjoiZTY4NTUyOTktYjZiMS00ZGM1LTgyMmItNmU2ZThjN2NhOGYxIiwidWlkIjoiOTg3NjU0MzIxMCIsInJvbGUiOiJzdHVkZW50IiwidHlwZSI6InJlZnJlc2giLCJpc3MiOiJTdHVDbGFzc01TLkFwaU5vZGUiLCJzdWIiOiI5ODc2NTQzMjEwIiwiYXVkIjpbInN0dWRlbnQiLCJhZG1pbiJdLCJleHAiOjE3NjYyMTY4MDMsIm5iZiI6MTc2NTYxMTk5OCwiaWF0IjoxNzY1NjEyMDAzfQ.lR0krYUNdJaKF2XnxUGHWEMIIgIhJkPdxxbwzD1pGkM】\\\"]\"],\"executeOrderIndex\":3}],\"response\":{\"id\":\"07a6dc9c-8744-412a-9992-6545c29cbb0e\",\"status\":\"OK\",\"code\":200,\"header\":[{\"key\":\"Server\",\"value\":\"hertz\"},{\"key\":\"Date\",\"value\":\"Sat, 13 Dec 2025 07:46:43 GMT\"},{\"key\":\"Content-Type\",\"value\":\"application/json; charset=utf-8\"},{\"key\":\"Content-Length\",\"value\":\"845\"}],\"trailer\":[],\"stream\":{\"type\":\"Buffer\",\"data\":[123,34,115,116,97,116,117,115,34,58,50,48,48,48,48,44,34,105,110,102,111,34,58,34,79,112,101,114,97,116,105,111,110,32,83,117,99,99,101,115,115,34,44,34,100,97,116,97,34,58,123,34,97,99,99,101,115,115,95,116,111,107,101,110,34,58,34,101,121,74,104,98,71,99,105,79,105,74,73,85,122,73,49,78,105,73,115,73,110,82,53,99,67,73,54,73,107,112,88,86,67,74,57,46,101,121,74,49,100,87,108,107,73,106,111,105,78,106,74,106,79,87,90,109,89,84,89,116,89,84,108,105,89,83,48,48,79,84,104,104,76,84,104,104,90,87,81,116,89,122,82,107,79,68,104,105,90,87,70,108,79,68,82,106,73,105,119,105,100,87,108,107,73,106,111,105,79,84,103,51,78,106,85,48,77,122,73,120,77,67,73,115,73,110,74,118,98,71,85,105,79,105,74,122,100,72,86,107,90,87,53,48,73,105,119,105,100,72,108,119,90,83,73,54,73,109,70,106,89,50,86,122,99,121,73,115,73,109,108,122,99,121,73,54,73,108,78,48,100,85,78,115,89,88,78,122,84,86,77,117,81,88,66,112,84,109,57,107,90,83,73,115,73,110,78,49,89,105,73,54,73,106,107,52,78,122,89,49,78,68,77,121,77,84,65,105,76,67,74,104,100,87,81,105,79,108,115,105,99,51,82,49,90,71,86,117,100,67,73,115,73,109,70,107,98,87,108,117,73,108,48,115,73,109,86,52,99,67,73,54,77,84,99,50,78,84,89,120,77,106,107,119,77,121,119,105,98,109,74,109,73,106,111,120,78,122,89,49,78,106,69,120,79,84,107,52,76,67,74,112,89,88,81,105,79,106,69,51,78,106,85,50,77,84,73,119,77,68,78,57,46,90,76,88,80,117,117,119,118,106,110,54,77,87,50,121,119,114,68,48,102,53,49,73,73,51,111,76,49,82,121,83,54,117,101,105,69,84,87,71,65,108,48,52,34,44,34,114,101,102,114,101,115,104,95,116,111,107,101,110,34,58,34,101,121,74,104,98,71,99,105,79,105,74,73,85,122,73,49,78,105,73,115,73,110,82,53,99,67,73,54,73,107,112,88,86,67,74,57,46,101,121,74,49,100,87,108,107,73,106,111,105,90,84,89,52,78,84,85,121,79,84,107,116,89,106,90,105,77,83,48,48,90,71,77,49,76,84,103,121,77,109,73,116,78,109,85,50,90,84,104,106,78,50,78,104,79,71,89,120,73,105,119,105,100,87,108,107,73,106,111,105,79,84,103,51,78,106,85,48,77,122,73,120,77,67,73,115,73,110,74,118,98,71,85,105,79,105,74,122,100,72,86,107,90,87,53,48,73,105,119,105,100,72,108,119,90,83,73,54,73,110,74,108,90,110,74,108,99,50,103,105,76,67,74,112,99,51,77,105,79,105,74,84,100,72,86,68,98,71,70,122,99,48,49,84,76,107,70,119,97,85,53,118,90,71,85,105,76,67,74,122,100,87,73,105,79,105,73,53,79,68,99,50,78,84,81,122,77,106,69,119,73,105,119,105,89,88,86,107,73,106,112,98,73,110,78,48,100,87,82,108,98,110,81,105,76,67,74,104,90,71,49,112,98,105,74,100,76,67,74,108,101,72,65,105,79,106,69,51,78,106,89,121,77,84,89,52,77,68,77,115,73,109,53,105,90,105,73,54,77,84,99,50,78,84,89,120,77,84,107,53,79,67,119,105,97,87,70,48,73,106,111,120,78,122,89,49,78,106,69,121,77,68,65,122,102,81,46,108,82,48,107,114,89,85,78,100,74,97,75,70,50,88,110,120,85,71,72,87,69,77,73,73,103,73,104,74,107,80,100,120,120,98,119,122,68,49,112,71,107,77,34,125,125]},\"cookie\":[],\"responseTime\":7,\"responseSize\":845,\"type\":\"http\",\"tempFilePath\":\"\",\"timingPhases\":{\"prepare\":0.43470000103116035,\"wait\":0.25540000200271606,\"dns\":0,\"tcp\":0,\"firstByte\":6.013699997216463,\"download\":0.36419999971985817,\"process\":0.02900000289082527,\"total\":7.097000002861023}},\"request\":{\"url\":{\"protocol\":\"http\",\"port\":\"8080\",\"path\":[\"v1\",\"api\",\"public\",\"login\"],\"host\":[\"localhost\"],\"query\":[],\"variable\":[]},\"header\":[{\"key\":\"User-Agent\",\"value\":\"Apifox/1.0.0 (https://apifox.com)\"},{\"key\":\"Content-Type\",\"value\":\"application/json\"},{\"key\":\"Accept\",\"value\":\"*/*\",\"system\":true},{\"key\":\"Host\",\"value\":\"localhost:8080\",\"system\":true},{\"key\":\"Accept-Encoding\",\"value\":\"gzip, deflate, br\",\"system\":true},{\"key\":\"Connection\",\"value\":\"keep-alive\",\"system\":true},{\"key\":\"Content-Length\",\"value\":69,\"system\":true}],\"method\":\"POST\",\"baseUrl\":\"http://localhost:8080\",\"body\":{\"mode\":\"raw\",\"raw\":\"{\\r\\n    \\\"stu_id\\\":\\\"9876543210\\\",\\r\\n    \\\"password\\\":\\\"P@ssw0rd=Ping12345\\\"\\r\\n}\",\"generateMode\":\"normal\",\"type\":\"application/json\"},\"type\":\"http\"},\"history\":{\"execution\":{\"verbose\":false,\"sessions\":{},\"data\":[{\"request\":{\"method\":\"POST\",\"href\":\"http://localhost:8080/v1/api/public/login\",\"headers\":[{\"key\":\"User-Agent\",\"value\":\"Apifox/1.0.0 (https://apifox.com)\"},{\"key\":\"Content-Type\",\"value\":\"application/json\"},{\"key\":\"Accept\",\"value\":\"*/*\"},{\"key\":\"Host\",\"value\":\"localhost:8080\"},{\"key\":\"Accept-Encoding\",\"value\":\"gzip, deflate, br\"},{\"key\":\"Connection\",\"value\":\"keep-alive\"},{\"key\":\"Content-Length\",\"value\":\"69\"}],\"httpVersion\":\"1.1\"},\"response\":{\"statusCode\":200,\"headers\":[{\"key\":\"Server\",\"value\":\"hertz\"},{\"key\":\"Date\",\"value\":\"Sat, 13 Dec 2025 07:46:43 GMT\"},{\"key\":\"Content-Type\",\"value\":\"application/json; charset=utf-8\"},{\"key\":\"Content-Length\",\"value\":\"845\"}],\"httpVersion\":\"1.1\"},\"timings\":{\"start\":1765612003934,\"requestStart\":1765612003934,\"offset\":{\"request\":0.43470000103116035,\"socket\":0.6901000030338764,\"response\":6.7038000002503395,\"end\":7.067999999970198,\"lookup\":0.6901000030338764,\"connect\":0.6901000030338764,\"done\":7.097000002861023}}}]}},\"responseValidation\":{\"schema\":{\"valid\":true,\"message\":\"\",\"errors\":null},\"responseCode\":{\"valid\":true}},\"passed\":true,\"timings\":{\"started\":1765612003929,\"preProcessorsStarted\":1765612003931,\"preProcessorsCompleted\":1765612003931,\"postProcessorsStarted\":1765612003942,\"postProcessorsCompleted\":1765612003959,\"completed\":1765612003960},\"metaInfo\":{\"httpApiId\":389088048,\"httpApiCaseId\":0,\"httpApiName\":\"登录\",\"httpApiPath\":\"/v1/api/public/login\",\"httpApiMethod\":\"post\",\"httpApiCaseName\":\"\",\"moduleId\":6725878}}",
+                    "visibility": "INHERITED",
+                    "moduleId": 6725878,
+                    "categoryId": 0,
+                    "tagIds": [],
+                    "apiTestDataList": [],
+                    "preProcessors": [],
+                    "postProcessors": [],
+                    "inheritPostProcessors": {},
+                    "inheritPreProcessors": {}
+                  }
+                ],
+                "mocks": [],
+                "customApiFields": "{}",
+                "advancedSettings": {
+                  "disabledSystemHeaders": {}
+                },
+                "mockScript": {},
+                "codeSamples": [
+                  {
+                    "name": "Example For Curl",
+                    "prompt": "#### 进行登录的测试Shell命令",
+                    "language": "shell",
+                    "code": "curl -X POST http://127.0.0.1:8080/v1/api/public/login \\\r\n  -H \"Content-Type: application/json\" \\\r\n  -d '{\r\n        \"stu_id\": $STU_ID,\r\n        \"password\": $PASSWORD,\r\n      }'"
+                  }
+                ],
+                "commonResponseStatus": {},
+                "responseChildren": [],
+                "visibility": "INHERITED",
+                "moduleId": 6725878,
+                "oasExtensions": "",
+                "type": "http",
+                "preProcessors": [],
+                "postProcessors": [
+                  {
+                    "type": "extractor",
+                    "data": {
+                      "variableName": "AccessToken",
+                      "variableType": "environment",
+                      "subject": "responseJson",
+                      "template": "",
+                      "expression": "$.data.access_token",
+                      "extractSettings": {
+                        "expression": "$.data.access_token",
+                        "continueExtractorSettings": {
+                          "isContinueExtractValue": false,
+                          "JsonArrayValueIndexValue": ""
+                        }
+                      }
+                    },
+                    "defaultEnable": true,
+                    "enable": true,
+                    "id": "85_csWzoYTRS34-GVlDus"
+                  },
+                  {
+                    "type": "extractor",
+                    "data": {
+                      "variableName": "RefreshToken",
+                      "variableType": "environment",
+                      "subject": "responseJson",
+                      "template": "",
+                      "expression": "$.data.refresh_token",
+                      "extractSettings": {
+                        "expression": "$.data.refresh_token",
+                        "continueExtractorSettings": {
+                          "isContinueExtractValue": false,
+                          "JsonArrayValueIndexValue": ""
+                        }
+                      }
+                    },
+                    "defaultEnable": true,
+                    "enable": true,
+                    "id": "GaYgzx_kKS1j6fV316zOg"
+                  }
+                ],
+                "inheritPostProcessors": {},
+                "inheritPreProcessors": {}
+              }
+            },
+            {
+              "name": "注册",
+              "api": {
+                "id": "390036658",
+                "method": "post",
+                "path": "/v1/api/public/register",
+                "parameters": {},
+                "auth": {},
+                "securityScheme": {},
+                "commonParameters": {
+                  "query": [],
+                  "body": [],
+                  "cookie": [],
+                  "header": []
+                },
+                "responses": [
+                  {
+                    "id": "129458173",
+                    "code": 200,
+                    "name": "成功",
+                    "headers": [],
+                    "jsonSchema": {
+                      "type": "object",
+                      "properties": {
+                        "status": {
+                          "type": "integer",
+                          "title": "状态码"
+                        },
+                        "info": {
+                          "type": "string",
+                          "title": "响应信息"
+                        },
+                        "data": {
+                          "type": "null",
+                          "title": "数据段"
+                        }
+                      },
+                      "required": [
+                        "status",
+                        "info",
+                        "data"
+                      ],
+                      "x-apifox-orders": [
+                        "status",
+                        "info",
+                        "data"
+                      ]
+                    },
+                    "description": "",
+                    "contentType": "json",
+                    "mediaType": ""
+                  }
+                ],
+                "responseExamples": [],
+                "requestBody": {
+                  "type": "application/json",
+                  "parameters": [],
+                  "jsonSchema": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "title": "姓名"
+                      },
+                      "student_id": {
+                        "type": "string",
+                        "title": "学生ID"
+                      },
+                      "student_class": {
+                        "type": "string",
+                        "title": "班级"
+                      },
+                      "password": {
+                        "type": "string",
+                        "title": "密码"
+                      },
+                      "sex": {
+                        "type": "integer",
+                        "title": "性别"
+                      },
+                      "grade": {
+                        "type": "integer",
+                        "title": "年级"
+                      },
+                      "age": {
+                        "type": "integer",
+                        "title": "年龄"
+                      }
+                    },
+                    "required": [
+                      "name",
+                      "student_id",
+                      "student_class",
+                      "password",
+                      "sex",
+                      "grade",
+                      "age"
+                    ],
+                    "x-apifox-orders": [
+                      "name",
+                      "student_id",
+                      "student_class",
+                      "password",
+                      "sex",
+                      "grade",
+                      "age"
+                    ]
+                  },
+                  "required": true,
+                  "mediaType": "",
+                  "examples": [
+                    {
+                      "mediaType": "application/json",
+                      "value": "{\r\n    \"name\":\"zjq\",\r\n    \"stu_id\":\"9876543210\",\r\n    \"stu_class\":\"计科8班\",\r\n    \"password\":\"P@ssw0rd=Ping12345\",\r\n    \"sex\": 1,\r\n    \"grade\": 1,\r\n    \"age\": 19\r\n}"
+                    }
+                  ],
+                  "oasExtensions": ""
+                },
+                "description": "> 学生注册接口",
+                "tags": [],
+                "status": "developing",
+                "serverId": "",
+                "operationId": "",
+                "sourceUrl": "",
+                "ordering": 30,
+                "cases": [],
+                "mocks": [],
+                "customApiFields": "{}",
+                "advancedSettings": {
+                  "disabledSystemHeaders": {}
+                },
+                "mockScript": {},
+                "codeSamples": [],
+                "commonResponseStatus": {},
+                "responseChildren": [],
+                "visibility": "INHERITED",
+                "moduleId": 6725878,
+                "oasExtensions": "",
+                "type": "http",
+                "preProcessors": [],
+                "postProcessors": [],
+                "inheritPostProcessors": {},
+                "inheritPreProcessors": {}
+              }
+            }
+          ]
+        },
+        {
+          "name": "学生接口",
+          "id": 73566027,
+          "auth": {},
+          "securityScheme": {},
+          "parentId": 0,
+          "serverId": "",
+          "description": "",
+          "identityPattern": {
+            "httpApi": {
+              "type": "inherit",
+              "bodyType": "",
+              "fields": []
+            }
+          },
+          "shareSettings": {},
+          "visibility": "INHERITED",
+          "moduleId": 6725878,
+          "preProcessors": [
+            {
+              "id": "inheritProcessors",
+              "type": "inheritProcessors",
+              "data": {}
+            }
+          ],
+          "postProcessors": [
+            {
+              "id": "inheritProcessors",
+              "type": "inheritProcessors",
+              "data": {}
+            }
+          ],
+          "inheritPostProcessors": {},
+          "inheritPreProcessors": {},
+          "items": [
+            {
+              "name": "获取学生所有信息",
+              "api": {
+                "id": "390037206",
+                "method": "get",
+                "path": "/v1/api/stu-manager/stu-info",
+                "parameters": {
+                  "header": [
+                    {
+                      "required": false,
+                      "description": "",
+                      "type": "string",
+                      "id": "pEMeKsuNeq",
+                      "example": "Bearer {{AccessToken}}",
+                      "enable": true,
+                      "name": "Authorization"
+                    }
+                  ]
+                },
+                "auth": {},
+                "securityScheme": {},
+                "commonParameters": {
+                  "query": [],
+                  "body": [],
+                  "cookie": [],
+                  "header": []
+                },
+                "responses": [
+                  {
+                    "id": "154033427",
+                    "code": 200,
+                    "name": "成功",
+                    "headers": [],
+                    "jsonSchema": {
+                      "type": "object",
+                      "properties": {
+                        "status": {
+                          "type": "integer",
+                          "description": "状态码"
+                        },
+                        "info": {
+                          "type": "string",
+                          "description": "响应信息"
+                        },
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "create_at": {
+                              "type": "string",
+                              "description": "注册时间"
+                            },
+                            "name": {
+                              "type": "string",
+                              "description": "姓名"
+                            },
+                            "password": {
+                              "type": "string",
+                              "description": "密码"
+                            },
+                            "sex": {
+                              "type": "integer",
+                              "description": "性别"
+                            },
+                            "grade": {
+                              "type": "integer",
+                              "description": "年级"
+                            },
+                            "age": {
+                              "type": "integer",
+                              "description": "年龄"
+                            },
+                            "courses": {
+                              "type": "null",
+                              "description": "选择的课程"
+                            },
+                            "student_id": {
+                              "type": "string",
+                              "description": "学生ID"
+                            },
+                            "student_class": {
+                              "type": "string",
+                              "description": "班级"
+                            }
+                          },
+                          "required": [
+                            "create_at",
+                            "name",
+                            "student_id",
+                            "student_class",
+                            "password",
+                            "sex",
+                            "grade",
+                            "age",
+                            "courses"
+                          ],
+                          "x-apifox-orders": [
+                            "create_at",
+                            "name",
+                            "student_id",
+                            "student_class",
+                            "password",
+                            "sex",
+                            "grade",
+                            "age",
+                            "courses"
+                          ],
+                          "description": "数据段"
+                        }
+                      },
+                      "required": [
+                        "status",
+                        "info",
+                        "data"
+                      ],
+                      "x-apifox-orders": [
+                        "status",
+                        "info",
+                        "data"
+                      ]
+                    },
+                    "description": "",
+                    "contentType": "json",
+                    "mediaType": ""
+                  }
+                ],
+                "responseExamples": [
+                  {
+                    "name": "成功示例",
+                    "data": "{\r\n    \"status\": 20000,\r\n    \"info\": \"Operation Success\",\r\n    \"data\": {\r\n        \"create_at\": \"2025-12-10T14:15:07.447+08:00\",\r\n        \"name\": \"admin\",\r\n        \"stu_id\": \"1234567890\",\r\n        \"stu_class\": \"adminGroup\",\r\n        \"password\": \"71483d953f4843cf69231307e77e8665\",\r\n        \"sex\": 0,\r\n        \"grade\": 4,\r\n        \"age\": 19,\r\n        \"courses\": null\r\n    }\r\n}",
+                    "responseId": 154033427
+                  }
+                ],
+                "requestBody": {
+                  "type": "none",
+                  "parameters": [],
+                  "required": true,
+                  "mediaType": "",
+                  "examples": [],
+                  "oasExtensions": ""
+                },
+                "description": "> 获取学生的所有信息",
+                "tags": [],
+                "status": "developing",
+                "serverId": "",
+                "operationId": "",
+                "sourceUrl": "",
+                "ordering": 40,
+                "cases": [],
+                "mocks": [],
+                "customApiFields": "{}",
+                "advancedSettings": {
+                  "disabledSystemHeaders": {}
+                },
+                "mockScript": {},
+                "codeSamples": [],
+                "commonResponseStatus": {},
+                "responseChildren": [],
+                "visibility": "INHERITED",
+                "moduleId": 6725878,
+                "oasExtensions": "",
+                "type": "http",
+                "preProcessors": [],
+                "postProcessors": [],
+                "inheritPostProcessors": {},
+                "inheritPreProcessors": {}
+              }
+            },
+            {
+              "name": "学生注销（退出登录）",
+              "api": {
+                "id": "390043833",
+                "method": "get",
+                "path": "/v1/api/stu-manager/stu-logout",
+                "parameters": {
+                  "header": [
+                    {
+                      "required": false,
+                      "description": "",
+                      "type": "string",
+                      "id": "2xSJ4aXv84",
+                      "example": "Bearer {{AccessToken}}",
+                      "enable": true,
+                      "name": "Authorization"
+                    }
+                  ]
+                },
+                "auth": {},
+                "securityScheme": {},
+                "commonParameters": {
+                  "query": [],
+                  "body": [],
+                  "cookie": [],
+                  "header": []
+                },
+                "responses": [
+                  {
+                    "id": "160926466",
+                    "code": 200,
+                    "name": "成功",
+                    "headers": [],
+                    "jsonSchema": {
+                      "type": "object",
+                      "properties": {
+                        "status": {
+                          "type": "integer",
+                          "title": "状态码"
+                        },
+                        "info": {
+                          "type": "string",
+                          "title": "响应信息"
+                        },
+                        "data": {
+                          "type": "null",
+                          "title": "数据段"
+                        }
+                      },
+                      "required": [
+                        "status",
+                        "info",
+                        "data"
+                      ],
+                      "x-apifox-orders": [
+                        "status",
+                        "info",
+                        "data"
+                      ]
+                    },
+                    "description": "",
+                    "contentType": "json",
+                    "mediaType": ""
+                  }
+                ],
+                "responseExamples": [
+                  {
+                    "name": "成功示例",
+                    "data": "{\r\n    \"status\": 20000,\r\n    \"info\": \"Operation Success\",\r\n    \"data\": null\r\n}",
+                    "responseId": 160926466
+                  }
+                ],
+                "requestBody": {
+                  "type": "none",
+                  "parameters": [],
+                  "required": true,
+                  "mediaType": "",
+                  "examples": [],
+                  "oasExtensions": ""
+                },
+                "description": "> 学生退出登录",
+                "tags": [],
+                "status": "developing",
+                "serverId": "",
+                "operationId": "",
+                "sourceUrl": "",
+                "ordering": 60,
+                "cases": [],
+                "mocks": [],
+                "customApiFields": "{}",
+                "advancedSettings": {
+                  "disabledSystemHeaders": {}
+                },
+                "mockScript": {},
+                "codeSamples": [],
+                "commonResponseStatus": {},
+                "responseChildren": [],
+                "visibility": "INHERITED",
+                "moduleId": 6725878,
+                "oasExtensions": "",
+                "type": "http",
+                "preProcessors": [],
+                "postProcessors": [],
+                "inheritPostProcessors": {},
+                "inheritPreProcessors": {}
+              }
+            },
+            {
+              "name": "学生修改学生信息",
+              "api": {
+                "id": "390040038",
+                "method": "patch",
+                "path": "/v1/api/stu-manager/stu-update",
+                "parameters": {
+                  "header": [
+                    {
+                      "required": false,
+                      "description": "",
+                      "type": "string",
+                      "id": "xpwytXHPN9",
+                      "example": "Bearer {{AccessToken}}",
+                      "enable": true,
+                      "name": "Authorization"
+                    }
+                  ]
+                },
+                "auth": {},
+                "securityScheme": {},
+                "commonParameters": {
+                  "query": [],
+                  "body": [],
+                  "cookie": [],
+                  "header": []
+                },
+                "responses": [
+                  {
+                    "id": "109616999",
+                    "code": 200,
+                    "name": "成功",
+                    "headers": [],
+                    "jsonSchema": {
+                      "type": "object",
+                      "properties": {
+                        "status": {
+                          "type": "integer",
+                          "title": "状态码"
+                        },
+                        "info": {
+                          "type": "string",
+                          "title": "响应信息"
+                        },
+                        "data": {
+                          "type": "null",
+                          "title": "数据段"
+                        }
+                      },
+                      "required": [
+                        "status",
+                        "info",
+                        "data"
+                      ],
+                      "x-apifox-orders": [
+                        "status",
+                        "info",
+                        "data"
+                      ]
+                    },
+                    "description": "",
+                    "contentType": "json",
+                    "mediaType": ""
+                  }
+                ],
+                "responseExamples": [
+                  {
+                    "name": "成功示例",
+                    "data": "{\r\n    \"status\": 20000,\r\n    \"info\": \"Operation Success\",\r\n    \"data\": null\r\n}",
+                    "responseId": 109616999
+                  }
+                ],
+                "requestBody": {
+                  "type": "application/json",
+                  "parameters": [],
+                  "jsonSchema": {
+                    "type": "object",
+                    "properties": {
+                      "update_columns": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "field": {
+                              "type": "string",
+                              "title": "字段"
+                            },
+                            "value": {
+                              "type": [
+                                "string",
+                                "integer"
+                              ],
+                              "title": "值"
+                            }
+                          },
+                          "required": [
+                            "field",
+                            "value"
+                          ],
+                          "x-apifox-orders": [
+                            "field",
+                            "value"
+                          ]
+                        },
+                        "title": "更新的字段列表"
+                      }
+                    },
+                    "required": [
+                      "update_columns"
+                    ],
+                    "x-apifox-orders": [
+                      "update_columns"
+                    ]
+                  },
+                  "required": true,
+                  "mediaType": "",
+                  "examples": [
+                    {
+                      "mediaType": "application/json",
+                      "value": "{\r\n  \"update_columns\": [\r\n    {\"field\": \"student_class\", \"value\": \"计科7班\"},\r\n    {\"field\": \"grade\", \"value\": 2}\r\n  ]\r\n}"
+                    }
+                  ],
+                  "oasExtensions": ""
+                },
+                "description": "> 更新学生信息",
+                "tags": [],
+                "status": "developing",
+                "serverId": "",
+                "operationId": "",
+                "sourceUrl": "",
+                "ordering": 50,
+                "cases": [],
+                "mocks": [],
+                "customApiFields": "{}",
+                "advancedSettings": {
+                  "disabledSystemHeaders": {}
+                },
+                "mockScript": {},
+                "codeSamples": [],
+                "commonResponseStatus": {},
+                "responseChildren": [],
+                "visibility": "INHERITED",
+                "moduleId": 6725878,
+                "oasExtensions": "",
+                "type": "http",
+                "preProcessors": [],
+                "postProcessors": [],
+                "inheritPostProcessors": {},
+                "inheritPreProcessors": {}
+              }
+            }
+          ]
+        },
+        {
+          "name": "学生选课接口",
+          "id": 73674850,
+          "auth": {},
+          "securityScheme": {},
+          "parentId": 0,
+          "serverId": "",
+          "description": "",
+          "identityPattern": {
+            "httpApi": {
+              "type": "inherit",
+              "bodyType": "",
+              "fields": []
+            }
+          },
+          "shareSettings": {},
+          "visibility": "INHERITED",
+          "moduleId": 6725878,
+          "preProcessors": [
+            {
+              "id": "inheritProcessors",
+              "type": "inheritProcessors",
+              "data": {}
+            }
+          ],
+          "postProcessors": [
+            {
+              "id": "inheritProcessors",
+              "type": "inheritProcessors",
+              "data": {}
+            }
+          ],
+          "inheritPostProcessors": {},
+          "inheritPreProcessors": {},
+          "items": [
+            {
+              "name": "查看可选课程",
+              "api": {
+                "id": "390657473",
+                "method": "get",
+                "path": "/v1/api/class-manager/get-selectable-classes",
+                "parameters": {
+                  "header": [
+                    {
+                      "required": false,
+                      "description": "",
+                      "type": "string",
+                      "id": "5msxY379d5",
+                      "example": "Bearer {{AccessToken}}",
+                      "enable": true,
+                      "name": "Authorization"
+                    }
+                  ]
+                },
+                "auth": {},
+                "securityScheme": {},
+                "commonParameters": {
+                  "query": [],
+                  "body": [],
+                  "cookie": [],
+                  "header": []
+                },
+                "responses": [
+                  {
+                    "id": "191568306",
+                    "code": 200,
+                    "name": "成功",
+                    "headers": [],
+                    "jsonSchema": {
+                      "type": "object",
+                      "properties": {
+                        "status": {
+                          "type": "integer"
+                        },
+                        "info": {
+                          "type": "string"
+                        },
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "selectable_classes": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "ID": {
+                                    "type": "integer"
+                                  },
+                                  "create_at": {
+                                    "type": "string"
+                                  },
+                                  "class_name": {
+                                    "type": "string"
+                                  },
+                                  "class_id": {
+                                    "type": "string"
+                                  },
+                                  "class_location": {
+                                    "type": "string"
+                                  },
+                                  "class_time": {
+                                    "type": "string"
+                                  },
+                                  "class_teacher": {
+                                    "type": "string"
+                                  },
+                                  "class_capacity": {
+                                    "type": "integer"
+                                  },
+                                  "class_selection": {
+                                    "type": "integer"
+                                  },
+                                  "students": {
+                                    "type": "null"
+                                  }
+                                }
+                              }
+                            }
+                          },
+                          "required": [
+                            "selectable_classes"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "status",
+                        "info",
+                        "data"
+                      ]
+                    },
+                    "description": "",
+                    "contentType": "json",
+                    "mediaType": ""
+                  }
+                ],
+                "responseExamples": [],
+                "requestBody": {
+                  "type": "none",
+                  "parameters": [],
+                  "jsonSchema": {
+                    "type": "object",
+                    "properties": {}
+                  },
+                  "required": true,
+                  "mediaType": "",
+                  "examples": [],
+                  "oasExtensions": ""
+                },
+                "description": "> 学生查看可选课程",
+                "tags": [],
+                "status": "developing",
+                "serverId": "",
+                "operationId": "",
+                "sourceUrl": "",
+                "ordering": 10,
+                "cases": [],
+                "mocks": [],
+                "customApiFields": "{}",
+                "advancedSettings": {
+                  "disabledSystemHeaders": {}
+                },
+                "mockScript": {},
+                "codeSamples": [],
+                "commonResponseStatus": {},
+                "responseChildren": [],
+                "visibility": "INHERITED",
+                "moduleId": 6725878,
+                "oasExtensions": "",
+                "type": "http",
+                "preProcessors": [],
+                "postProcessors": [],
+                "inheritPostProcessors": {},
+                "inheritPreProcessors": {}
+              }
+            },
+            {
+              "name": "查看已选课程",
+              "api": {
+                "id": "390660755",
+                "method": "get",
+                "path": "/v1/api/class-manager/get-subscribed-classes",
+                "parameters": {
+                  "header": [
+                    {
+                      "required": false,
+                      "description": "",
+                      "type": "string",
+                      "id": "nEQ4ZvgRnW",
+                      "example": "Bearer {{AccessToken}}",
+                      "enable": true,
+                      "name": "Authorization"
+                    }
+                  ]
+                },
+                "auth": {},
+                "securityScheme": {},
+                "commonParameters": {
+                  "query": [],
+                  "body": [],
+                  "cookie": [],
+                  "header": []
+                },
+                "responses": [
+                  {
+                    "id": "102330269",
+                    "code": 200,
+                    "name": "成功",
+                    "headers": [],
+                    "jsonSchema": {
+                      "type": "object",
+                      "properties": {}
+                    },
+                    "description": "",
+                    "contentType": "json",
+                    "mediaType": ""
+                  }
+                ],
+                "responseExamples": [],
+                "requestBody": {
+                  "type": "none",
+                  "parameters": [],
+                  "required": true,
+                  "mediaType": "",
+                  "examples": [],
+                  "oasExtensions": ""
+                },
+                "description": "> 学生查看已选课程",
+                "tags": [],
+                "status": "developing",
+                "serverId": "",
+                "operationId": "",
+                "sourceUrl": "",
+                "ordering": 30,
+                "cases": [],
+                "mocks": [],
+                "customApiFields": "{}",
+                "advancedSettings": {
+                  "disabledSystemHeaders": {}
+                },
+                "mockScript": {},
+                "codeSamples": [],
+                "commonResponseStatus": {},
+                "responseChildren": [],
+                "visibility": "INHERITED",
+                "moduleId": 6725878,
+                "oasExtensions": "",
+                "type": "http",
+                "preProcessors": [],
+                "postProcessors": [],
+                "inheritPostProcessors": {},
+                "inheritPreProcessors": {}
+              }
+            },
+            {
+              "name": "添加选课",
+              "api": {
+                "id": "390659220",
+                "method": "post",
+                "path": "/v1/api/class-manager/subscribe-class",
+                "parameters": {
+                  "header": [
+                    {
+                      "required": false,
+                      "description": "",
+                      "type": "string",
+                      "id": "h8h0Wfvmux",
+                      "example": "Bearer {{AccessToken}}",
+                      "enable": true,
+                      "name": "Authorization"
+                    }
+                  ]
+                },
+                "auth": {},
+                "securityScheme": {},
+                "commonParameters": {
+                  "query": [],
+                  "body": [],
+                  "cookie": [],
+                  "header": []
+                },
+                "responses": [
+                  {
+                    "id": "165072848",
+                    "code": 200,
+                    "name": "成功",
+                    "headers": [],
+                    "jsonSchema": {
+                      "type": "object",
+                      "properties": {
+                        "status": {
+                          "type": "integer"
+                        },
+                        "info": {
+                          "type": "string"
+                        },
+                        "data": {
+                          "type": "null"
+                        }
+                      },
+                      "required": [
+                        "status",
+                        "info",
+                        "data"
+                      ]
+                    },
+                    "description": "",
+                    "contentType": "json",
+                    "mediaType": ""
+                  }
+                ],
+                "responseExamples": [],
+                "requestBody": {
+                  "type": "application/json",
+                  "parameters": [],
+                  "jsonSchema": {
+                    "type": "object",
+                    "properties": {
+                      "class_id": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "class_id"
+                    ],
+                    "x-apifox-orders": [
+                      "class_id"
+                    ]
+                  },
+                  "required": true,
+                  "mediaType": "",
+                  "examples": [
+                    {
+                      "mediaType": "application/json",
+                      "value": "{\r\n    \"class_id\":\"CS101\"\r\n}",
+                      "name": "示例 1"
+                    }
+                  ],
+                  "oasExtensions": ""
+                },
+                "description": "> 学生添加选课",
+                "tags": [],
+                "status": "developing",
+                "serverId": "",
+                "operationId": "",
+                "sourceUrl": "",
+                "ordering": 20,
+                "cases": [],
+                "mocks": [],
+                "customApiFields": "{}",
+                "advancedSettings": {
+                  "disabledSystemHeaders": {}
+                },
+                "mockScript": {},
+                "codeSamples": [],
+                "commonResponseStatus": {},
+                "responseChildren": [],
+                "visibility": "INHERITED",
+                "moduleId": 6725878,
+                "oasExtensions": "",
+                "type": "http",
+                "preProcessors": [],
+                "postProcessors": [],
+                "inheritPostProcessors": {},
+                "inheritPreProcessors": {}
+              }
+            },
+            {
+              "name": "退课",
+              "api": {
+                "id": "390662428",
+                "method": "delete",
+                "path": "/v1/api/class-manager/del-class",
+                "parameters": {
+                  "header": [
+                    {
+                      "required": false,
+                      "description": "",
+                      "type": "string",
+                      "id": "0pm0xpEU0u",
+                      "example": "Bearer {{AccessToken}}",
+                      "enable": true,
+                      "name": "Authorization"
+                    }
+                  ]
+                },
+                "auth": {},
+                "securityScheme": {},
+                "commonParameters": {
+                  "query": [],
+                  "body": [],
+                  "cookie": [],
+                  "header": []
+                },
+                "responses": [
+                  {
+                    "id": "150202564",
+                    "code": 200,
+                    "name": "成功",
+                    "headers": [],
+                    "jsonSchema": {
+                      "type": "object",
+                      "properties": {}
+                    },
+                    "description": "",
+                    "contentType": "json",
+                    "mediaType": ""
+                  }
+                ],
+                "responseExamples": [],
+                "requestBody": {
+                  "type": "application/json",
+                  "parameters": [],
+                  "jsonSchema": {
+                    "type": "object",
+                    "properties": {
+                      "class_id": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "class_id"
+                    ],
+                    "x-apifox-orders": [
+                      "class_id"
+                    ]
+                  },
+                  "required": true,
+                  "mediaType": "",
+                  "examples": [
+                    {
+                      "mediaType": "application/json",
+                      "value": "{\r\n    \"class_id\":\"CS101\"\r\n}",
+                      "name": "示例 1"
+                    }
+                  ],
+                  "oasExtensions": ""
+                },
+                "description": "> 学生退课",
+                "tags": [],
+                "status": "developing",
+                "serverId": "",
+                "operationId": "",
+                "sourceUrl": "",
+                "ordering": 40,
+                "cases": [],
+                "mocks": [],
+                "customApiFields": "{}",
+                "advancedSettings": {
+                  "disabledSystemHeaders": {}
+                },
+                "mockScript": {},
+                "codeSamples": [],
+                "commonResponseStatus": {},
+                "responseChildren": [],
+                "visibility": "INHERITED",
+                "moduleId": 6725878,
+                "oasExtensions": "",
+                "type": "http",
+                "preProcessors": [],
+                "postProcessors": [],
+                "inheritPostProcessors": {},
+                "inheritPreProcessors": {}
+              }
+            }
+          ]
+        },
+        {
+          "name": "学生管理接口",
+          "id": 73566163,
+          "auth": {},
+          "securityScheme": {},
+          "parentId": 0,
+          "serverId": "",
+          "description": "",
+          "identityPattern": {
+            "httpApi": {
+              "type": "inherit",
+              "bodyType": "",
+              "fields": []
+            }
+          },
+          "shareSettings": {},
+          "visibility": "INHERITED",
+          "moduleId": 6725878,
+          "preProcessors": [
+            {
+              "id": "inheritProcessors",
+              "type": "inheritProcessors",
+              "data": {}
+            }
+          ],
+          "postProcessors": [
+            {
+              "id": "inheritProcessors",
+              "type": "inheritProcessors",
+              "data": {}
+            }
+          ],
+          "inheritPostProcessors": {},
+          "inheritPreProcessors": {},
+          "items": [
+            {
+              "name": "获取学生列表",
+              "api": {
+                "id": "390045003",
+                "method": "get",
+                "path": "/v1/api/admin/stu-manager/get-stu-list",
+                "parameters": {
+                  "query": [
+                    {
+                      "id": "VoOfSiqBgL",
+                      "name": "page",
+                      "example": "1",
+                      "required": false,
+                      "description": "页码",
+                      "enable": true,
+                      "type": "string"
+                    },
+                    {
+                      "id": "PDI44gfsWJ",
+                      "name": "resNum",
+                      "example": "15",
+                      "required": false,
+                      "description": "每页条数",
+                      "enable": true,
+                      "type": "string"
+                    }
+                  ],
+                  "path": [],
+                  "cookie": [],
+                  "header": [
+                    {
+                      "id": "8nKkpdoktC",
+                      "name": "Authorization",
+                      "required": true,
+                      "description": "",
+                      "example": "Bearer {{AccessToken}}",
+                      "type": "string",
+                      "enable": true
+                    }
+                  ]
+                },
+                "auth": {},
+                "securityScheme": {},
+                "commonParameters": {
+                  "query": [],
+                  "body": [],
+                  "cookie": [],
+                  "header": []
+                },
+                "responses": [
+                  {
+                    "id": "194030479",
+                    "code": 200,
+                    "name": "成功",
+                    "headers": [],
+                    "jsonSchema": {
+                      "type": "object",
+                      "properties": {
+                        "status": {
+                          "type": "integer",
+                          "title": "状态码"
+                        },
+                        "info": {
+                          "type": "string",
+                          "title": "响应信息"
+                        },
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "total": {
+                              "type": "integer",
+                              "title": "条目总数"
+                            },
+                            "page": {
+                              "type": "integer",
+                              "title": "当前页码"
+                            },
+                            "page_size": {
+                              "type": "integer",
+                              "title": "页面数据条数"
+                            },
+                            "students_list": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "stu_id": {
+                                    "type": "string",
+                                    "title": "学生ID"
+                                  },
+                                  "student_name": {
+                                    "type": "string",
+                                    "title": "学生名字"
+                                  },
+                                  "student_class": {
+                                    "type": "string",
+                                    "title": "班级"
+                                  },
+                                  "grade": {
+                                    "type": "string",
+                                    "title": "年级"
+                                  }
+                                },
+                                "required": [
+                                  "stu_id",
+                                  "student_name",
+                                  "student_class",
+                                  "grade"
+                                ],
+                                "x-apifox-orders": [
+                                  "stu_id",
+                                  "student_name",
+                                  "student_class",
+                                  "grade"
+                                ]
+                              },
+                              "title": "学生列表"
+                            }
+                          },
+                          "required": [
+                            "total",
+                            "page",
+                            "page_size",
+                            "students_list"
+                          ],
+                          "x-apifox-orders": [
+                            "total",
+                            "page",
+                            "page_size",
+                            "students_list"
+                          ],
+                          "title": "数据段"
+                        },
+                        "01KC6XENYNQ8Q2W47X365RYXWN": {
+                          "x-tmp-pending-properties": true
+                        }
+                      },
+                      "required": [
+                        "status",
+                        "info",
+                        "data"
+                      ],
+                      "x-apifox-orders": [
+                        "status",
+                        "info",
+                        "data",
+                        "01KC6XENYNQ8Q2W47X365RYXWN"
+                      ]
+                    },
+                    "description": "",
+                    "contentType": "json",
+                    "mediaType": ""
+                  }
+                ],
+                "responseExamples": [
+                  {
+                    "name": "成功示例",
+                    "data": "{\r\n    \"status\": 20000,\r\n    \"info\": \"Operation Success\",\r\n    \"data\": {\r\n        \"total\": 2,\r\n        \"page\": 1,\r\n        \"page_size\": 15,\r\n        \"students_list\": [\r\n            {\r\n                \"stu_id\": \"1234567890\",\r\n                \"student_name\": \"admin\",\r\n                \"student_class\": \"计科7班\",\r\n                \"grade\": \"2\"\r\n            },\r\n            {\r\n                \"stu_id\": \"9876543210\",\r\n                \"student_name\": \"zjq\",\r\n                \"student_class\": \"计科8班\",\r\n                \"grade\": \"1\"\r\n            }\r\n        ]\r\n    }\r\n}",
+                    "responseId": 194030479
+                  }
+                ],
+                "requestBody": {
+                  "type": "none",
+                  "parameters": [],
+                  "required": true,
+                  "mediaType": "",
+                  "examples": [],
+                  "oasExtensions": ""
+                },
+                "description": "> 获取所有学生的列表",
+                "tags": [],
+                "status": "developing",
+                "serverId": "",
+                "operationId": "",
+                "sourceUrl": "",
+                "ordering": 10,
+                "cases": [],
+                "mocks": [],
+                "customApiFields": "{}",
+                "advancedSettings": {
+                  "disabledSystemHeaders": {}
+                },
+                "mockScript": {},
+                "codeSamples": [],
+                "commonResponseStatus": {},
+                "responseChildren": [],
+                "visibility": "INHERITED",
+                "moduleId": 6725878,
+                "oasExtensions": "",
+                "type": "http",
+                "preProcessors": [],
+                "postProcessors": [],
+                "inheritPostProcessors": {},
+                "inheritPreProcessors": {}
+              }
+            },
+            {
+              "name": "创建学生",
+              "api": {
+                "id": "390049666",
+                "method": "post",
+                "path": "/v1/api/admin/stu-manager/create-stu",
+                "parameters": {
+                  "header": [
+                    {
+                      "required": false,
+                      "description": "",
+                      "type": "string",
+                      "id": "hUWIxFQ1Fh",
+                      "example": "Bearer {{AccessToken}}",
+                      "enable": true,
+                      "name": "Authorization"
+                    }
+                  ]
+                },
+                "auth": {},
+                "securityScheme": {},
+                "commonParameters": {
+                  "query": [],
+                  "body": [],
+                  "cookie": [],
+                  "header": []
+                },
+                "responses": [
+                  {
+                    "id": "149125697",
+                    "code": 200,
+                    "name": "成功",
+                    "headers": [],
+                    "jsonSchema": {
+                      "type": "object",
+                      "properties": {}
+                    },
+                    "description": "",
+                    "contentType": "json",
+                    "mediaType": ""
+                  }
+                ],
+                "responseExamples": [],
+                "requestBody": {
+                  "type": "application/json",
+                  "parameters": [],
+                  "jsonSchema": {
+                    "type": "object",
+                    "properties": {
+                      "name": {
+                        "type": "string",
+                        "title": "姓名"
+                      },
+                      "password": {
+                        "type": "string",
+                        "title": "密码"
+                      },
+                      "sex": {
+                        "type": "integer",
+                        "title": "性别"
+                      },
+                      "grade": {
+                        "type": "integer",
+                        "title": "年级"
+                      },
+                      "age": {
+                        "type": "integer",
+                        "title": "年龄"
+                      },
+                      "student_id": {
+                        "type": "string",
+                        "title": "学生ID"
+                      },
+                      "student_class": {
+                        "type": "string",
+                        "title": "班级"
+                      }
+                    },
+                    "required": [
+                      "name",
+                      "student_id",
+                      "student_class",
+                      "password",
+                      "sex",
+                      "grade",
+                      "age"
+                    ],
+                    "x-apifox-orders": [
+                      "name",
+                      "student_id",
+                      "student_class",
+                      "password",
+                      "sex",
+                      "grade",
+                      "age"
+                    ]
+                  },
+                  "required": true,
+                  "mediaType": "",
+                  "examples": [
+                    {
+                      "mediaType": "application/json",
+                      "value": "{\r\n    \"name\": \"dzjq\",\r\n    \"student_id\": \"9876543210\",\r\n    \"student_class\": \"计科2班\",\r\n    \"password\": \"P@ssw0rd=Ping12345\",\r\n    \"sex\": 1,\r\n    \"grade\": 1,\r\n    \"age\": 19\r\n}",
+                      "name": "示例 1"
+                    }
+                  ],
+                  "oasExtensions": ""
+                },
+                "description": "> 创建学生接口",
+                "tags": [],
+                "status": "developing",
+                "serverId": "",
+                "operationId": "",
+                "sourceUrl": "",
+                "ordering": 30,
+                "cases": [],
+                "mocks": [],
+                "customApiFields": "{}",
+                "advancedSettings": {
+                  "disabledSystemHeaders": {}
+                },
+                "mockScript": {},
+                "codeSamples": [],
+                "commonResponseStatus": {},
+                "responseChildren": [],
+                "visibility": "INHERITED",
+                "moduleId": 6725878,
+                "oasExtensions": "",
+                "type": "http",
+                "preProcessors": [],
+                "postProcessors": [],
+                "inheritPostProcessors": {},
+                "inheritPreProcessors": {}
+              }
+            },
+            {
+              "name": "更新学生信息",
+              "api": {
+                "id": "390048719",
+                "method": "patch",
+                "path": "/v1/api/admin/stu-manager/update-stu-info",
+                "parameters": {
+                  "header": [
+                    {
+                      "required": false,
+                      "description": "",
+                      "type": "string",
+                      "id": "M5emsfz1hv",
+                      "example": "Bearer {{AccessToken}}",
+                      "enable": true,
+                      "name": "Authorization"
+                    }
+                  ]
+                },
+                "auth": {},
+                "securityScheme": {},
+                "commonParameters": {
+                  "query": [],
+                  "body": [],
+                  "cookie": [],
+                  "header": []
+                },
+                "responses": [
+                  {
+                    "id": "114180740",
+                    "code": 200,
+                    "name": "成功",
+                    "headers": [],
+                    "jsonSchema": {
+                      "type": "object",
+                      "properties": {
+                        "status": {
+                          "type": "integer",
+                          "title": "状态码"
+                        },
+                        "info": {
+                          "type": "string",
+                          "title": "响应信息"
+                        },
+                        "data": {
+                          "type": "null",
+                          "title": "数据段"
+                        }
+                      },
+                      "required": [
+                        "status",
+                        "info",
+                        "data"
+                      ],
+                      "x-apifox-orders": [
+                        "status",
+                        "info",
+                        "data"
+                      ]
+                    },
+                    "description": "",
+                    "contentType": "json",
+                    "mediaType": ""
+                  }
+                ],
+                "responseExamples": [
+                  {
+                    "name": "成功示例",
+                    "data": "{\r\n    \"status\": 20000,\r\n    \"info\": \"Operation Success\",\r\n    \"data\": null\r\n}",
+                    "responseId": 114180740
+                  }
+                ],
+                "requestBody": {
+                  "type": "application/json",
+                  "parameters": [],
+                  "jsonSchema": {
+                    "type": "object",
+                    "properties": {
+                      "stu_id": {
+                        "type": "string",
+                        "title": "学生ID"
+                      },
+                      "update_columns": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "field": {
+                              "type": "string",
+                              "title": "字段"
+                            },
+                            "value": {
+                              "type": "string",
+                              "title": "值"
+                            }
+                          },
+                          "x-apifox-orders": [
+                            "field",
+                            "value"
+                          ]
+                        },
+                        "title": "更新字段列表"
+                      }
+                    },
+                    "required": [
+                      "stu_id",
+                      "update_columns"
+                    ],
+                    "x-apifox-orders": [
+                      "stu_id",
+                      "update_columns"
+                    ]
+                  },
+                  "required": true,
+                  "mediaType": "",
+                  "examples": [
+                    {
+                      "mediaType": "application/json",
+                      "value": "{\r\n    \"stu_id\": \"9876543210\",\r\n    \"update_columns\": [\r\n        {\"field\": \"student_class\", \"value\": \"计科9班\"}\r\n    ]\r\n}",
+                      "name": "示例 1"
+                    }
+                  ],
+                  "oasExtensions": ""
+                },
+                "description": "> 管理员更新学生信息",
+                "tags": [],
+                "status": "developing",
+                "serverId": "",
+                "operationId": "",
+                "sourceUrl": "",
+                "ordering": 20,
+                "cases": [],
+                "mocks": [],
+                "customApiFields": "{}",
+                "advancedSettings": {
+                  "disabledSystemHeaders": {}
+                },
+                "mockScript": {},
+                "codeSamples": [],
+                "commonResponseStatus": {},
+                "responseChildren": [],
+                "visibility": "INHERITED",
+                "moduleId": 6725878,
+                "oasExtensions": "",
+                "type": "http",
+                "preProcessors": [],
+                "postProcessors": [],
+                "inheritPostProcessors": {},
+                "inheritPreProcessors": {}
+              }
+            },
+            {
+              "name": "删除学生",
+              "api": {
+                "id": "390050947",
+                "method": "delete",
+                "path": "/v1/api/admin/stu-manager/del-stu",
+                "parameters": {
+                  "header": [
+                    {
+                      "required": false,
+                      "description": "",
+                      "type": "string",
+                      "id": "AaQdayiTSV",
+                      "example": "Bearer {{AccessToken}}",
+                      "enable": true,
+                      "name": "Authorization"
+                    }
+                  ]
+                },
+                "auth": {},
+                "securityScheme": {},
+                "commonParameters": {
+                  "query": [],
+                  "body": [],
+                  "cookie": [],
+                  "header": []
+                },
+                "responses": [
+                  {
+                    "id": "149908863",
+                    "code": 200,
+                    "name": "成功",
+                    "headers": [],
+                    "jsonSchema": {
+                      "type": "object",
+                      "properties": {
+                        "status": {
+                          "type": "integer",
+                          "title": "状态码"
+                        },
+                        "info": {
+                          "type": "string",
+                          "title": "响应信息"
+                        },
+                        "data": {
+                          "type": "null",
+                          "title": "数据段"
+                        }
+                      },
+                      "required": [
+                        "status",
+                        "info",
+                        "data"
+                      ],
+                      "x-apifox-orders": [
+                        "status",
+                        "info",
+                        "data"
+                      ]
+                    },
+                    "description": "",
+                    "contentType": "json",
+                    "mediaType": ""
+                  }
+                ],
+                "responseExamples": [
+                  {
+                    "name": "成功示例",
+                    "data": "{\r\n    \"status\": 20000,\r\n    \"info\": \"Operation Success\",\r\n    \"data\": null\r\n}",
+                    "responseId": 149908863
+                  }
+                ],
+                "requestBody": {
+                  "type": "application/json",
+                  "parameters": [],
+                  "jsonSchema": {
+                    "type": "object",
+                    "properties": {}
+                  },
+                  "required": true,
+                  "mediaType": "",
+                  "examples": [
+                    {
+                      "mediaType": "application/json",
+                      "value": "{\r\n    \"stu_id\": \"1122334455\"\r\n}"
+                    }
+                  ],
+                  "oasExtensions": ""
+                },
+                "description": "> 管理员删除学生接口",
+                "tags": [],
+                "status": "developing",
+                "serverId": "",
+                "operationId": "",
+                "sourceUrl": "",
+                "ordering": 40,
+                "cases": [],
+                "mocks": [],
+                "customApiFields": "{}",
+                "advancedSettings": {
+                  "disabledSystemHeaders": {}
+                },
+                "mockScript": {},
+                "codeSamples": [],
+                "commonResponseStatus": {},
+                "responseChildren": [],
+                "visibility": "INHERITED",
+                "moduleId": 6725878,
+                "oasExtensions": "",
+                "type": "http",
+                "preProcessors": [],
+                "postProcessors": [],
+                "inheritPostProcessors": {},
+                "inheritPreProcessors": {}
+              }
+            }
+          ]
+        },
+        {
+          "name": "课程管理接口",
+          "id": 73593199,
+          "auth": {},
+          "securityScheme": {},
+          "parentId": 0,
+          "serverId": "",
+          "description": "",
+          "identityPattern": {
+            "httpApi": {
+              "type": "inherit",
+              "bodyType": "",
+              "fields": []
+            }
+          },
+          "shareSettings": {},
+          "visibility": "INHERITED",
+          "moduleId": 6725878,
+          "preProcessors": [
+            {
+              "id": "inheritProcessors",
+              "type": "inheritProcessors",
+              "data": {}
+            }
+          ],
+          "postProcessors": [
+            {
+              "id": "inheritProcessors",
+              "type": "inheritProcessors",
+              "data": {}
+            }
+          ],
+          "inheritPostProcessors": {},
+          "inheritPreProcessors": {},
+          "items": [
+            {
+              "name": "查看选课情况",
+              "api": {
+                "id": "390212532",
+                "method": "get",
+                "path": "/v1/api/admin/classes-manager/get-class-status",
+                "parameters": {
+                  "header": [
+                    {
+                      "required": false,
+                      "description": "",
+                      "type": "string",
+                      "id": "GPYgqiAOKV",
+                      "example": "Bearer {{AccessToken}}",
+                      "enable": true,
+                      "name": "Authorization"
+                    }
+                  ]
+                },
+                "auth": {},
+                "securityScheme": {},
+                "commonParameters": {
+                  "query": [],
+                  "body": [],
+                  "cookie": [],
+                  "header": []
+                },
+                "responses": [
+                  {
+                    "id": "180890365",
+                    "code": 200,
+                    "name": "成功",
+                    "headers": [],
+                    "jsonSchema": {
+                      "type": "object",
+                      "properties": {
+                        "status": {
+                          "type": "integer",
+                          "title": "状态码"
+                        },
+                        "info": {
+                          "type": "string",
+                          "title": "响应信息"
+                        },
+                        "data": {
+                          "type": "object",
+                          "properties": {
+                            "selectable_classes": {
+                              "type": "array",
+                              "items": {
+                                "type": "object",
+                                "properties": {
+                                  "ID": {
+                                    "type": "integer",
+                                    "title": "主键ID"
+                                  },
+                                  "create_at": {
+                                    "type": "string",
+                                    "title": "创建时间"
+                                  },
+                                  "class_name": {
+                                    "type": "string",
+                                    "title": "课程名称"
+                                  },
+                                  "class_id": {
+                                    "type": "string",
+                                    "title": "课程ID"
+                                  },
+                                  "class_location": {
+                                    "type": "string",
+                                    "title": "上课地点"
+                                  },
+                                  "class_time": {
+                                    "type": "string",
+                                    "title": "上课时间"
+                                  },
+                                  "class_teacher": {
+                                    "type": "string",
+                                    "title": "授课教师"
+                                  },
+                                  "class_capacity": {
+                                    "type": "integer",
+                                    "title": "课程容量"
+                                  },
+                                  "class_selection": {
+                                    "type": "integer",
+                                    "title": "已选课人数"
+                                  },
+                                  "students": {
+                                    "type": "null",
+                                    "title": "已选课学生"
+                                  }
+                                },
+                                "x-apifox-orders": [
+                                  "ID",
+                                  "create_at",
+                                  "class_name",
+                                  "class_id",
+                                  "class_location",
+                                  "class_time",
+                                  "class_teacher",
+                                  "class_capacity",
+                                  "class_selection",
+                                  "students"
+                                ]
+                              },
+                              "title": "可选择的课程"
+                            }
+                          },
+                          "required": [
+                            "selectable_classes"
+                          ],
+                          "x-apifox-orders": [
+                            "selectable_classes"
+                          ],
+                          "title": "数据段"
+                        }
+                      },
+                      "required": [
+                        "status",
+                        "info",
+                        "data"
+                      ],
+                      "x-apifox-orders": [
+                        "status",
+                        "info",
+                        "data"
+                      ]
+                    },
+                    "description": "",
+                    "contentType": "json",
+                    "mediaType": ""
+                  }
+                ],
+                "responseExamples": [
+                  {
+                    "name": "成功示例",
+                    "data": "{\r\n    \"status\": 20000,\r\n    \"info\": \"Operation Success\",\r\n    \"data\": {\r\n        \"selectable_classes\": [\r\n            {\r\n                \"ID\": 1,\r\n                \"create_at\": \"2025-12-12T10:42:10.954+08:00\",\r\n                \"class_name\": \"测试课程\",\r\n                \"class_id\": \"CS101\",\r\n                \"class_location\": \"2106教室\",\r\n                \"class_time\": \"周一6，7节\",\r\n                \"class_teacher\": \"God老师\",\r\n                \"class_capacity\": 11,\r\n                \"class_selection\": 0,\r\n                \"students\": null\r\n            }\r\n        ]\r\n    }\r\n}",
+                    "responseId": 180890365
+                  }
+                ],
+                "requestBody": {
+                  "type": "none",
+                  "parameters": [],
+                  "required": true,
+                  "mediaType": "",
+                  "examples": [],
+                  "oasExtensions": ""
+                },
+                "description": "> 管理员查看选课的情况",
+                "tags": [],
+                "status": "developing",
+                "serverId": "",
+                "operationId": "",
+                "sourceUrl": "",
+                "ordering": 30,
+                "cases": [],
+                "mocks": [],
+                "customApiFields": "{}",
+                "advancedSettings": {
+                  "disabledSystemHeaders": {}
+                },
+                "mockScript": {},
+                "codeSamples": [],
+                "commonResponseStatus": {},
+                "responseChildren": [],
+                "visibility": "INHERITED",
+                "moduleId": 6725878,
+                "oasExtensions": "",
+                "type": "http",
+                "preProcessors": [],
+                "postProcessors": [],
+                "inheritPostProcessors": {},
+                "inheritPreProcessors": {}
+              }
+            },
+            {
+              "name": "查看单个学生的选课",
+              "api": {
+                "id": "390240119",
+                "method": "get",
+                "path": "/v1/api/admin/classes-manager/get-stu-classes/{stuID}",
+                "parameters": {
+                  "path": [
+                    {
+                      "id": "stuID#0",
+                      "name": "stuID",
+                      "required": true,
+                      "description": "",
+                      "type": "string",
+                      "enable": true,
+                      "example": "9876543210"
+                    }
+                  ],
+                  "header": [
+                    {
+                      "required": false,
+                      "description": "",
+                      "type": "string",
+                      "id": "090Ou1gCpS",
+                      "example": "Bearer {{AccessToken}}",
+                      "enable": true,
+                      "name": "Authorization"
+                    }
+                  ]
+                },
+                "auth": {},
+                "securityScheme": {},
+                "commonParameters": {
+                  "query": [],
+                  "body": [],
+                  "cookie": [],
+                  "header": []
+                },
+                "responses": [
+                  {
+                    "id": "147171466",
+                    "code": 200,
+                    "name": "成功",
+                    "headers": [],
+                    "jsonSchema": {
+                      "type": "object",
+                      "properties": {
+                        "status": {
+                          "type": "integer",
+                          "title": "状态码"
+                        },
+                        "info": {
+                          "type": "string",
+                          "title": "响应信息"
+                        },
+                        "data": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "ID": {
+                                "type": "integer",
+                                "title": "主键ID"
+                              },
+                              "create_at": {
+                                "type": "string",
+                                "title": "课程创建时间"
+                              },
+                              "class_name": {
+                                "type": "string",
+                                "title": "课程名称"
+                              },
+                              "class_id": {
+                                "type": "string",
+                                "title": "课程ID"
+                              },
+                              "class_location": {
+                                "type": "string",
+                                "title": "课程地点"
+                              },
+                              "class_time": {
+                                "type": "string",
+                                "title": "上课时间"
+                              },
+                              "class_teacher": {
+                                "type": "string",
+                                "title": "授课教师"
+                              },
+                              "class_capacity": {
+                                "type": "integer",
+                                "title": "课程容量"
+                              },
+                              "class_selection": {
+                                "type": "integer",
+                                "title": "选课人数"
+                              },
+                              "students": {
+                                "type": "null",
+                                "title": "忽略该字段"
+                              }
+                            },
+                            "x-apifox-orders": [
+                              "ID",
+                              "create_at",
+                              "class_name",
+                              "class_id",
+                              "class_location",
+                              "class_time",
+                              "class_teacher",
+                              "class_capacity",
+                              "class_selection",
+                              "students"
+                            ]
+                          },
+                          "title": "数据段"
+                        }
+                      },
+                      "required": [
+                        "status",
+                        "info",
+                        "data"
+                      ],
+                      "x-apifox-orders": [
+                        "status",
+                        "info",
+                        "data"
+                      ]
+                    },
+                    "description": "",
+                    "contentType": "json",
+                    "mediaType": ""
+                  }
+                ],
+                "responseExamples": [
+                  {
+                    "name": "成功示例",
+                    "data": "{\r\n    \"status\": 20000,\r\n    \"info\": \"Operation Success\",\r\n    \"data\": [\r\n        {\r\n            \"ID\": 1,\r\n            \"create_at\": \"2025-12-12T10:42:10.954+08:00\",\r\n            \"class_name\": \"测试课程\",\r\n            \"class_id\": \"CS101\",\r\n            \"class_location\": \"9201教室\",\r\n            \"class_time\": \"周一6，7节\",\r\n            \"class_teacher\": \"BigGod老师\",\r\n            \"class_capacity\": 20,\r\n            \"class_selection\": 0,\r\n            \"students\": null\r\n        }\r\n    ]\r\n}",
+                    "responseId": 147171466
+                  }
+                ],
+                "requestBody": {
+                  "type": "none",
+                  "parameters": [],
+                  "required": true,
+                  "mediaType": "",
+                  "examples": [],
+                  "oasExtensions": ""
+                },
+                "description": "> 管理员查看单个学生的选课",
+                "tags": [],
+                "status": "developing",
+                "serverId": "",
+                "operationId": "",
+                "sourceUrl": "",
+                "ordering": 50,
+                "cases": [],
+                "mocks": [],
+                "customApiFields": "{}",
+                "advancedSettings": {
+                  "disabledSystemHeaders": {}
+                },
+                "mockScript": {},
+                "codeSamples": [],
+                "commonResponseStatus": {},
+                "responseChildren": [],
+                "visibility": "INHERITED",
+                "moduleId": 6725878,
+                "oasExtensions": "",
+                "type": "http",
+                "preProcessors": [],
+                "postProcessors": [],
+                "inheritPostProcessors": {},
+                "inheritPreProcessors": {}
+              }
+            },
+            {
+              "name": "开始选课",
+              "api": {
+                "id": "390271246",
+                "method": "get",
+                "path": "/v1/api/admin/classes-manager/start-course-select-event",
+                "parameters": {
+                  "header": [
+                    {
+                      "required": false,
+                      "description": "",
+                      "type": "string",
+                      "id": "PniqApigKu",
+                      "example": "Bearer {{AccessToken}}",
+                      "enable": true,
+                      "name": "Authorization"
+                    }
+                  ]
+                },
+                "auth": {},
+                "securityScheme": {},
+                "commonParameters": {
+                  "query": [],
+                  "body": [],
+                  "cookie": [],
+                  "header": []
+                },
+                "responses": [
+                  {
+                    "id": "107162653",
+                    "code": 200,
+                    "name": "成功",
+                    "headers": [],
+                    "jsonSchema": {
+                      "type": "object",
+                      "properties": {
+                        "status": {
+                          "type": "integer",
+                          "title": "状态码"
+                        },
+                        "info": {
+                          "type": "string",
+                          "title": "响应信息"
+                        },
+                        "data": {
+                          "type": "null",
+                          "title": "数据段"
+                        }
+                      },
+                      "required": [
+                        "status",
+                        "info",
+                        "data"
+                      ],
+                      "x-apifox-orders": [
+                        "status",
+                        "info",
+                        "data"
+                      ]
+                    },
+                    "description": "",
+                    "contentType": "json",
+                    "mediaType": ""
+                  }
+                ],
+                "responseExamples": [
+                  {
+                    "name": "成功示例",
+                    "data": "{\r\n    \"status\": 20000,\r\n    \"info\": \"Operation Success\",\r\n    \"data\": null\r\n}",
+                    "responseId": 107162653
+                  }
+                ],
+                "requestBody": {
+                  "type": "none",
+                  "parameters": [],
+                  "required": true,
+                  "mediaType": "",
+                  "examples": [],
+                  "oasExtensions": ""
+                },
+                "description": "> 管理员开始选课",
+                "tags": [],
+                "status": "developing",
+                "serverId": "",
+                "operationId": "",
+                "sourceUrl": "",
+                "ordering": 90,
+                "cases": [],
+                "mocks": [],
+                "customApiFields": "{}",
+                "advancedSettings": {
+                  "disabledSystemHeaders": {}
+                },
+                "mockScript": {},
+                "codeSamples": [],
+                "commonResponseStatus": {},
+                "responseChildren": [],
+                "visibility": "INHERITED",
+                "moduleId": 6725878,
+                "oasExtensions": "",
+                "type": "http",
+                "preProcessors": [],
+                "postProcessors": [],
+                "inheritPostProcessors": {},
+                "inheritPreProcessors": {}
+              }
+            },
+            {
+              "name": "停止选课",
+              "api": {
+                "id": "390629385",
+                "method": "get",
+                "path": "/v1/api/admin/classes-manager/stop-course-select-event",
+                "parameters": {
+                  "header": [
+                    {
+                      "required": false,
+                      "description": "",
+                      "type": "string",
+                      "id": "O1SQggcXKR",
+                      "example": "Bearer {{AccessToken}}",
+                      "enable": true,
+                      "name": "Authorization"
+                    }
+                  ]
+                },
+                "auth": {},
+                "securityScheme": {},
+                "commonParameters": {
+                  "query": [],
+                  "body": [],
+                  "cookie": [],
+                  "header": []
+                },
+                "responses": [
+                  {
+                    "id": "118422701",
+                    "code": 200,
+                    "name": "成功",
+                    "headers": [],
+                    "jsonSchema": {
+                      "type": "object",
+                      "properties": {
+                        "status": {
+                          "type": "integer",
+                          "title": "状态码"
+                        },
+                        "info": {
+                          "type": "string",
+                          "title": "响应信息"
+                        },
+                        "data": {
+                          "type": "null",
+                          "title": "数据段"
+                        }
+                      },
+                      "required": [
+                        "status",
+                        "info",
+                        "data"
+                      ],
+                      "x-apifox-orders": [
+                        "status",
+                        "info",
+                        "data"
+                      ]
+                    },
+                    "description": "",
+                    "contentType": "json",
+                    "mediaType": ""
+                  }
+                ],
+                "responseExamples": [
+                  {
+                    "name": "成功示例",
+                    "data": "{\r\n    \"status\": 20000,\r\n    \"info\": \"Operation Success\",\r\n    \"data\": null\r\n}",
+                    "responseId": 118422701
+                  }
+                ],
+                "requestBody": {
+                  "type": "none",
+                  "parameters": [],
+                  "required": true,
+                  "mediaType": "",
+                  "examples": [],
+                  "oasExtensions": ""
+                },
+                "description": "> 管理员停止选课",
+                "tags": [],
+                "status": "developing",
+                "serverId": "",
+                "operationId": "",
+                "sourceUrl": "",
+                "ordering": 100,
+                "cases": [],
+                "mocks": [],
+                "customApiFields": "{}",
+                "advancedSettings": {
+                  "disabledSystemHeaders": {}
+                },
+                "mockScript": {},
+                "codeSamples": [],
+                "commonResponseStatus": {},
+                "responseChildren": [],
+                "visibility": "INHERITED",
+                "moduleId": 6725878,
+                "oasExtensions": "",
+                "type": "http",
+                "preProcessors": [],
+                "postProcessors": [],
+                "inheritPostProcessors": {},
+                "inheritPreProcessors": {}
+              }
+            },
+            {
+              "name": "添加课程",
+              "api": {
+                "id": "390190158",
+                "method": "post",
+                "path": "/v1/api/admin/classes-manager/add-course",
+                "parameters": {
+                  "header": [
+                    {
+                      "required": false,
+                      "description": "",
+                      "type": "string",
+                      "id": "nWHIqs2tAC",
+                      "example": "Bearer {{AccessToken}}",
+                      "enable": true,
+                      "name": "Authorization"
+                    }
+                  ]
+                },
+                "auth": {},
+                "securityScheme": {},
+                "commonParameters": {
+                  "query": [],
+                  "body": [],
+                  "cookie": [],
+                  "header": []
+                },
+                "responses": [
+                  {
+                    "id": "109215703",
+                    "code": 200,
+                    "name": "成功",
+                    "headers": [],
+                    "jsonSchema": {
+                      "type": "object",
+                      "properties": {
+                        "status": {
+                          "type": "integer",
+                          "title": "状态码"
+                        },
+                        "info": {
+                          "type": "string",
+                          "title": "响应信息"
+                        },
+                        "data": {
+                          "type": "null",
+                          "title": "数据段"
+                        }
+                      },
+                      "required": [
+                        "status",
+                        "info",
+                        "data"
+                      ],
+                      "x-apifox-orders": [
+                        "status",
+                        "info",
+                        "data"
+                      ]
+                    },
+                    "description": "",
+                    "contentType": "json",
+                    "mediaType": ""
+                  }
+                ],
+                "responseExamples": [
+                  {
+                    "name": "成功示例",
+                    "data": "{\r\n    \"status\": 20000,\r\n    \"info\": \"Operation Success\",\r\n    \"data\": null\r\n}",
+                    "responseId": 109215703
+                  }
+                ],
+                "requestBody": {
+                  "type": "application/json",
+                  "parameters": [],
+                  "jsonSchema": {
+                    "type": "object",
+                    "properties": {
+                      "class_name": {
+                        "type": "string"
+                      },
+                      "class_id": {
+                        "type": "string"
+                      },
+                      "class_location": {
+                        "type": "string"
+                      },
+                      "class_time": {
+                        "type": "string"
+                      },
+                      "class_teacher": {
+                        "type": "string"
+                      },
+                      "class_capcity": {
+                        "type": "integer"
+                      }
+                    },
+                    "required": [
+                      "class_name",
+                      "class_id",
+                      "class_location",
+                      "class_time",
+                      "class_teacher",
+                      "class_capcity"
+                    ],
+                    "x-apifox-orders": [
+                      "class_name",
+                      "class_id",
+                      "class_location",
+                      "class_time",
+                      "class_teacher",
+                      "class_capcity"
+                    ]
+                  },
+                  "required": true,
+                  "mediaType": "",
+                  "examples": [
+                    {
+                      "mediaType": "application/json",
+                      "value": "{\r\n  \"class_name\": \"测试课程\",\r\n  \"class_id\": \"CS101\",\r\n  \"class_location\": \"2106\",\r\n  \"class_time\": \"周一6，7节\",\r\n  \"class_teacher\": \"God\",\r\n  \"class_capcity\": 2\r\n}",
+                      "name": "示例 1"
+                    }
+                  ],
+                  "oasExtensions": ""
+                },
+                "description": "> 管理员添加课程的接口",
+                "tags": [],
+                "status": "developing",
+                "serverId": "",
+                "operationId": "",
+                "sourceUrl": "",
+                "ordering": 10,
+                "cases": [],
+                "mocks": [],
+                "customApiFields": "{}",
+                "advancedSettings": {
+                  "disabledSystemHeaders": {}
+                },
+                "mockScript": {},
+                "codeSamples": [],
+                "commonResponseStatus": {},
+                "responseChildren": [],
+                "visibility": "INHERITED",
+                "moduleId": 6725878,
+                "oasExtensions": "",
+                "type": "http",
+                "preProcessors": [],
+                "postProcessors": [],
+                "inheritPostProcessors": {},
+                "inheritPreProcessors": {}
+              }
+            },
+            {
+              "name": "修改课程信息",
+              "api": {
+                "id": "390224685",
+                "method": "patch",
+                "path": "/v1/api/admin/classes-manager/edit-class-info",
+                "parameters": {
+                  "header": [
+                    {
+                      "required": false,
+                      "description": "",
+                      "type": "string",
+                      "id": "DOsnfBDF4T",
+                      "example": "Bearer {{AccessToken}}",
+                      "enable": true,
+                      "name": "Authorization"
+                    }
+                  ]
+                },
+                "auth": {},
+                "securityScheme": {},
+                "commonParameters": {
+                  "query": [],
+                  "body": [],
+                  "cookie": [],
+                  "header": []
+                },
+                "responses": [
+                  {
+                    "id": "139215946",
+                    "code": 200,
+                    "name": "成功",
+                    "headers": [],
+                    "jsonSchema": {
+                      "type": "object",
+                      "properties": {
+                        "status": {
+                          "type": "integer",
+                          "title": "状态码"
+                        },
+                        "info": {
+                          "type": "string",
+                          "title": "响应信息"
+                        },
+                        "data": {
+                          "type": "null",
+                          "title": "数据段"
+                        }
+                      },
+                      "required": [
+                        "status",
+                        "info",
+                        "data"
+                      ],
+                      "x-apifox-orders": [
+                        "status",
+                        "info",
+                        "data"
+                      ]
+                    },
+                    "description": "",
+                    "contentType": "json",
+                    "mediaType": ""
+                  }
+                ],
+                "responseExamples": [
+                  {
+                    "name": "成功示例",
+                    "data": "{\r\n    \"status\": 20000,\r\n    \"info\": \"Operation Success\",\r\n    \"data\": null\r\n}",
+                    "responseId": 139215946
+                  }
+                ],
+                "requestBody": {
+                  "type": "application/json",
+                  "parameters": [],
+                  "jsonSchema": {
+                    "type": "object",
+                    "properties": {
+                      "class_id": {
+                        "type": "string"
+                      },
+                      "update_columns": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "field": {
+                              "type": "string"
+                            },
+                            "value": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "field",
+                            "value"
+                          ],
+                          "x-apifox-orders": [
+                            "field",
+                            "value"
+                          ]
+                        }
+                      }
+                    },
+                    "required": [
+                      "class_id",
+                      "update_columns"
+                    ],
+                    "x-apifox-orders": [
+                      "class_id",
+                      "update_columns"
+                    ]
+                  },
+                  "required": true,
+                  "mediaType": "",
+                  "examples": [
+                    {
+                      "mediaType": "application/json",
+                      "value": "{\r\n  \"class_id\": \"CS101\",\r\n  \"update_columns\": [\r\n    {\"field\": \"class_teacher\", \"value\": \"BigGod老师\"},\r\n    {\"field\": \"class_location\", \"value\": \"9201教室\"}\r\n  ]\r\n}",
+                      "name": "示例 1"
+                    }
+                  ],
+                  "oasExtensions": ""
+                },
+                "description": "> 管理员修改课程信息",
+                "tags": [],
+                "status": "developing",
+                "serverId": "",
+                "operationId": "",
+                "sourceUrl": "",
+                "ordering": 40,
+                "cases": [],
+                "mocks": [],
+                "customApiFields": "{}",
+                "advancedSettings": {
+                  "disabledSystemHeaders": {}
+                },
+                "mockScript": {},
+                "codeSamples": [],
+                "commonResponseStatus": {},
+                "responseChildren": [],
+                "visibility": "INHERITED",
+                "moduleId": 6725878,
+                "oasExtensions": "",
+                "type": "http",
+                "preProcessors": [],
+                "postProcessors": [],
+                "inheritPostProcessors": {},
+                "inheritPreProcessors": {}
+              }
+            },
+            {
+              "name": "添加学生选课",
+              "api": {
+                "id": "390247619",
+                "method": "patch",
+                "path": "/v1/api/admin/classes-manager/update-stu-classes",
+                "parameters": {
+                  "header": [
+                    {
+                      "required": false,
+                      "description": "",
+                      "type": "string",
+                      "id": "Id5CI8RABs",
+                      "example": "Bearer {{AccessToken}}",
+                      "enable": true,
+                      "name": "Authorization"
+                    }
+                  ]
+                },
+                "auth": {},
+                "securityScheme": {},
+                "commonParameters": {
+                  "query": [],
+                  "body": [],
+                  "cookie": [],
+                  "header": []
+                },
+                "responses": [
+                  {
+                    "id": "112360383",
+                    "code": 200,
+                    "name": "成功",
+                    "headers": [],
+                    "jsonSchema": {
+                      "type": "object",
+                      "properties": {
+                        "status": {
+                          "type": "integer",
+                          "title": "状态码"
+                        },
+                        "info": {
+                          "type": "string",
+                          "title": "响应信息"
+                        },
+                        "data": {
+                          "type": "null",
+                          "title": "数据段"
+                        }
+                      },
+                      "required": [
+                        "status",
+                        "info",
+                        "data"
+                      ],
+                      "x-apifox-orders": [
+                        "status",
+                        "info",
+                        "data"
+                      ]
+                    },
+                    "description": "",
+                    "contentType": "json",
+                    "mediaType": ""
+                  }
+                ],
+                "responseExamples": [
+                  {
+                    "name": "成功示例",
+                    "data": "{\r\n    \"status\": 20000,\r\n    \"info\": \"Operation Success\",\r\n    \"data\": null\r\n}",
+                    "responseId": 112360383
+                  }
+                ],
+                "requestBody": {
+                  "type": "application/json",
+                  "parameters": [],
+                  "jsonSchema": {
+                    "type": "object",
+                    "properties": {
+                      "stu_id": {
+                        "type": "string"
+                      },
+                      "update_class_id": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "stu_id",
+                      "update_class_id"
+                    ],
+                    "x-apifox-orders": [
+                      "stu_id",
+                      "update_class_id"
+                    ]
+                  },
+                  "required": true,
+                  "mediaType": "",
+                  "examples": [
+                    {
+                      "mediaType": "application/json",
+                      "value": "{\r\n    \"stu_id\": \"9876543210\",\r\n    \"update_class_id\":\"CS101\"\r\n}",
+                      "name": "示例 1"
+                    }
+                  ],
+                  "oasExtensions": ""
+                },
+                "description": "> 管理员添加学生选课",
+                "tags": [],
+                "status": "developing",
+                "serverId": "",
+                "operationId": "",
+                "sourceUrl": "",
+                "ordering": 60,
+                "cases": [],
+                "mocks": [],
+                "customApiFields": "{}",
+                "advancedSettings": {
+                  "disabledSystemHeaders": {}
+                },
+                "mockScript": {},
+                "codeSamples": [],
+                "commonResponseStatus": {},
+                "responseChildren": [],
+                "visibility": "INHERITED",
+                "moduleId": 6725878,
+                "oasExtensions": "",
+                "type": "http",
+                "preProcessors": [],
+                "postProcessors": [],
+                "inheritPostProcessors": {},
+                "inheritPreProcessors": {}
+              }
+            },
+            {
+              "name": "修改课程容量",
+              "api": {
+                "id": "390256802",
+                "method": "patch",
+                "path": "/v1/api/admin/classes-manager/edit-class-stock",
+                "parameters": {
+                  "header": [
+                    {
+                      "required": false,
+                      "description": "",
+                      "type": "string",
+                      "id": "QKojym7cY0",
+                      "example": "Bearer {{AccessToken}}",
+                      "enable": true,
+                      "name": "Authorization"
+                    }
+                  ]
+                },
+                "auth": {},
+                "securityScheme": {},
+                "commonParameters": {
+                  "query": [],
+                  "body": [],
+                  "cookie": [],
+                  "header": []
+                },
+                "responses": [
+                  {
+                    "id": "138128196",
+                    "code": 200,
+                    "name": "成功",
+                    "headers": [],
+                    "jsonSchema": {
+                      "type": "object",
+                      "properties": {
+                        "status": {
+                          "type": "integer",
+                          "title": "状态码"
+                        },
+                        "info": {
+                          "type": "string",
+                          "title": "响应信息"
+                        },
+                        "data": {
+                          "type": "null",
+                          "title": "数据段"
+                        }
+                      },
+                      "required": [
+                        "status",
+                        "info",
+                        "data"
+                      ],
+                      "x-apifox-orders": [
+                        "status",
+                        "info",
+                        "data"
+                      ]
+                    },
+                    "description": "",
+                    "contentType": "json",
+                    "mediaType": ""
+                  }
+                ],
+                "responseExamples": [
+                  {
+                    "name": "成功示例",
+                    "data": "{\r\n    \"status\": 20000,\r\n    \"info\": \"Operation Success\",\r\n    \"data\": null\r\n}",
+                    "responseId": 138128196
+                  }
+                ],
+                "requestBody": {
+                  "type": "application/json",
+                  "parameters": [],
+                  "jsonSchema": {
+                    "type": "object",
+                    "properties": {
+                      "class_id": {
+                        "type": "string"
+                      },
+                      "stock": {
+                        "type": "integer"
+                      }
+                    },
+                    "required": [
+                      "class_id",
+                      "stock"
+                    ],
+                    "x-apifox-orders": [
+                      "class_id",
+                      "stock"
+                    ]
+                  },
+                  "required": true,
+                  "mediaType": "",
+                  "examples": [
+                    {
+                      "mediaType": "application/json",
+                      "value": "{\r\n    \"class_id\": \"CS101\",\r\n    \"stock\": 20\r\n}",
+                      "name": "示例 1"
+                    }
+                  ],
+                  "oasExtensions": ""
+                },
+                "description": "> 管理员修改课程容量",
+                "tags": [],
+                "status": "developing",
+                "serverId": "",
+                "operationId": "",
+                "sourceUrl": "",
+                "ordering": 70,
+                "cases": [],
+                "mocks": [],
+                "customApiFields": "{}",
+                "advancedSettings": {
+                  "disabledSystemHeaders": {}
+                },
+                "mockScript": {},
+                "codeSamples": [],
+                "commonResponseStatus": {},
+                "responseChildren": [],
+                "visibility": "INHERITED",
+                "moduleId": 6725878,
+                "oasExtensions": "",
+                "type": "http",
+                "preProcessors": [],
+                "postProcessors": [],
+                "inheritPostProcessors": {},
+                "inheritPreProcessors": {}
+              }
+            },
+            {
+              "name": "删除课程",
+              "api": {
+                "id": "390203888",
+                "method": "delete",
+                "path": "/v1/api/admin/classes-manager/delete-course",
+                "parameters": {
+                  "header": [
+                    {
+                      "required": false,
+                      "description": "",
+                      "type": "string",
+                      "id": "vhvXdhyGTv",
+                      "example": "Bearer {{AccessToken}}",
+                      "enable": true,
+                      "name": "Authorization"
+                    }
+                  ]
+                },
+                "auth": {},
+                "securityScheme": {},
+                "commonParameters": {
+                  "query": [],
+                  "body": [],
+                  "cookie": [],
+                  "header": []
+                },
+                "responses": [
+                  {
+                    "id": "183598411",
+                    "code": 200,
+                    "name": "成功",
+                    "headers": [],
+                    "jsonSchema": {
+                      "type": "object",
+                      "properties": {
+                        "status": {
+                          "type": "integer",
+                          "title": "状态码"
+                        },
+                        "info": {
+                          "type": "string",
+                          "title": "响应信息"
+                        },
+                        "data": {
+                          "type": "null",
+                          "title": "数据段"
+                        }
+                      },
+                      "required": [
+                        "status",
+                        "info",
+                        "data"
+                      ],
+                      "x-apifox-orders": [
+                        "status",
+                        "info",
+                        "data"
+                      ]
+                    },
+                    "description": "",
+                    "contentType": "json",
+                    "mediaType": ""
+                  }
+                ],
+                "responseExamples": [
+                  {
+                    "name": "成功示例",
+                    "data": "{\r\n    \"status\": 20000,\r\n    \"info\": \"Operation Success\",\r\n    \"data\": null\r\n}",
+                    "responseId": 183598411
+                  }
+                ],
+                "requestBody": {
+                  "type": "application/json",
+                  "parameters": [],
+                  "jsonSchema": {
+                    "type": "object",
+                    "properties": {
+                      "class_id": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "class_id"
+                    ],
+                    "x-apifox-orders": [
+                      "class_id"
+                    ]
+                  },
+                  "required": true,
+                  "mediaType": "",
+                  "examples": [
+                    {
+                      "mediaType": "application/json",
+                      "value": "{\r\n    \"class_id\":\"CS101\"\r\n}",
+                      "name": "示例 1"
+                    }
+                  ],
+                  "oasExtensions": ""
+                },
+                "description": "> 管理员删除课程接口",
+                "tags": [],
+                "status": "developing",
+                "serverId": "",
+                "operationId": "",
+                "sourceUrl": "",
+                "ordering": 20,
+                "cases": [],
+                "mocks": [],
+                "customApiFields": "{}",
+                "advancedSettings": {
+                  "disabledSystemHeaders": {}
+                },
+                "mockScript": {},
+                "codeSamples": [],
+                "commonResponseStatus": {},
+                "responseChildren": [],
+                "visibility": "INHERITED",
+                "moduleId": 6725878,
+                "oasExtensions": "",
+                "type": "http",
+                "preProcessors": [],
+                "postProcessors": [],
+                "inheritPostProcessors": {},
+                "inheritPreProcessors": {}
+              }
+            },
+            {
+              "name": "删除学生选课",
+              "api": {
+                "id": "390267063",
+                "method": "delete",
+                "path": "/v1/api/admin/classes-manager/update-stu-classes",
+                "parameters": {
+                  "header": [
+                    {
+                      "required": false,
+                      "description": "",
+                      "type": "string",
+                      "id": "69DehzQJT4",
+                      "example": "Bearer {{AccessToken}}",
+                      "enable": true,
+                      "name": "Authorization"
+                    }
+                  ]
+                },
+                "auth": {},
+                "securityScheme": {},
+                "commonParameters": {
+                  "query": [],
+                  "body": [],
+                  "cookie": [],
+                  "header": []
+                },
+                "responses": [
+                  {
+                    "id": "157079083",
+                    "code": 200,
+                    "name": "成功",
+                    "headers": [],
+                    "jsonSchema": {
+                      "type": "object",
+                      "properties": {
+                        "status": {
+                          "type": "integer",
+                          "title": "状态码"
+                        },
+                        "info": {
+                          "type": "string",
+                          "title": "响应信息"
+                        },
+                        "data": {
+                          "type": "null",
+                          "title": "数据段"
+                        }
+                      },
+                      "required": [
+                        "status",
+                        "info",
+                        "data"
+                      ],
+                      "x-apifox-orders": [
+                        "status",
+                        "info",
+                        "data"
+                      ]
+                    },
+                    "description": "",
+                    "contentType": "json",
+                    "mediaType": ""
+                  }
+                ],
+                "responseExamples": [
+                  {
+                    "name": "成功示例",
+                    "data": "{\r\n    \"status\": 20000,\r\n    \"info\": \"Operation Success\",\r\n    \"data\": null\r\n}",
+                    "responseId": 157079083
+                  }
+                ],
+                "requestBody": {
+                  "type": "application/json",
+                  "parameters": [],
+                  "jsonSchema": {
+                    "type": "object",
+                    "properties": {
+                      "stu_id": {
+                        "type": "string"
+                      },
+                      "update_class_id": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "stu_id",
+                      "update_class_id"
+                    ],
+                    "x-apifox-orders": [
+                      "stu_id",
+                      "update_class_id"
+                    ]
+                  },
+                  "required": true,
+                  "mediaType": "",
+                  "examples": [
+                    {
+                      "mediaType": "application/json",
+                      "value": "{\r\n    \"stu_id\": \"9876543210\",\r\n    \"update_class_id\":\"CS101\"\r\n}",
+                      "name": "示例 1"
+                    }
+                  ],
+                  "oasExtensions": ""
+                },
+                "description": "> 管理员删除学生选课",
+                "tags": [],
+                "status": "developing",
+                "serverId": "",
+                "operationId": "",
+                "sourceUrl": "",
+                "ordering": 80,
+                "cases": [],
+                "mocks": [],
+                "customApiFields": "{}",
+                "advancedSettings": {
+                  "disabledSystemHeaders": {}
+                },
+                "mockScript": {},
+                "codeSamples": [],
+                "commonResponseStatus": {},
+                "responseChildren": [],
+                "visibility": "INHERITED",
+                "moduleId": 6725878,
+                "oasExtensions": "",
+                "type": "http",
+                "preProcessors": [],
+                "postProcessors": [],
+                "inheritPostProcessors": {},
+                "inheritPreProcessors": {}
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "socketCollection": [],
+  "docCollection": [],
+  "webSocketCollection": [],
+  "socketIOCollection": [],
+  "responseCollection": [
+    {
+      "_databaseId": 8047597,
+      "updatedAt": "2025-12-09T13:48:28.000Z",
+      "name": "根目录",
+      "type": "root",
+      "children": [],
+      "moduleId": 6725878,
+      "parentId": 0,
+      "id": 8047597,
+      "ordering": [],
+      "items": []
+    }
+  ],
+  "schemaCollection": [
+    {
+      "id": 17601590,
+      "name": "根目录",
+      "visibility": "SHARED",
+      "moduleId": 6725878,
+      "items": [],
+      "ordering": [
+        "apiSchema.227996696"
+      ]
+    }
+  ],
+  "securitySchemeCollection": [
+    {
+      "id": 2755710,
+      "moduleId": 6725878,
+      "name": "根目录",
+      "items": [],
+      "ordering": []
+    }
+  ],
+  "requestCollection": [
+    {
+      "name": "根目录",
+      "children": [],
+      "ordering": [
+        "requestFolder.8066209"
+      ],
+      "items": []
+    }
+  ],
+  "apiTestCaseCollection": [
+    {
+      "name": "Root",
+      "children": [],
+      "items": []
+    }
+  ],
+  "testCaseReferences": [],
+  "environments": [
+    {
+      "name": "测试环境",
+      "variables": [
+        {
+          "name": "AccessToken",
+          "value": "",
+          "description": "验证Token",
+          "initialValue": "",
+          "isSync": true
+        },
+        {
+          "name": "RefreshToken",
+          "value": "",
+          "description": "刷新Token",
+          "initialValue": "",
+          "isSync": true
+        }
+      ],
+      "parameters": {
+        "cookie": [],
+        "query": [],
+        "header": [],
+        "body": []
+      },
+      "type": "normal",
+      "visibility": "protected",
+      "ordering": 0,
+      "tags": [
+        {
+          "name": "",
+          "color": "#9373EE"
+        }
+      ],
+      "advancedSettings": {},
+      "id": "40657353",
+      "baseUrl": "http://localhost:8080",
+      "baseUrls": {
+        "6725878": "http://localhost:8080"
+      },
+      "socketioBaseUrls": {},
+      "websocketBaseUrls": {}
+    },
+    {
+      "name": "开发环境",
+      "variables": [],
+      "parameters": {},
+      "type": "normal",
+      "visibility": "protected",
+      "ordering": 0,
+      "tags": [],
+      "advancedSettings": {},
+      "id": "40657352",
+      "baseUrl": "http://dev-cn.your-api-server.com",
+      "baseUrls": {
+        "6725878": "http://dev-cn.your-api-server.com"
+      },
+      "socketioBaseUrls": {},
+      "websocketBaseUrls": {}
+    }
+  ],
+  "commonScripts": [],
+  "databaseConnections": [],
+  "globalVariables": [],
+  "commonParameters": null,
+  "customFunctions": [],
+  "projectTestCaseCategories": [
+    {
+      "id": 5055578,
+      "name": "正向",
+      "description": "有效的输入和正确的预期结果，代表典型的用法。"
+    },
+    {
+      "id": 5055579,
+      "name": "负向",
+      "description": "消极的、无效的输入，如缺少字段、错误的类型、不支持的方法等。"
+    },
+    {
+      "id": 5055580,
+      "name": "边界值",
+      "description": "极端或边缘条件，如最大字符串长度、空值、零、null等"
+    },
+    {
+      "id": 5055581,
+      "name": "安全性",
+      "description": "可能暴露API安全性风险的测试用例。"
+    },
+    {
+      "id": 5055582,
+      "name": "其他",
+      "description": "其他未归属的测试用例。"
+    }
+  ],
+  "projectTestCaseTags": [
+    {
+      "id": 14353881,
+      "name": "仅传必要字段",
+      "description": "仅发送具有有效值的必填字段，省略所有可选字段，以测试最小有效请求。"
+    },
+    {
+      "id": 14353882,
+      "name": "语义合法",
+      "description": "使用语法正确且在业务逻辑或域上下文中也有意义的值。"
+    },
+    {
+      "id": 14353883,
+      "name": "覆盖枚举组合",
+      "description": "对所有枚举型参数，应用正交设计系统地构建参数及其枚举值的测试用例组合，专用于测试枚举覆盖率"
+    },
+    {
+      "id": 14353884,
+      "name": "其他正向",
+      "description": "提供符合API规范的真实有效的输入，产生正确和预期的结果。"
+    },
+    {
+      "id": 14353885,
+      "name": "缺失必填字段",
+      "description": "在请求主体或参数中省略一个或多个必需字段。"
+    },
+    {
+      "id": 14353886,
+      "name": "无效值",
+      "description": "提供的值类型和格式正确，但在逻辑上对该字段无效。"
+    },
+    {
+      "id": 14353887,
+      "name": "类型错误",
+      "description": "使用数据类型不正确的值，例如发送字符串而不是整数。"
+    },
+    {
+      "id": 14353888,
+      "name": "格式错误",
+      "description": "以不正确的格式提供值，例如，错误的日期模式，格式错误的电子邮件地址。"
+    },
+    {
+      "id": 14353889,
+      "name": "语义非法",
+      "description": "使用语法正确且格式正确的值，这些值在逻辑上不可能或违反域规则。"
+    },
+    {
+      "id": 14353890,
+      "name": "其他负向",
+      "description": "提供无效或意外的输入，应触发错误处理或拒绝API。"
+    },
+    {
+      "id": 14353891,
+      "name": "Null",
+      "description": "必须是 JSON 字面量 `null`（不是空的，也不是 \"null\"）。"
+    },
+    {
+      "id": 14353892,
+      "name": "零值",
+      "description": "必须是数字字面值0。"
+    },
+    {
+      "id": 14353893,
+      "name": "空值",
+      "description": "必须是\"\"。"
+    },
+    {
+      "id": 14353894,
+      "name": "极大值",
+      "description": "Max/min值 - 为数字或日期字段提供精确的最小值和最大值。"
+    },
+    {
+      "id": 14353895,
+      "name": "极小值",
+      "description": "Max/min值 - 为数字或日期字段提供精确的最小值和最大值。"
+    },
+    {
+      "id": 14353896,
+      "name": "超出最大边界值",
+      "description": "过长/过短字符串 - 提供超出允许的最小或最大边界的值。"
+    },
+    {
+      "id": 14353897,
+      "name": "超出最小边界值",
+      "description": "过长/过短字符串 - 提供超出允许的最小或最大边界的值。"
+    },
+    {
+      "id": 14353898,
+      "name": "字符串过长",
+      "description": "超出范围的值 - 提供大于允许的最大长度或小于要求的最小长度的字符串。"
+    },
+    {
+      "id": 14353899,
+      "name": "字符串过短",
+      "description": "超出范围的值 - 提供大于允许的最大长度或小于要求的最小长度的字符串。"
+    },
+    {
+      "id": 14353900,
+      "name": "对象级别授权缺失",
+      "description": "对象级别授权缺失 - 用户在没有适当授权的情况下访问或操作数据对象。"
+    },
+    {
+      "id": 14353901,
+      "name": "访问控制",
+      "description": "基于角色、权限或属性来限制用户能访问哪些资源、能执行哪些操作"
+    },
+    {
+      "id": 14353902,
+      "name": "认证失败",
+      "description": "认证失败 - 认证薄弱、配置错误或被绕过，导致未授权访问。"
+    },
+    {
+      "id": 14353903,
+      "name": "SQL注入",
+      "description": "在输入字段中插入恶意SQL代码，测试是否存在SQL注入漏洞。"
+    },
+    {
+      "id": 14353904,
+      "name": "XSS注入",
+      "description": "注入JavaScript或HTML标签来测试跨站点脚本漏洞。"
+    },
+    {
+      "id": 14353905,
+      "name": "模糊输入",
+      "description": "发送大型或随机生成的有效载荷，以测试输入的有效性和稳定性。"
+    },
+    {
+      "id": 14353906,
+      "name": "命令行注入",
+      "description": "将shell命令插入输入以测试命令执行漏洞。"
+    },
+    {
+      "id": 14353907,
+      "name": "JSON注入",
+      "description": "插入恶意或意外的JSON结构来测试解析和验证。"
+    },
+    {
+      "id": 14353908,
+      "name": "NoSQL注入",
+      "description": "提供NoSQL特定的恶意查询或操作符来测试注入漏洞。"
+    },
+    {
+      "id": 14353909,
+      "name": "其他",
+      "description": "其他未归属的测试用例。"
+    }
+  ],
+  "projectAssociations": [],
+  "moduleSettings": [
+    {
+      "id": "6725878",
+      "name": "学生选课系统",
+      "description": "",
+      "moduleVariables": [],
+      "openApiInfo": {}
+    }
+  ]
+}

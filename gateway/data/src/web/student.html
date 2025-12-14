@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学生选课系统 - 学生端</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <h2>学生选课系统</h2>
+            </div>
+            <div class="nav-menu">
+                <span id="studentName" class="student-name"></span>
+                <button onclick="logout()" class="logout-btn">退出登录</button>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="main-container">
+        <div class="sidebar">
+            <ul class="sidebar-menu">
+                <li class="menu-item active" onclick="showSection('selectable-courses')">
+                    <span class="icon">📚</span>
+                    可选课程
+                </li>
+                <li class="menu-item" onclick="showSection('selected-courses')">
+                    <span class="icon">📋</span>
+                    已选课程
+                </li>
+                <li class="menu-item" onclick="showSection('profile')">
+                    <span class="icon">👤</span>
+                    个人信息
+                </li>
+            </ul>
+        </div>
+        
+        <div class="content">
+            <!-- 可选课程页面 -->
+            <div id="selectable-courses" class="section active">
+                <div class="section-header">
+                    <h2>可选课程</h2>
+                    <button onclick="loadSelectableCourses()" class="refresh-btn">刷新</button>
+                </div>
+                <div class="course-grid" id="selectableCoursesList">
+                    <!-- 课程卡片将在这里动态生成 -->
+                </div>
+            </div>
+            
+            <!-- 已选课程页面 -->
+            <div id="selected-courses" class="section">
+                <div class="section-header">
+                    <h2>已选课程</h2>
+                    <button onclick="loadSelectedCourses()" class="refresh-btn">刷新</button>
+                </div>
+                <div class="course-grid" id="selectedCoursesList">
+                    <!-- 已选课程卡片将在这里动态生成 -->
+                </div>
+            </div>
+            
+            <!-- 个人信息页面 -->
+            <div id="profile" class="section">
+                <div class="section-header">
+                    <h2>个人信息</h2>
+                    <button onclick="enableEdit()" class="edit-btn">编辑</button>
+                </div>
+                <div class="profile-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>姓名</label>
+                            <input type="text" id="profile_name" disabled>
+                            <span class="error-message" id="profile_name_error"></span>
+                        </div>
+                        <div class="form-group">
+                            <label>学号</label>
+                            <input type="text" id="profile_stu_id" disabled>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>班级</label>
+                            <input type="text" id="profile_stu_class" disabled>
+                            <span class="error-message" id="profile_stu_class_error"></span>
+                        </div>
+                        <div class="form-group">
+                            <label>年级</label>
+                            <select id="profile_grade" disabled>
+                                <option value="大一">大一</option>
+                                <option value="大二">大二</option>
+                                <option value="大三">大三</option>
+                                <option value="大四">大四</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>性别</label>
+                            <select id="profile_sex" disabled>
+                                <option value="1">男</option>
+                                <option value="2">女</option>
+                                <option value="0">沃尔玛购物袋</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>年龄</label>
+                            <input type="number" id="profile_age" disabled>
+                            <span class="error-message" id="profile_age_error"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="form-actions" id="profileActions" style="display: none;">
+                        <button onclick="saveProfile()" class="save-btn">保存</button>
+                        <button onclick="cancelEdit()" class="cancel-btn">取消</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 错误提示模态框 -->
+    <div id="errorModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>错误提示</h3>
+                <span class="close" onclick="closeErrorModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p><strong>状态码：</strong><span id="errorStatus"></span></p>
+                <p><strong>错误信息：</strong><span id="errorInfo"></span></p>
+            </div>
+            <div class="modal-footer">
+                <button onclick="closeErrorModal()">确定</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 确认操作模态框 -->
+    <div id="confirmModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>确认操作</h3>
+                <span class="close" onclick="closeConfirmModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p id="confirmMessage"></p>
+            </div>
+            <div class="modal-footer">
+                <button onclick="confirmAction()" class="confirm-btn">确认</button>
+                <button onclick="closeConfirmModal()" class="cancel-btn">取消</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+    <script>
+        // 页面加载时初始化 - 防止重复执行
+        if (!window.pageInitialized) {
+            window.pageInitialized = true;
+            document.addEventListener('DOMContentLoaded', function() {
+                // 延迟执行，避免与 script.js 中的初始化冲突
+                setTimeout(() => {
+                    checkAuth();
+                    loadStudentInfo();
+                    loadSelectableCourses();
+                }, 50);
+            });
+        }
+    </script>
+</body>
+</html>

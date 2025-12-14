@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学生选课系统 - 登录</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="login-container">
+            <div class="login-header">
+                <h1>学生选课系统</h1>
+                <p>欢迎使用学生选课管理系统</p>
+            </div>
+            
+            <div class="login-form">
+                <div class="form-group">
+                    <label for="stu_id">学号</label>
+                    <input type="text" id="stu_id" name="stu_id" placeholder="请输入10位学号" maxlength="10">
+                    <span class="error-message" id="stu_id_error"></span>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">密码</label>
+                    <input type="password" id="password" name="password" placeholder="请输入密码">
+                    <span class="error-message" id="password_error"></span>
+                </div>
+                
+                <div class="form-group">
+                    <label>登录身份</label>
+                    <div class="role-selector">
+                        <label class="radio-label">
+                            <input type="radio" name="role" value="student" checked>
+                            <span class="radio-custom"></span>
+                            学生
+                        </label>
+                        <label class="radio-label">
+                            <input type="radio" name="role" value="admin">
+                            <span class="radio-custom"></span>
+                            管理员
+                        </label>
+                    </div>
+                </div>
+                
+                <button type="button" class="login-btn" onclick="login()">
+                    <span class="btn-text">登录</span>
+                    <span class="btn-loading" style="display: none;">登录中...</span>
+                </button>
+                
+                <div class="register-link">
+                    <p>还没有账号？<a href="#" onclick="showRegister()">立即注册</a></p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 注册表单 -->
+        <div class="register-container" style="display: none;">
+            <div class="login-header">
+                <h1>学生注册</h1>
+                <p>创建新学生账号</p>
+            </div>
+            
+            <div class="login-form">
+                <div class="form-group">
+                    <label for="reg_name">姓名</label>
+                    <input type="text" id="reg_name" name="name" placeholder="请输入姓名">
+                    <span class="error-message" id="reg_name_error"></span>
+                </div>
+                
+                <div class="form-group">
+                    <label for="reg_stu_id">学号</label>
+                    <input type="text" id="reg_stu_id" name="stu_id" placeholder="请输入10位学号" maxlength="10">
+                    <span class="error-message" id="reg_stu_id_error"></span>
+                </div>
+                
+                <div class="form-group">
+                    <label for="reg_stu_class">班级</label>
+                    <input type="text" id="reg_stu_class" name="stu_class" placeholder="请输入班级">
+                    <span class="error-message" id="reg_stu_class_error"></span>
+                </div>
+                
+                <div class="form-group">
+                    <label for="reg_password">密码</label>
+                    <input type="password" id="reg_password" name="password" placeholder="请输入密码">
+                    <span class="error-message" id="reg_password_error"></span>
+                </div>
+                
+                <div class="form-group">
+                    <label for="reg_sex">性别</label>
+                    <select id="reg_sex" name="sex">
+                        <option value="1">男</option>
+                        <option value="2">女</option>
+                        <option value="0">沃尔玛购物袋</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="reg_grade">年级</label>
+                    <select id="reg_grade" name="grade">
+                        <option value="大一">大一</option>
+                        <option value="大二">大二</option>
+                        <option value="大三">大三</option>
+                        <option value="大四">大四</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="reg_age">年龄</label>
+                    <input type="number" id="reg_age" name="age" placeholder="请输入年龄" min="16" max="30">
+                    <span class="error-message" id="reg_age_error"></span>
+                </div>
+                
+                <button type="button" class="login-btn" onclick="register()">
+                    <span class="btn-text">注册</span>
+                    <span class="btn-loading" style="display: none;">注册中...</span>
+                </button>
+                
+                <div class="register-link">
+                    <p>已有账号？<a href="#" onclick="showLogin()">返回登录</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 错误提示模态框 -->
+    <div id="errorModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>错误提示</h3>
+                <span class="close" onclick="closeErrorModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p><strong>状态码：</strong><span id="errorStatus"></span></p>
+                <p><strong>错误信息：</strong><span id="errorInfo"></span></p>
+            </div>
+            <div class="modal-footer">
+                <button onclick="closeErrorModal()">确定</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>

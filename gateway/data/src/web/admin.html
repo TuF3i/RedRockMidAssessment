@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>学生选课系统 - 管理端</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <h2>学生选课系统 - 管理端</h2>
+            </div>
+            <div class="nav-menu">
+                <span class="admin-name">管理员</span>
+                <button onclick="logout()" class="logout-btn">退出登录</button>
+            </div>
+        </div>
+    </nav>
+    
+    <div class="main-container">
+        <div class="sidebar">
+            <ul class="sidebar-menu">
+                <li class="menu-item active" onclick="showSection('student-management')">
+                    <span class="icon">👥</span>
+                    学生管理
+                </li>
+                <li class="menu-item" onclick="showSection('course-management')">
+                    <span class="icon">📚</span>
+                    课程管理
+                </li>
+                <li class="menu-item" onclick="showSection('course-control')">
+                    <span class="icon">⚙️</span>
+                    选课控制
+                </li>
+            </ul>
+        </div>
+        
+        <div class="content">
+            <!-- 学生管理页面 -->
+            <div id="student-management" class="section active">
+                <div class="section-header">
+                    <h2>学生管理</h2>
+                    <div class="header-actions">
+                        <button onclick="loadStudentList()" class="refresh-btn">刷新</button>
+                        <button onclick="showCreateStudent()" class="create-btn">创建学生</button>
+                    </div>
+                </div>
+                
+                <div class="table-container">
+                    <table class="data-table" id="studentTable">
+                        <thead>
+                            <tr>
+                                <th>学号</th>
+                                <th>姓名</th>
+                                <th>班级</th>
+                                <th>年级</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentTableBody">
+                            <!-- 学生数据将在这里动态生成 -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="pagination" id="studentPagination">
+                    <!-- 分页控件将在这里生成 -->
+                </div>
+            </div>
+            
+            <!-- 课程管理页面 -->
+            <div id="course-management" class="section">
+                <div class="section-header">
+                    <h2>课程管理</h2>
+                    <div class="header-actions">
+                        <button onclick="loadAdminCourses()" class="refresh-btn">刷新</button>
+                        <button onclick="showCreateCourse()" class="create-btn">创建课程</button>
+                    </div>
+                </div>
+                
+                <div class="table-container">
+                    <table class="data-table" id="courseTable">
+                        <thead>
+                            <tr>
+                                <th>课程ID</th>
+                                <th>课程名称</th>
+                                <th>教师</th>
+                                <th>地点</th>
+                                <th>时间</th>
+                                <th>容量</th>
+                                <th>已选</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="courseTableBody">
+                            <!-- 课程数据将在这里动态生成 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- 选课控制页面 -->
+            <div id="course-control" class="section">
+                <div class="section-header">
+                    <h2>选课控制</h2>
+                </div>
+                
+                <div class="control-panel">
+                    <div class="control-item">
+                        <h3>选课状态</h3>
+                        <div class="status-display">
+                            <span id="selectionStatus" class="status-stopped">已停止</span>
+                        </div>
+                        <div class="control-buttons">
+                            <button onclick="startSelection()" class="start-btn">开始选课</button>
+                            <button onclick="stopSelection()" class="stop-btn">停止选课</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 错误提示模态框 -->
+    <div id="errorModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>错误提示</h3>
+                <span class="close" onclick="closeErrorModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p><strong>状态码：</strong><span id="errorStatus"></span></p>
+                <p><strong>错误信息：</strong><span id="errorInfo"></span></p>
+            </div>
+            <div class="modal-footer">
+                <button onclick="closeErrorModal()">确定</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 确认操作模态框 -->
+    <div id="confirmModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>确认操作</h3>
+                <span class="close" onclick="closeConfirmModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p id="confirmMessage"></p>
+            </div>
+            <div class="modal-footer">
+                <button onclick="confirmAction()" class="confirm-btn">确认</button>
+                <button onclick="closeConfirmModal()" class="cancel-btn">取消</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 学生信息编辑模态框 -->
+    <div id="studentEditModal" class="modal">
+        <div class="modal-content large">
+            <div class="modal-header">
+                <h3 id="studentEditTitle">编辑学生信息</h3>
+                <span class="close" onclick="closeStudentEditModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>姓名</label>
+                        <input type="text" id="edit_stu_name">
+                        <span class="error-message" id="edit_stu_name_error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label>学号</label>
+                        <input type="text" id="edit_stu_id" readonly>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>班级</label>
+                        <input type="text" id="edit_stu_class">
+                        <span class="error-message" id="edit_stu_class_error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label>年级</label>
+                        <select id="edit_grade">
+                            <option value="大一">大一</option>
+                            <option value="大二">大二</option>
+                            <option value="大三">大三</option>
+                            <option value="大四">大四</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>性别</label>
+                        <select id="edit_sex">
+                            <option value="1">男</option>
+                            <option value="2">女</option>
+                            <option value="0">沃尔玛购物袋</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>年龄</label>
+                        <input type="number" id="edit_age" min="16" max="30">
+                        <span class="error-message" id="edit_age_error"></span>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>密码</label>
+                        <input type="password" id="edit_password" placeholder="不修改请留空">
+                        <span class="error-message" id="edit_password_error"></span>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button onclick="saveStudentEdit()" class="save-btn">保存</button>
+                <button onclick="closeStudentEditModal()" class="cancel-btn">取消</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 课程信息编辑模态框 -->
+    <div id="courseEditModal" class="modal">
+        <div class="modal-content large">
+            <div class="modal-header">
+                <h3 id="courseEditTitle">编辑课程信息</h3>
+                <span class="close" onclick="closeCourseEditModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>课程名称</label>
+                        <input type="text" id="edit_class_name">
+                    </div>
+                    <div class="form-group">
+                        <label>课程ID</label>
+                        <input type="text" id="edit_class_id" readonly>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>授课教师</label>
+                        <input type="text" id="edit_class_teacher">
+                    </div>
+                    <div class="form-group">
+                        <label>上课地点</label>
+                        <input type="text" id="edit_class_location">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>上课时间</label>
+                        <input type="text" id="edit_class_time" placeholder="例如：周一6,7节">
+                    </div>
+                    <div class="form-group">
+                        <label>课程容量</label>
+                        <input type="number" id="edit_class_capacity" min="1">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button onclick="saveCourseEdit()" class="save-btn">保存</button>
+                <button onclick="closeCourseEditModal()" class="cancel-btn">取消</button>
+            </div>
+        </div>
+    </div>
+    
+    <script src="script.js"></script>
+    <script>
+        // 页面加载时初始化 - 防止重复执行
+        if (!window.pageInitialized) {
+            window.pageInitialized = true;
+            document.addEventListener('DOMContentLoaded', function() {
+                // 延迟执行，避免与 script.js 中的初始化冲突
+                setTimeout(() => {
+                    checkAuth();
+                    loadStudentList();
+                }, 50);
+            });
+        }
+    </script>
+</body>
+</html>

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/cloudwego/hertz/pkg/app"
 	"github.com/cloudwego/hertz/pkg/app/server"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
 	monitor "github.com/hertz-contrib/monitor-prometheus"
@@ -37,6 +38,9 @@ func HertzApi() {
 }
 
 func initRouter(h *server.Hertz) {
+	// 注册前端页面路由
+	h.StaticFS("/", &app.FS{Root: "./data/src/web", GenerateIndexPages: false, IndexNames: []string{"index.html"}})
+
 	// 注册公共接口路由组
 	publicApi := h.Group("/v1/api/public")
 	// 注册学生管理接口路由组
