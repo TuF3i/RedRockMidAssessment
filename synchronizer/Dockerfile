@@ -35,6 +35,9 @@ WORKDIR /root/
 # 从构建阶段复制二进制文件
 COPY --from=builder /app/synchronizer .
 
+# 设置静态文件权限
+RUN chown -R appuser:appuser /root/
+
 # 切换到非root用户
 USER appuser
 

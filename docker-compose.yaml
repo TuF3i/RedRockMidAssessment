@@ -1,12 +1,10 @@
-version: '3.8'
-
 services:
   # 消费者节点
   consumer:
-    image: consumerNode
     build:
       context: ./consumer
       dockerfile: Dockerfile
+    image: consumer-node
     container_name: redrock-consumer
     restart: unless-stopped
     volumes:
@@ -23,10 +21,10 @@ services:
 
   # 路由节点
   gateway:
-    image: gatewayNode
     build:
       context: ./gateway
       dockerfile: Dockerfile
+    image: gateway-node
     container_name: redrock-gateway
     ports:
       - "8080:8080"
@@ -46,10 +44,10 @@ services:
 
   # 同步节点
   synchronizer:
-    image: synchronizerNode
     build:
       context: ./synchronizer
       dockerfile: Dockerfile
+    image: synchronizer-node
     container_name: redrock-synchronizer
     restart: unless-stopped
     volumes:

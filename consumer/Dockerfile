@@ -20,7 +20,7 @@ RUN go mod download
 COPY . .
 
 # 构建应用
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main app.go
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o consumer app.go
 
 # 运行阶段
 FROM alpine:latest
@@ -33,8 +33,11 @@ WORKDIR /root/
 # 从构建阶段复制二进制文件
 COPY --from=builder /app/main .
 
+# 设置静态文件权限
+RUN chown -R appuser:appuser /root/
+
 # 切换到非root用户
 USER appuser
 
 # 运行应用
-CMD ["./main"]
+CMD ["./consumer"]

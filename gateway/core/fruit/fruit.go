@@ -11,10 +11,12 @@ import (
 	zap "RedRockMidAssessment/core/utils/log"
 	"RedRockMidAssessment/core/utils/md5"
 	"RedRockMidAssessment/core/utils/snowflake"
+	"errors"
 	"fmt"
 	"os"
 
 	"gitee.com/liumou_site/logger"
+	"gorm.io/gorm"
 )
 
 const (
@@ -55,7 +57,7 @@ func GenesisFruit() {
 
 	// 初始化MySQL连接
 	logs.Debug("Started to init mod <MySQL>")
-	mysqlConn, err := mysql.ConnectToMySQL(true, false)
+	mysqlConn, err := mysql.ConnectToMySQL(true, true)
 	if err != nil {
 		logs.Warn("Init mod <MySQL> error: %v", err.Error())
 		os.Exit(1)
@@ -158,8 +160,10 @@ func CreateAdminUser() error {
 	// 检测用户是否存在
 	result := tx.Where("student_id = ?", userForm.StudentID).Find(&models.Student{})
 	if err := result.Error; err != nil {
-		tx.Rollback()
-		return err
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			tx.Rollback()
+			return err
+		}
 	}
 	// 判断用户是否存在
 	if result.RowsAffected != 0 {
