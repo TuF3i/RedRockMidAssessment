@@ -1,0 +1,15 @@
+db:
+  redis:
+    addr: "redis"
+    port: 6379
+    passwd: ""
+    defaultDB: 0
+
+mq:
+  kafka:
+    addr: "kafka"
+    port: "9092"
+    blanketPeak: 10 #最大并发
+
+snowflake:
+  machineID: 1

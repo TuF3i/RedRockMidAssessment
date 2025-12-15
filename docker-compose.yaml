@@ -1,0 +1,116 @@
+version: '3.8'
+
+services:
+  # 消费者节点
+  consumer:
+    build:
+      context: ./consumer
+      dockerfile: Dockerfile
+    container_name: redrock-consumer
+    restart: unless-stopped
+    volumes:
+      - /opt/data/consumer/config/config.yaml:/root/data/config/config.yaml
+    environment:
+      - TZ=Asia/Shanghai
+    depends_on:
+      - mysql
+      - kafka
+      - zookeeper
+    networks:
+      - redrock-network
+
+  # 路由节点
+  gateway:
+    build:
+      context: ./gateway
+      dockerfile: Dockerfile
+    container_name: redrock-gateway
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
+    volumes:
+      - /opt/data/gateway/config/config.yaml:/root/data/config/config.yaml
+    environment:
+      - TZ=Asia/Shanghai
+    depends_on:
+      - consumer
+      - synchronizer
+      - redis
+      - mysql
+    networks:
+      - redrock-network
+
+  # 同步节点
+  synchronizer:
+    build:
+      context: ./synchronizer
+      dockerfile: Dockerfile
+    container_name: redrock-synchronizer
+    restart: unless-stopped
+    volumes:
+      - /opt/data/synchronizer/config/config.yaml:/root/data/config/config.yaml
+    environment:
+      - TZ=Asia/Shanghai
+    depends_on:
+      - kafka
+      - zookeeper
+      - redis
+    networks:
+      - redrock-network
+
+  # Redis服务
+  redis:
+    image: redis:7-alpine
+    container_name: redrock-redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - /opt/data/redis-data:/data
+    networks:
+      - redrock-network
+
+  # MySQL服务
+  mysql:
+    image: mysql:8.0
+    container_name: redrock-mysql
+    ports:
+      - "3306:3306"
+    restart: unless-stopped
+    environment:
+      MYSQL_ALLOW_EMPTY_PASSWORD: yes
+      MYSQL_DATABASE: stuClass
+    volumes:
+      - /opt/data/mysql-data:/var/lib/mysql
+    networks:
+      - redrock-network
+
+  # 可选：添加Kafka服务
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.4.0
+    container_name: redrock-zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    networks:
+      - redrock-network
+
+  kafka:
+    image: confluentinc/cp-kafka:7.4.0
+    container_name: redrock-kafka
+    ports:
+      - "9092:9092"
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    networks:
+      - redrock-network
+
+networks:
+  redrock-network:
+    driver: bridge

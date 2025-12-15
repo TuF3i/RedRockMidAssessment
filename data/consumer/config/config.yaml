@@ -1,16 +1,16 @@
 mq:
   kafka:
-    addr: "192.168.37.130"
+    addr: "kafka"
     port: "9092"
     groupID: "consumer_group_1"
     blanketPeek: 10
 
 db:
   mysql:
-    addr: "192.168.37.130"
+    addr: "mysql"
     port: 3306
     user: "root"
-    passwd: "eeelcgkklo12l13l17gg"
+    passwd: ""
     defaultDB: "stuClass"
 
 snowflake:

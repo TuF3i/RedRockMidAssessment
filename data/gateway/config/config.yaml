@@ -1,0 +1,28 @@
+hertzApi:
+  listenAddr: "0.0.0.0"
+  listenPort: 8080
+  monitorPort: 8081
+
+db:
+  mysql:
+    addr: "mysql"
+    port: 3306
+    user: "root"
+    passwd: ""
+    defaultDB: "stuClass"
+
+  redis:
+    addr: "redis"
+    port: 6379
+    passwd: ""
+    defaultDB: 0
+    smDB: 1
+
+mq:
+  kafka:
+    addr: "kafka"
+    port: "9092"
+    clientID: "gateway_1"
+
+snowflake:
+  machineID: 1
