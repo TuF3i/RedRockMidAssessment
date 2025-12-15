@@ -28,9 +28,6 @@ RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o gateway app.go
 # 运行阶段
 FROM alpine:latest
 
-# 创建非root用户
-RUN adduser -D -s /bin/sh appuser
-
 WORKDIR /root/
 
 # 从构建阶段复制二进制文件
@@ -38,12 +35,6 @@ COPY --from=builder /app/gateway .
 
 # 复制静态Web文件
 COPY data/ ./data/
-
-# 设置静态文件权限
-RUN chown -R appuser:appuser /root/
-
-# 切换到非root用户
-USER appuser
 
 # 暴露端口
 EXPOSE 8080

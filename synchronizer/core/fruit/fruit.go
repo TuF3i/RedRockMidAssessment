@@ -10,11 +10,13 @@ import (
 	zap "RedRockMidAssessment-Synchronizer/core/utils/log"
 	"RedRockMidAssessment-Synchronizer/core/utils/snowflake"
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"time"
 
 	"gitee.com/liumou_site/logger"
+	"github.com/go-redis/redis/v8"
 )
 
 const (
@@ -181,7 +183,9 @@ func RecoverTimerStatus() error {
 	var KEY = "courseSelection:status"
 	val, err := core.RedisConn.Get(context.Background(), KEY).Result()
 	if err != nil {
-		return err
+		if !errors.Is(err, redis.Nil) {
+			return err
+		}
 	}
 	if val == "1" && core.TimerStatus == 0 {
 		core.TimerStatus = 1

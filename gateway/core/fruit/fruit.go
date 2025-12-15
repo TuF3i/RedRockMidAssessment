@@ -175,6 +175,11 @@ func CreateAdminUser() error {
 		tx.Rollback()
 		return err
 	}
+	// 修改权限
+	if err := tx.Model(&models.Student{}).Where("student_id = ?", userForm.StudentID).Update("role", 0).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
 	// 提交事务
 	tx.Commit()
 	return nil
