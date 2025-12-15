@@ -11,6 +11,7 @@ services:
     restart: unless-stopped
     volumes:
       - /opt/data/consumer/config/config.yaml:/root/data/config/config.yaml
+      - /opt/data/consumer/logs:/root/data/logs
     environment:
       - TZ=Asia/Shanghai
     depends_on:
@@ -32,6 +33,7 @@ services:
     restart: unless-stopped
     volumes:
       - /opt/data/gateway/config/config.yaml:/root/data/config/config.yaml
+      - /opt/data/gateway/logs:/root/data/logs
     environment:
       - TZ=Asia/Shanghai
     depends_on:
@@ -52,6 +54,7 @@ services:
     restart: unless-stopped
     volumes:
       - /opt/data/synchronizer/config/config.yaml:/root/data/config/config.yaml
+      - /opt/data/synchronizer/logs:/root/data/logs
     environment:
       - TZ=Asia/Shanghai
     depends_on:
