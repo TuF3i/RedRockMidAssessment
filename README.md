@@ -14,7 +14,7 @@
 
 ## 2. 运行截图
 
-![feature](.\img\feature.jpg)
+![feature](/img/feature.jpg)
 
 ## 3. 相关文档
 
