@@ -4,6 +4,9 @@ FROM golang:1.25-alpine AS builder
 # 设置工作目录
 WORKDIR /app
 
+# 设置GOPROXY
+ENV GOPROXY=https://goproxy.cn,direct
+
 # 安装必要的系统依赖
 RUN apk add --no-cache git tzdata
 
