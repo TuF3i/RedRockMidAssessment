@@ -3,6 +3,7 @@ version: '3.8'
 services:
   # 消费者节点
   consumer:
+    image: consumerNode
     build:
       context: ./consumer
       dockerfile: Dockerfile
@@ -21,6 +22,7 @@ services:
 
   # 路由节点
   gateway:
+    image: gatewayNode
     build:
       context: ./gateway
       dockerfile: Dockerfile
@@ -42,6 +44,7 @@ services:
 
   # 同步节点
   synchronizer:
+    image: synchronizerNode
     build:
       context: ./synchronizer
       dockerfile: Dockerfile
